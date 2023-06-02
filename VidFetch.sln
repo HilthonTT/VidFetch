@@ -4,6 +4,8 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VidFetch", "VidFetch\VidFetch.csproj", "{D634C1F3-F6DB-4A6E-BE06-41229F7B0842}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VidFetchLibrary", "VidFetchLibrary\VidFetchLibrary.csproj", "{DC1A743F-F936-42D6-BC18-268518F4879A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -16,11 +18,16 @@ Global
 		{D634C1F3-F6DB-4A6E-BE06-41229F7B0842}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D634C1F3-F6DB-4A6E-BE06-41229F7B0842}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D634C1F3-F6DB-4A6E-BE06-41229F7B0842}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{DC1A743F-F936-42D6-BC18-268518F4879A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC1A743F-F936-42D6-BC18-268518F4879A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC1A743F-F936-42D6-BC18-268518F4879A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC1A743F-F936-42D6-BC18-268518F4879A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		        SolutionGuid = {61F7FB11-1E47-470C-91E2-47F8143E1572}
+		SolutionGuid = {C0EAD22A-B036-41E6-9BCE-58F200171A52}
 	EndGlobalSection
 EndGlobal
