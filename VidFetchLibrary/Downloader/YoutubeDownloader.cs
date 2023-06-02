@@ -2,7 +2,7 @@
 using YoutubeExplode.Videos.Streams;
 
 namespace VidFetchLibrary.Downloader;
-public class YoutubeDownloader
+public class YoutubeDownloader : IYoutubeDownloader
 {
     public async Task DownloadVideoAsync(string url, string downloadPath)
     {
@@ -14,7 +14,7 @@ public class YoutubeDownloader
 
         string sanitizedTitle = GetSanitizedFileName(video.Title);
         string folderPath = GetDownloadFolderPath(sanitizedTitle, downloadPath);
-        
+
         await youtube.Videos.Streams.DownloadAsync(streamInfo, folderPath);
     }
 
