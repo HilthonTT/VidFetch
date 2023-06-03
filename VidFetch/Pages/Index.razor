@@ -1,7 +1,131 @@
 ﻿@page "/"
+@inject IDefaultData defaultData
+@inject IYoutubeDownloader youtubeDownloader
+@inject ISecureStorage secureStorage
 
-<h1>Hello, world!</h1>
+<MudTextField 
+    @bind-Value="youtubeUrl"
+    Label="Enter Youtube Url."
+    Variant="Variant.Outlined" 
+    Adornment="Adornment.End" 
+    AdornmentIcon="@Icons.Material.Filled.Download" 
+    AdornmentColor="Color.Secondary"
+    OnAdornmentClick="LoadVideoOrPlaylist"
+    Required="true"
+    Clearable="true"/>
 
-Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@if (video is not null || playlistVideos is not null)
+{
+    <MudButton 
+        Variant="Variant.Filled" 
+        Color="Color.Primary"
+        @onclick="Download">
+        Download
+    </MudButton>
+}
+
+@if (video is not null)
+{
+    <div>@video.Title</div>
+}
+
+<MudDivider />
+
+@if (playlistVideos is not null)
+{
+    <MudCheckBox 
+        @bind-Checked="downloadAll"
+        Color="Color.Primary" 
+        Label="Download All"/>
+    @foreach (var v in playlistVideos)
+    {
+        <div>@v.Title</div>
+    }
+}
+
+@code {
+    private const string DefaultDownloadPath = "Download Folder";
+    private const string DefaultExtension = ".mp4";
+
+    private List<string> downloadPaths;
+    private List<string> videoExtensions;
+    private Video video;
+    private List<PlaylistVideo> playlistVideos;
+    private string selectedPath = DefaultDownloadPath;
+    private string selectedExtension = DefaultExtension;
+    private string customPath = "";
+    private string youtubeUrl = "";
+    private string errorMessage = "";
+    private int videoIndex = 1;
+    private bool downloadAll = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        downloadPaths = defaultData.GetDownloadPaths();
+        videoExtensions = defaultData.GetVideoExtensions();
+        await LoadStates();
+    }
+
+    private async Task LoadStates()
+    {
+        selectedPath = await secureStorage.GetAsync(nameof(selectedPath)) ?? DefaultDownloadPath;
+        selectedExtension = await secureStorage.GetAsync(nameof(selectedExtension)) ?? DefaultExtension;
+    }
+
+    private async Task SaveStates()
+    {
+        await secureStorage.SetAsync(nameof(selectedPath), selectedPath);
+        await secureStorage.SetAsync(nameof(selectedExtension), selectedExtension);
+    }
+
+    private async Task LoadVideoOrPlaylist()
+    {
+        if (youtubeUrl.Contains("list="))
+        {
+            playlistVideos = await youtubeDownloader.GetPlayListVideosAsync(youtubeUrl);
+        }
+        else
+        {
+            video = await youtubeDownloader.GetVideoAsync(youtubeUrl);
+        }
+    }
+
+    private async Task Download()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(youtubeUrl))
+            {
+                return;
+            }
+
+            if (youtubeUrl.Contains("list="))
+            {
+                await youtubeDownloader.DownloadPlaylistAsync(youtubeUrl, selectedPath, selectedExtension, downloadAll, videoIndex);
+            }
+            else
+            {
+                await DownloadVideo();
+            }
+
+            await SaveStates();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private async Task DownloadVideo()
+    {
+        if (string.IsNullOrWhiteSpace(customPath))
+        {
+            await youtubeDownloader.DownloadVideoAsync(youtubeUrl, selectedPath, selectedExtension);
+        }
+        else
+        {
+            await youtubeDownloader.DownloadVideoAsync(youtubeUrl, customPath, selectedExtension);
+        }
+    }
+}
