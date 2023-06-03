@@ -2,5 +2,6 @@
 
 public interface IYoutubeDownloader
 {
-    Task DownloadVideoAsync(string url, string downloadPath);
+    Task DownloadPlaylistAsync(string url, string downloadPath, string extension, bool downloadAll, int videoIndex);
+    Task DownloadVideoAsync(string url, string downloadPath, string extension);
 }

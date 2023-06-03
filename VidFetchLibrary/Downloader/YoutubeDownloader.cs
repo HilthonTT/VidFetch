@@ -1,37 +1,54 @@
-﻿using YoutubeExplode;
-using YoutubeExplode.Videos.Streams;
+﻿using System.Web;
+using VidFetchLibrary.Helpers;
+using YoutubeExplode;
+using YoutubeExplode.Common;
 
 namespace VidFetchLibrary.Downloader;
 public class YoutubeDownloader : IYoutubeDownloader
 {
-    public async Task DownloadVideoAsync(string url, string downloadPath)
+    private readonly IDownloadHelper _downloaderHelper;
+
+    public YoutubeDownloader(IDownloadHelper downloaderHelper)
+    {
+        _downloaderHelper = downloaderHelper;
+    }
+
+    public async Task DownloadVideoAsync(string url, string downloadPath, string extension)
     {
         var youtube = new YoutubeClient();
-        var video = await youtube.Videos.GetAsync(url) ?? throw new Exception("Video not found.");
 
-        var streamManifest = await youtube.Videos.Streams.GetManifestAsync(video.Id);
-        var streamInfo = streamManifest.GetMuxedStreams().TryGetWithHighestVideoQuality() ?? throw new Exception("No suitable video stream found.");
-
-        string sanitizedTitle = GetSanitizedFileName(video.Title);
-        string folderPath = GetDownloadFolderPath(sanitizedTitle, downloadPath);
-
-        await youtube.Videos.Streams.DownloadAsync(streamInfo, folderPath);
+        await _downloaderHelper.DownloadVideoAsync(youtube, url, downloadPath, extension);
     }
 
-    private static string GetDownloadFolderPath(string sanitizedTitle, string downloadPath)
+    public async Task DownloadPlaylistAsync(
+        string url,
+        string downloadPath,
+        string extension,
+        bool downloadAll,
+        int videoIndex)
     {
-        string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        return downloadPath switch
+        var youtube = new YoutubeClient();
+
+        string playlistId = GetPlaylistId(url) ?? throw new Exception("Invalid playlist URL.");
+        var playlist = await youtube.Playlists.GetAsync(playlistId) ?? throw new Exception("Playlist not found.");
+
+        var playlistVideos = await youtube.Playlists.GetVideosAsync(playlistId);
+        var videoList = playlistVideos.ToList();
+
+        if (downloadAll)
         {
-            "Downloads" => Path.Combine(userFolder, "Downloads", $"{sanitizedTitle}.mp4"),
-            "Videos" => Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),
-            _ => downloadPath,
-        };
+            await _downloaderHelper.DownloadPlaylistAsync(youtube, videoList, downloadPath, extension);
+        }
+        else
+        {
+            await _downloaderHelper.DownloadVideoFromPlaylistAsync(youtube, videoList, videoIndex, downloadPath, extension);
+        }
     }
 
-    private static string GetSanitizedFileName(string fileName)
+    private static string GetPlaylistId(string url) 
     {
-        char[] invalidChars = Path.GetInvalidFileNameChars();
-        return string.Concat(fileName.Select(c => invalidChars.Contains(c) ? '_' : c));
+        string queryString = new Uri(url).Query;
+        var queryParams = HttpUtility.ParseQueryString(queryString);
+        return queryParams.Get("list");
     }
 }
