@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using VidFetch.Data;
+using MudBlazor.Services;
+using VidFetch.Services;
 using VidFetchLibrary.Data;
 using VidFetchLibrary.Downloader;
 using VidFetchLibrary.Helpers;
@@ -22,13 +23,12 @@ public static class RegisterServices
         builder.Services.AddBlazorWebViewDeveloperTools();
         builder.Logging.AddDebug();
 #endif
+        builder.Services.AddMudServices();
 
         builder.Services.AddSingleton<IDefaultData, DefaultData>();
         builder.Services.AddSingleton<IYoutubeDownloader, YoutubeDownloader>();
         builder.Services.AddSingleton<IDownloadHelper, DownloadHelper>();
         builder.Services.AddSingleton<IPathHelper, PathHelper>();
-
-        
-        builder.Services.AddSingleton<WeatherForecastService>();
+        builder.Services.AddSingleton<ISecureStorage, SecureStorageWrapper>();
     }
 }
