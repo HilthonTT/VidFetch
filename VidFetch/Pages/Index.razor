@@ -2,6 +2,7 @@
 @inject IYoutubeDownloader youtubeDownloader
 @inject ISecureStorage secureStorage
 @inject IDefaultData defaultData
+@inject NavigationManager navManager
 
 <MudContainer>
     <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
@@ -112,12 +113,15 @@
                         <div>@video.Url</div>
                     </MudCardContent>
                     <MudCardActions>
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="DownloadVideo">Download</MudButton>
-                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary">Watch</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="DownloadVideo">
+                            Download
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" @onclick="(() => LoadWatchPage(video.Url))">
+                            Watch
+                        </MudButton>
                     </MudCardActions>
                 </MudCard>
             }
-
             <MudDivider />
             @if (playlistVideos?.Count > 0)
             {
@@ -147,7 +151,8 @@
                             Download
                         </MudButton>
                         <MudButton Variant="Variant.Outlined"
-                                   Color="Color.Secondary">
+                                   Color="Color.Secondary"
+                        @onclick="(() => LoadWatchPage(v.Url))">
                             Watch
                         </MudButton>
                     </MudCardActions>
@@ -280,6 +285,12 @@
         {
             video = null;
         }
+    }
+
+    private void LoadWatchPage(string url)
+    {
+        string encodedUrl = Uri.EscapeDataString(url);
+        navManager.NavigateTo($"/Watch/{encodedUrl}");
     }
 
     private string GetButtonClass(string path)
