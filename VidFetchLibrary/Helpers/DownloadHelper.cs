@@ -34,6 +34,23 @@ public class DownloadHelper : IDownloadHelper
         await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder);
     }
 
+    public async Task DownloadSelectedVideoAsync(
+        YoutubeClient client,
+        string path,
+        string extension,
+        PlaylistVideo playlistVideo)
+    {
+        var streamManifest = await client.Videos.Streams.GetManifestAsync(playlistVideo.Id);
+        var streamInfo = streamManifest
+            .GetMuxedStreams()
+            .GetWithHighestVideoQuality()
+            ?? throw new Exception(NoSuitableVideoStreamErrorMessage);
+
+        string sanitizedTitle = GetSanizitedFileName(playlistVideo.Title);
+        string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle, extension, path);
+        await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder);
+    }
+
     public async Task DownloadVideoFromPlaylistAsync(
         YoutubeClient client,
         List<PlaylistVideo> playlistVideos,
