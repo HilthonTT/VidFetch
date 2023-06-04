@@ -76,7 +76,8 @@ public class DownloadHelper : IDownloadHelper
         YoutubeClient client,
         List<PlaylistVideo> playlistVideos,
         string path,
-        string extension)
+        string extension,
+        CancellationToken cancellationToken)
     {
         if (playlistVideos.Any() is false)
         {
@@ -85,6 +86,11 @@ public class DownloadHelper : IDownloadHelper
 
         foreach (var v in playlistVideos)
         {
+            if (cancellationToken.IsCancellationRequested) 
+            {
+                break;
+            }
+
             await DownloadVideoAsync(client, v.Url, path, extension);
         }
     }

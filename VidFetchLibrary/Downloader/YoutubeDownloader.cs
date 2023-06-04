@@ -36,7 +36,8 @@ public class YoutubeDownloader : IYoutubeDownloader
         string downloadPath,
         string extension,
         bool downloadAll,
-        int videoIndex)
+        int videoIndex,
+        CancellationToken cancellationToken)
     {
         var youtube = new YoutubeClient();
 
@@ -47,7 +48,7 @@ public class YoutubeDownloader : IYoutubeDownloader
 
         if (downloadAll)
         {
-            await _downloaderHelper.DownloadPlaylistAsync(youtube, videoList, downloadPath, extension);
+            await _downloaderHelper.DownloadPlaylistAsync(youtube, videoList, downloadPath, extension, cancellationToken);
         }
         else
         {
