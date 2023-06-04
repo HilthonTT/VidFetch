@@ -17,22 +17,20 @@
     <MudGrid>
         <MudItem xs="12" Class="text-center">
             <MudTextField @bind-Value="youtubeUrl"
-                Label="Enter YouTube URL"
-                Variant="Variant.Outlined"
-                Adornment="Adornment.End"
-                AdornmentIcon="@Icons.Material.Filled.Download"
-                AdornmentColor="Color.Secondary"
-                OnAdornmentClick="LoadVideoOrPlaylist"
-                Required="true"
-                Clearable="true"
-                OnClearButtonClick="OnClear" />
+                          Label="Enter YouTube URL"
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@Icons.Material.Filled.Download"
+                          AdornmentColor="Color.Secondary"
+                          OnAdornmentClick="LoadVideoOrPlaylist"
+                          Required="true"
+                          Clearable="true" />
 
             <MudButtonGroup Class="mt-2">
                 @foreach (var p in downloadPaths)
                 {
-                    <MudButton 
-                        Class="@GetButtonClass(p)" 
-                        OnClick="(() => selectedPath = p)">
+                    <MudButton Class="@GetButtonClass(p)"
+                               OnClick="(() => selectedPath = p)">
                         @p
                     </MudButton>
                 }
@@ -43,18 +41,65 @@
                     <MudSelectItem Value="@e">@e</MudSelectItem>
                 }
             </MudSelect>
+            <div class="d-flex justify-content-between align-items-start mt-5 mb-5">
+                <div>
+                    @if (playlistVideos?.Count > 0)
+                    {
+                        <div class="text-start">
+                            <MudSwitch @bind-Checked="downloadAll"
+                                       Color="Color.Primary"
+                                       Label="Download Entire Playlist" />
+                        </div>
+                    }
+                </div>
+                <div>
+                    <MudButtonGroup OverrideStyles="false">
+                        @if (video is not null)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                            @onclick="DownloadVideo">
+                                Download Video
+                            </MudButton>
+                        }
+                        @if (playlistVideos?.Count > 0)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Warning"
+                            @onclick="StartDownload">
+                                @((downloadAll ? "Download Playlist" : $"Download index: {videoIndex}"))
+                            </MudButton>
+                        }
+                        @if (cancellationSource is not null)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Error"
+                            @onclick="CancelDownload">
+                                Cancel
+                            </MudButton>
+                        }
+                    </MudButtonGroup>
+                </div>
+            </div>
 
-            @if (video is not null || playlistVideos is not null && !youtubeUrl.Contains("list="))
+            @if (downloadAll is false)
             {
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Primary"
-                @onclick="DownloadVideo">
-                    Download
-                </MudButton>
+                <MudNumericField @bind-Value="videoIndex"
+                                 Label="Enter video index"
+                                 Variant="Variant.Outlined"
+                                 Required="true"
+                                 ErrorText="@errorMessage"
+                                 Min="1"
+                                 Max="playlistVideos.Count" />
             }
 
             @if (video is not null)
             {
+                <MudText Typo="Typo.h5"
+                         Class="text-uppercase text-start"
+                         Color="Color.Warning">
+                    Video
+                </MudText>
                 <MudCard Class="mb-4">
                     <MudCardMedia Image="@video.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
                     <MudCardHeader>
@@ -73,62 +118,41 @@
                 </MudCard>
             }
 
-            @if (playlistVideos is not null)
+            <MudDivider />
+            @if (playlistVideos?.Count > 0)
             {
-                @if (downloadAll is false)
-                {
-                    <MudNumericField @bind-Value="videoIndex"
-                        Label="Enter video index"
-                        Variant="Variant.Outlined"
-                        Required="true"
-                        ErrorText="@errorMessage"
-                        Min="1"
-                        Max="playlistVideos.Count" />
-                }
-
-                <div class="d-flex justify-content-center align-items-center">
-                    <div>
-                        <MudCheckBox @bind-Checked="downloadAll"
-                            Color="Color.Primary"
-                            Label="Download All" />
-                    </div>
-
-                    <div>
+                <MudText Typo="Typo.h5"
+                         Class="text-uppercase text-start mt-2"
+                         Color="Color.Warning">
+                    Playlist
+                </MudText>
+            }
+            <MudVirtualize Items="playlistVideos" Context="v" OverscanCount="10">
+                <MudCard Class="mb-4">
+                    <MudCardMedia Image="@v.Thumbnails.FirstOrDefault().Url" Height="200" />
+                    <MudCardHeader>
+                        <MudText Typo="Typo.subtitle1">@v.Title</MudText>
+                    </MudCardHeader>
+                    <MudDivider />
+                    <MudCardContent Class="text-start">
+                        <div>@v.Author</div>
+                        <div>@v.Duration</div>
+                        <div>@v.Url</div>
+                        <div>Index: @GetIndex(v)</div>
+                    </MudCardContent>
+                    <MudCardActions>
                         <MudButton Variant="Variant.Filled"
                                    Color="Color.Primary"
-                        @onclick="DownloadPlaylist">
-                            @((downloadAll ? "Download All" : $"Download index: {videoIndex}"))
+                        @onclick="(() => DownloadSelectedVideo(v))">
+                            Download
                         </MudButton>
-                    </div>
-                </div>
-
-                <MudVirtualize Items="playlistVideos" Context="v" OverscanCount="10" >
-                    <MudCard Class="mb-4">
-                        <MudCardMedia Image="@v.Thumbnails.FirstOrDefault().Url" Height="200" />
-                        <MudCardHeader>
-                            <MudText Typo="Typo.subtitle1">@v.Title</MudText>
-                        </MudCardHeader>
-                        <MudDivider />
-                        <MudCardContent Class="text-start">
-                            <div>@v.Author</div>
-                            <div>@v.Duration</div>
-                            <div>@v.Url</div>
-                            <div>Index: @GetIndex(v)</div>
-                        </MudCardContent>
-                        <MudCardActions>
-                            <MudButton Variant="Variant.Filled"
-                                       Color="Color.Primary"
-                            @onclick="(() => DownloadSelectedVideo(v))">
-                                Download
-                            </MudButton>
-                            <MudButton Variant="Variant.Outlined"
-                                       Color="Color.Secondary">
-                                Watch
-                            </MudButton>
-                        </MudCardActions>
-                    </MudCard>
-                </MudVirtualize>
-            }
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Secondary">
+                            Watch
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudVirtualize>
         </MudItem>
     </MudGrid>
 </MudContainer>
@@ -137,10 +161,11 @@
     private const string DefaultDownloadPath = "Download Folder";
     private const string DefaultExtension = ".mp4";
 
+    private CancellationTokenSource cancellationSource;
     private List<string> downloadPaths = new();
     private List<string> videoExtensions = new();
     private Video video;
-    private List<PlaylistVideo> playlistVideos;
+    private List<PlaylistVideo> playlistVideos = new();
     private string selectedPath = DefaultDownloadPath;
     private string selectedExtension = DefaultExtension;
     private string customPath = "";
@@ -220,13 +245,22 @@
         }
     }
 
-    private async Task DownloadPlaylist()
+    private void CancelDownload()
+    {
+        cancellationSource?.Cancel();
+        cancellationSource = null;
+    }
+
+    private async Task StartDownload()
     {
         try
         {
             errorMessage = "";
+            cancellationSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellationSource.Token;
+
             int index = downloadAll ? 0 : videoIndex;
-            await youtubeDownloader.DownloadPlaylistAsync(youtubeUrl, selectedPath, selectedExtension, downloadAll, index);
+            await youtubeDownloader.DownloadPlaylistAsync(youtubeUrl, selectedPath, selectedExtension, downloadAll, index, cancellationToken);
         }
         catch (Exception ex)
         {
