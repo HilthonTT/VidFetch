@@ -1,55 +1,144 @@
 ﻿@page "/"
-@inject IDefaultData defaultData
 @inject IYoutubeDownloader youtubeDownloader
 @inject ISecureStorage secureStorage
+@inject IDefaultData defaultData
 
-<MudTextField 
-    @bind-Value="youtubeUrl"
-    Label="Enter Youtube Url."
-    Variant="Variant.Outlined" 
-    Adornment="Adornment.End" 
-    AdornmentIcon="@Icons.Material.Filled.Download" 
-    AdornmentColor="Color.Secondary"
-    OnAdornmentClick="LoadVideoOrPlaylist"
-    Required="true"
-    Clearable="true"/>
-
-
-@if (video is not null || playlistVideos is not null)
-{
-    <MudButton 
-        Variant="Variant.Filled" 
-        Color="Color.Primary"
-        @onclick="Download">
-        Download
-    </MudButton>
-}
-
-@if (video is not null)
-{
-    <div>@video.Title</div>
-}
-
-<MudDivider />
-
-@if (playlistVideos is not null)
-{
-    <MudCheckBox 
-        @bind-Checked="downloadAll"
-        Color="Color.Primary" 
-        Label="Download All"/>
-    @foreach (var v in playlistVideos)
+<MudContainer>
+    <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
+        Vid Fetch
+        <MudIcon Icon="@Icons.Material.Filled.MusicVideo" Title="Video"></MudIcon>
+    </MudText>
+    @if (string.IsNullOrWhiteSpace(errorMessage) is false)
     {
-        <div>@v.Title</div>
+        <MudAlert Severity="Severity.Error">
+            @errorMessage
+        </MudAlert>
     }
-}
+    <MudGrid>
+        <MudItem xs="12" Class="text-center">
+            <MudTextField @bind-Value="youtubeUrl"
+                Label="Enter YouTube URL"
+                Variant="Variant.Outlined"
+                Adornment="Adornment.End"
+                AdornmentIcon="@Icons.Material.Filled.Download"
+                AdornmentColor="Color.Secondary"
+                OnAdornmentClick="LoadVideoOrPlaylist"
+                Required="true"
+                Clearable="true"
+                OnClearButtonClick="OnClear" />
+
+            <MudButtonGroup Class="mt-2">
+                @foreach (var p in downloadPaths)
+                {
+                    <MudButton 
+                        Class="@GetButtonClass(p)" 
+                        OnClick="(() => selectedPath = p)">
+                        @p
+                    </MudButton>
+                }
+            </MudButtonGroup>
+            <MudSelect Label="Video Format:" @bind-Value="selectedExtension" Class="mud-input-root text-start">
+                @foreach (var e in videoExtensions)
+                {
+                    <MudSelectItem Value="@e">@e</MudSelectItem>
+                }
+            </MudSelect>
+
+            @if (video is not null || playlistVideos is not null && !youtubeUrl.Contains("list="))
+            {
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                @onclick="DownloadVideo">
+                    Download
+                </MudButton>
+            }
+
+            @if (video is not null)
+            {
+                <MudCard Class="mb-4">
+                    <MudCardMedia Image="@video.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
+                    <MudCardHeader>
+                        <MudText Typo="Typo.subtitle1">@video.Title</MudText>
+                    </MudCardHeader>
+                    <MudDivider />
+                    <MudCardContent Class="text-start">
+                        <div>@video.Author</div>
+                        <div>@video.Duration</div>
+                        <div>@video.Url</div>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="DownloadVideo">Download</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary">Watch</MudButton>
+                    </MudCardActions>
+                </MudCard>
+            }
+
+            @if (playlistVideos is not null)
+            {
+                @if (downloadAll is false)
+                {
+                    <MudNumericField @bind-Value="videoIndex"
+                        Label="Enter video index"
+                        Variant="Variant.Outlined"
+                        Required="true"
+                        ErrorText="@errorMessage"
+                        Min="1"
+                        Max="playlistVideos.Count" />
+                }
+
+                <div class="d-flex justify-content-center align-items-center">
+                    <div>
+                        <MudCheckBox @bind-Checked="downloadAll"
+                            Color="Color.Primary"
+                            Label="Download All" />
+                    </div>
+
+                    <div>
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                        @onclick="DownloadPlaylist">
+                            @((downloadAll ? "Download All" : $"Download index: {videoIndex}"))
+                        </MudButton>
+                    </div>
+                </div>
+
+                <MudVirtualize Items="playlistVideos" Context="v" OverscanCount="10" >
+                    <MudCard Class="mb-4">
+                        <MudCardMedia Image="@v.Thumbnails.FirstOrDefault().Url" Height="200" />
+                        <MudCardHeader>
+                            <MudText Typo="Typo.subtitle1">@v.Title</MudText>
+                        </MudCardHeader>
+                        <MudDivider />
+                        <MudCardContent Class="text-start">
+                            <div>@v.Author</div>
+                            <div>@v.Duration</div>
+                            <div>@v.Url</div>
+                            <div>Index: @GetIndex(v)</div>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                            @onclick="(() => DownloadSelectedVideo(v))">
+                                Download
+                            </MudButton>
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="Color.Secondary">
+                                Watch
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudVirtualize>
+            }
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 @code {
     private const string DefaultDownloadPath = "Download Folder";
     private const string DefaultExtension = ".mp4";
 
-    private List<string> downloadPaths;
-    private List<string> videoExtensions;
+    private List<string> downloadPaths = new();
+    private List<string> videoExtensions = new();
     private Video video;
     private List<PlaylistVideo> playlistVideos;
     private string selectedPath = DefaultDownloadPath;
@@ -81,35 +170,17 @@
 
     private async Task LoadVideoOrPlaylist()
     {
-        if (youtubeUrl.Contains("list="))
-        {
-            playlistVideos = await youtubeDownloader.GetPlayListVideosAsync(youtubeUrl);
-        }
-        else
-        {
-            video = await youtubeDownloader.GetVideoAsync(youtubeUrl);
-        }
-    }
-
-    private async Task Download()
-    {
         try
         {
-            if (string.IsNullOrWhiteSpace(youtubeUrl))
-            {
-                return;
-            }
-
+            errorMessage = "";
             if (youtubeUrl.Contains("list="))
             {
-                await youtubeDownloader.DownloadPlaylistAsync(youtubeUrl, selectedPath, selectedExtension, downloadAll, videoIndex);
+                playlistVideos = await youtubeDownloader.GetPlayListVideosAsync(youtubeUrl);
             }
             else
             {
-                await DownloadVideo();
+                video = await youtubeDownloader.GetVideoAsync(youtubeUrl);
             }
-
-            await SaveStates();
         }
         catch (Exception ex)
         {
@@ -119,13 +190,77 @@
 
     private async Task DownloadVideo()
     {
-        if (string.IsNullOrWhiteSpace(customPath))
+        try
         {
-            await youtubeDownloader.DownloadVideoAsync(youtubeUrl, selectedPath, selectedExtension);
+            errorMessage = "";
+            string path = string.IsNullOrWhiteSpace(customPath) ? selectedPath : customPath;
+
+            await youtubeDownloader.DownloadVideoAsync(youtubeUrl, path, selectedExtension);
+            await SaveStates();
         }
-        else
+        catch (Exception ex)
         {
-            await youtubeDownloader.DownloadVideoAsync(youtubeUrl, customPath, selectedExtension);
+            errorMessage = ex.Message;
         }
+    }
+
+    private async Task DownloadSelectedVideo(PlaylistVideo playlistVideo)
+    {
+        try
+        {
+            errorMessage = "";
+            string path = string.IsNullOrWhiteSpace(customPath) ? selectedPath : customPath;
+
+            await youtubeDownloader.DownloadSelectedVideoAsync(path, selectedExtension, playlistVideo);
+            await SaveStates();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private async Task DownloadPlaylist()
+    {
+        try
+        {
+            errorMessage = "";
+            int index = downloadAll ? 0 : videoIndex;
+            await youtubeDownloader.DownloadPlaylistAsync(youtubeUrl, selectedPath, selectedExtension, downloadAll, index);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private void OnClear()
+    {
+        errorMessage = "";
+        if (playlistVideos is not null)
+        {
+            playlistVideos = null;
+        }
+
+        if (video is not null)
+        {
+            video = null;
+        }
+    }
+
+    private string GetButtonClass(string path)
+    {
+        if (selectedPath == path)
+        {
+            return "text-success";
+        }
+
+        return "text-danger";
+    }
+
+    private int GetIndex(PlaylistVideo playlistVideo)
+    {
+        int index = playlistVideos.IndexOf(playlistVideo);
+        return index + 1;
     }
 }
