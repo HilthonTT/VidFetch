@@ -22,6 +22,15 @@ public class YoutubeDownloader : IYoutubeDownloader
         await _downloaderHelper.DownloadVideoAsync(youtube, url, downloadPath, extension);
     }
 
+    public async Task DownloadSelectedVideoAsync(
+        string downloadPath,
+        string extension,
+        PlaylistVideo playlistVideo)
+    {
+        var youtube = new YoutubeClient();
+        await _downloaderHelper.DownloadSelectedVideoAsync(youtube, downloadPath, extension, playlistVideo);
+    }
+
     public async Task DownloadPlaylistAsync(
         string url,
         string downloadPath,
