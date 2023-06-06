@@ -2,6 +2,7 @@
 using MudBlazor.Services;
 using VidFetch.Services;
 using VidFetchLibrary.Data;
+using VidFetchLibrary.DataAccess;
 using VidFetchLibrary.Downloader;
 using VidFetchLibrary.Helpers;
 
@@ -24,7 +25,13 @@ public static class RegisterServices
         builder.Logging.AddDebug();
 #endif
         builder.Services.AddMudServices();
+        builder.Services.AddMemoryCache();
 
+        // Data Access
+        builder.Services.AddSingleton<IVideoData, VideoData>();
+        builder.Services.AddSingleton<IAuthorData, AuthorData>();
+
+        // Personal Services
         builder.Services.AddSingleton<IDefaultData, DefaultData>();
         builder.Services.AddSingleton<IYoutubeDownloader, YoutubeDownloader>();
         builder.Services.AddSingleton<IDownloadHelper, DownloadHelper>();
