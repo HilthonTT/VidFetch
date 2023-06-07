@@ -12,7 +12,7 @@
     </MudText>
     @if (string.IsNullOrWhiteSpace(errorMessage) is false)
     {
-        <MudAlert Severity="Severity.Error">
+        <MudAlert Severity="Severity.Error" Class="mb-4">
             @errorMessage
         </MudAlert>
     }
@@ -46,7 +46,7 @@
     </MudGrid>
     <MudGrid Spacing="5">
         <MudItem xs="6">
-            @if (videoCancellationSource is null)
+            @if (videosCancellationSource is null)
             {
                 <MudButton Color="Color.Primary"
                            Variant="Variant.Filled"
@@ -90,12 +90,23 @@
                         <div>@v.Duration</div>
                         <div>@v.Url</div>
                     </MudCardContent>
-                    <MudCardActions>
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                        @onclick="(() => DownloadVideo(v.Url))">
-                            Download
-                        </MudButton>
+                    <MudCardActions Class="justify-content-between">
+                        @if (currentDownloadingVideo is null || currentDownloadingVideo.Id != v.Id)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                            @onclick="(() => DownloadVideo(v.Url))">
+                                Download
+                            </MudButton>
+                        }
+                        else if (currentDownloadingVideo is not null && currentDownloadingVideo.Id == v.Id)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Error"
+                            @onclick="CancelVideoDownload">
+                                Cancel Download
+                            </MudButton>
+                        }
                         <MudButton Variant="Variant.Outlined"
                                    Color="Color.Secondary"
                         @onclick="(() => LoadWatchPage(v.Url))">
@@ -151,7 +162,7 @@
                         <div>@v.Url</div>
                         <div>Index: @GetIndex(v)</div>
                     </MudCardContent>
-                    <MudCardActions>
+                    <MudCardActions Class="justify-content-between">
                         <MudButton Variant="Variant.Filled"
                                    Color="Color.Primary"
                         @onclick="(() => DownloadVideo(v.Url))">
@@ -190,9 +201,11 @@
     private const string DefaultExtension = ".mp4";
 
     private CancellationTokenSource playlistCancellationSource;
+    private CancellationTokenSource videosCancellationSource;
     private CancellationTokenSource videoCancellationSource;
     private List<string> downloadPaths = new();
     private List<string> videoExtensions = new();
+    private Video currentDownloadingVideo;
     private string selectedPath = DefaultDownloadPath;
     private string selectedExtension = DefaultExtension;
     private string customPath = "";
@@ -271,9 +284,14 @@
         {
             errorMessage = "";
             showDialog = false;
-            string path = string.IsNullOrWhiteSpace(customPath) ? selectedPath : customPath;
+            videoCancellationSource = new();
 
-            await youtubeDownloader.DownloadVideoAsync(url, path, selectedExtension);
+            var cancellationToken = videoCancellationSource.Token;
+            string path = string.IsNullOrWhiteSpace(customPath) ? selectedPath : customPath;
+            currentDownloadingVideo = videoLibrary.Videos.FirstOrDefault(v => v.Url == url);
+
+            await youtubeDownloader.DownloadVideoAsync(url, path, selectedExtension, cancellationToken);
+            CancelVideoDownload();
             await SaveStates();
         }
         catch (Exception ex)
@@ -284,16 +302,18 @@
 
     private async Task DownloadAllVideos()
     {
-        videoCancellationSource = new();
-        var cancellationToken = videoCancellationSource.Token;
+        videosCancellationSource = new();
+        var cancellationToken = videosCancellationSource.Token;
 
         foreach (var v in videoLibrary.Videos)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             await youtubeDownloader
-                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension);
+                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, cancellationToken);
         }
+
+        CancelVideosDownload();
     }
 
 
@@ -307,8 +327,10 @@
             cancellationToken.ThrowIfCancellationRequested();
 
             await youtubeDownloader
-                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension);
+                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, cancellationToken);
         }
+
+        CancelPlaylistDownload();
     }
 
     private async Task<IEnumerable<string>> SearchPlaylistVideos(string searchInput)
@@ -375,8 +397,15 @@
 
     private void CancelVideosDownload()
     {
+        videosCancellationSource?.Cancel();
+        videosCancellationSource = null;
+    }
+
+    private void CancelVideoDownload()
+    {
         videoCancellationSource?.Cancel();
         videoCancellationSource = null;
+        currentDownloadingVideo = null;
     }
 
     private void CancelPlaylistDownload()
@@ -430,6 +459,8 @@
 
         return $"Download {videoLibrary.Videos?.Count} videos";
     }
+
+
 
     private bool IsVideoNotLoaded(string videoId)
     {

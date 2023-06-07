@@ -1,4 +1,5 @@
 ﻿using YoutubeExplode;
+using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.Streams;
 
 namespace VidFetchLibrary.Helpers;
@@ -17,19 +18,59 @@ public class DownloadHelper : IDownloadHelper
         YoutubeClient client,
         string videoUrl,
         string path,
-        string extension)
+        string extension, 
+        CancellationToken token,
+        bool downloadSubtitles = false)
     {
-        var video = await client.Videos.GetAsync(videoUrl) ?? throw new Exception(VideoNotFoundErrorMessage);
+        try
+        {
+            var video = await client.Videos.GetAsync(videoUrl, token) ?? throw new Exception(VideoNotFoundErrorMessage);
 
-        var streamManifest = await client.Videos.Streams.GetManifestAsync(video.Id);
-        var streamInfo = streamManifest
-            .GetMuxedStreams()
-            .GetWithHighestVideoQuality() 
-            ?? throw new Exception(NoSuitableVideoStreamErrorMessage);
+            var streamManifest = await client.Videos.Streams.GetManifestAsync(video.Id, token);
+            var streamInfo = streamManifest
+                .GetMuxedStreams()
+                .GetWithHighestVideoQuality()
+                ?? throw new Exception(NoSuitableVideoStreamErrorMessage);
 
-        string sanitizedTitle = GetSanizitedFileName(video.Title);
-        string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle, extension, path);
-        await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder);
+            string sanitizedTitle = GetSanizitedFileName(video.Title);
+            string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle, extension, path);
+            await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, cancellationToken: token);
+
+            if (downloadSubtitles)
+            {
+                await DownloadSubtitlesAsync(client, video, path, token);
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            // Do Nothing as it has been purposely ended.
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    private async Task DownloadSubtitlesAsync(
+        YoutubeClient client,
+        Video video,
+        string path, 
+        CancellationToken token)
+    {
+        var subtitleManifest = await client.Videos.ClosedCaptions.GetManifestAsync(video.Id, token);
+        var subtitleinfo = subtitleManifest.Tracks;
+
+        if (subtitleinfo is null)
+        {
+            return;
+        }
+
+        foreach (var s in subtitleinfo)
+        {
+            string sanitizedSubtitle = GetSanizitedFileName($"{s.Language} - {video.Title}");
+            string subtitleDownloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedSubtitle, ".vtt", path);
+            await client.Videos.ClosedCaptions.DownloadAsync(s, subtitleDownloadFolder, cancellationToken: token);
+        }
     }
 
     private static string GetSanizitedFileName(string fileName)

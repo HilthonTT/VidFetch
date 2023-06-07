@@ -5,7 +5,7 @@ namespace VidFetchLibrary.Downloader;
 
 public interface IYoutubeDownloader
 {
-    Task DownloadVideoAsync(string url, string downloadPath, string extension);
+    Task DownloadVideoAsync(string url, string downloadPath, string extension, CancellationToken token, bool downloadSubtitles = false);
     Task<List<PlaylistVideo>> GetPlayListVideosAsync(string url);
     Task<Video> GetVideoAsync(string url);
 }
