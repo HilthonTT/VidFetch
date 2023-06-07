@@ -5,6 +5,7 @@ using VidFetchLibrary.Data;
 using VidFetchLibrary.DataAccess;
 using VidFetchLibrary.Downloader;
 using VidFetchLibrary.Helpers;
+using VidFetchLibrary.Models;
 
 namespace VidFetch;
 public static class RegisterServices
@@ -26,6 +27,7 @@ public static class RegisterServices
 #endif
         builder.Services.AddMudServices();
         builder.Services.AddMemoryCache();
+        builder.Services.AddSingleton<IVideoLibrary, VideoLibrary>();
 
         // Data Access
         builder.Services.AddSingleton<IVideoData, VideoData>();

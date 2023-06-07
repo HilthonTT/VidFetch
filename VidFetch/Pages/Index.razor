@@ -2,6 +2,7 @@
 @inject IYoutubeDownloader youtubeDownloader
 @inject ISecureStorage secureStorage
 @inject IDefaultData defaultData
+@inject IVideoLibrary videoLibrary
 @inject NavigationManager navManager
 
 <MudContainer>
@@ -65,7 +66,7 @@
                     Cancel
                 </MudButton>
             }
-            @if (videos?.Count > 0)
+            @if (videoLibrary.Videos?.Count > 0)
             {
                 <MudButton Color="Color.Warning"
                            Variant="Variant.Filled"
@@ -74,7 +75,7 @@
                     Clear Videos
                 </MudButton>
             }
-            <MudVirtualize Items="videos" Context="v" OverscanCount="10">
+            <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
                 <MudCard Class="mb-4">
                     <MudCardMedia Image="@v.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
                     <MudCardHeader>
@@ -120,7 +121,7 @@
                     Download Playlist
                 </MudButton>
             }
-            @if (playlistVideos?.Count > 0)
+            @if (videoLibrary.PlaylistVideos?.Count > 0)
             {
                 <MudButton Color="Color.Warning"
                            Variant="Variant.Filled"
@@ -129,7 +130,7 @@
                     Clear Playlist
                 </MudButton>
             }
-            <MudVirtualize Items="playlistVideos" Context="v" OverscanCount="10">
+            <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
                 <MudCard Class="mb-4">
                     <MudCardMedia Image="@v.Thumbnails.FirstOrDefault().Url" Height="200" />
                     <MudCardHeader>
@@ -184,8 +185,6 @@
     private CancellationTokenSource videoCancellationSource;
     private List<string> downloadPaths = new();
     private List<string> videoExtensions = new();
-    private List<PlaylistVideo> playlistVideos = new();
-    private List<Video> videos = new();
     private string selectedPath = DefaultDownloadPath;
     private string selectedExtension = DefaultExtension;
     private string customPath = "";
@@ -242,7 +241,7 @@
         {
             if (IsVideoNotLoaded(v.Id))
             {
-                playlistVideos.Add(v);
+                videoLibrary.PlaylistVideos.Add(v);
             }
         }
     }
@@ -252,7 +251,7 @@
         var video = await youtubeDownloader.GetVideoAsync(youtubeUrl);
         if (IsVideoNotLoaded(video.Id))
         {
-            videos.Add(video);
+            videoLibrary.Videos.Add(video);
         }
     }
 
@@ -278,7 +277,7 @@
         videoCancellationSource = new();
         var cancellationToken = videoCancellationSource.Token;
 
-        foreach (var v in videos)
+        foreach (var v in videoLibrary.Videos)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -293,7 +292,7 @@
         playlistCancellationSource = new();
         var cancellationToken = playlistCancellationSource.Token;
 
-        foreach (var v in playlistVideos)
+        foreach (var v in videoLibrary.PlaylistVideos)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -316,12 +315,12 @@
 
     private void ClearVideos()
     {
-        videos.Clear();
+        videoLibrary.Videos.Clear();
     }
 
     private void ClearPlaylist()
     {
-        playlistVideos.Clear();
+        videoLibrary.PlaylistVideos.Clear();
     }
 
     private void LoadWatchPage(string url)
@@ -347,22 +346,22 @@
 
     private string GetDownloadVideoText()
     {
-        if (videos?.Count <= 0)
+        if (videoLibrary.Videos?.Count <= 0)
         {
             return "Download Video";
         }
 
-        if (videos?.Count == 1)
+        if (videoLibrary.Videos?.Count == 1)
         {
             return "Download 1 Video";
         }
 
-        return $"Download {videos?.Count} videos";
+        return $"Download {videoLibrary.Videos?.Count} videos";
     }
 
     private bool IsVideoNotLoaded(string videoId)
     {
-        return videos.Any(v => v.Id == videoId) is false;
+        return videoLibrary.Videos.Any(v => v.Id == videoId) is false;
     }
 
     private bool IsPlaylistUrl()
@@ -372,7 +371,7 @@
 
     private int GetIndex(PlaylistVideo playlistVideo)
     {
-        int index = playlistVideos.IndexOf(playlistVideo);
+        int index = videoLibrary.PlaylistVideos.IndexOf(playlistVideo);
         return index + 1;
     }
 }
