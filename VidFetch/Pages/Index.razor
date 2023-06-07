@@ -48,33 +48,36 @@
         <MudItem xs="6">
             @if (videoCancellationSource is null)
             {
-                <MudButton 
-                    Color="Color.Primary" 
-                    Variant="Variant.Filled" 
-                    Class="w-100 mb-4"
-                    @onclick="DownloadAllVideos">
+                <MudButton Color="Color.Primary"
+                           Variant="Variant.Filled"
+                           Class="w-100 mb-4"
+                @onclick="DownloadAllVideos">
                     @GetDownloadVideoText()
                 </MudButton>
             }
             else
             {
-                <MudButton 
-                    Color="Color.Error" 
-                    Variant="Variant.Filled" 
-                    Class="w-100 mb-4" 
-                    @onclick="CancelVideosDownload">
+                <MudButton Color="Color.Error"
+                           Variant="Variant.Filled"
+                           Class="w-100 mb-4"
+                @onclick="CancelVideosDownload">
                     Cancel
                 </MudButton>
             }
-            @if (videoLibrary.Videos?.Count > 0)
-            {
-                <MudButton Color="Color.Warning"
-                           Variant="Variant.Filled"
-                           Class="w-100 mb-4"
-                @onclick="ClearVideos">
-                    Clear Videos
-                </MudButton>
-            }
+            <MudButton Color="Color.Warning"
+                        Variant="Variant.Filled"
+                        Class="w-100 mb-4"
+            @onclick="ClearVideos">
+                Clear Videos
+            </MudButton>
+            <MudAutocomplete T="string" Label="Search Video"
+                Variant="Variant.Outlined"
+                Class="mb-4"
+                AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                OnAdornmentClick="FilterVideos"
+                SearchFunc="SearchVideos"
+                ResetValueOnEmptyText="true"
+                @bind-Value="videoSearchText" />
             <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
                 <MudCard Class="mb-4">
                     <MudCardMedia Image="@v.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
@@ -115,21 +118,26 @@
             else
             {
                 <MudButton Color="Color.Primary"
-                            Variant="Variant.Filled"
-                            Class="w-100 mb-4"
+                           Variant="Variant.Filled"
+                           Class="w-100 mb-4"
                 @onclick="DownloadAllPlaylists">
                     Download Playlist
                 </MudButton>
             }
-            @if (videoLibrary.PlaylistVideos?.Count > 0)
-            {
-                <MudButton Color="Color.Warning"
-                           Variant="Variant.Filled"
-                           Class="w-100 mb-4"
-                @onclick="ClearPlaylist">
-                    Clear Playlist
-                </MudButton>
-            }
+            <MudButton Color="Color.Warning"
+                        Variant="Variant.Filled"
+                        Class="w-100 mb-4"
+            @onclick="ClearPlaylist">
+                Clear Playlist
+            </MudButton>
+            <MudAutocomplete T="string" Label="Search Playlist Video"
+                Variant="Variant.Outlined"
+                Class="mb-4"
+                AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                OnAdornmentClick="FilterPlaylistVideo"
+                SearchFunc="SearchPlaylistVideos"
+                ResetValueOnEmptyText="true"
+                @bind-Value="playlistVideoSearchText" />
             <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
                 <MudCard Class="mb-4">
                     <MudCardMedia Image="@v.Thumbnails.FirstOrDefault().Url" Height="200" />
@@ -190,6 +198,8 @@
     private string customPath = "";
     private string youtubeUrl = "";
     private string errorMessage = "";
+    private string videoSearchText = "";
+    private string playlistVideoSearchText = "";
     private bool showDialog = false;
 
     protected override async Task OnInitializedAsync()
@@ -299,6 +309,68 @@
             await youtubeDownloader
                 .DownloadVideoAsync(v.Url, selectedPath, selectedExtension);
         }
+    }
+
+    private async Task<IEnumerable<string>> SearchPlaylistVideos(string searchInput)
+    {
+        return await Task.Run(() =>
+        {
+            playlistVideoSearchText = searchInput;
+            var output = videoLibrary.PlaylistVideos;
+            if (string.IsNullOrWhiteSpace(searchInput) is false)
+            {
+                output = output
+                .Where(v => v.Title
+                .Contains(searchInput, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            }
+
+            return output.Select(v => v.Title);
+        });
+    }
+
+    private void FilterPlaylistVideo()
+    {
+        var output = videoLibrary.PlaylistVideos;
+
+        if (string.IsNullOrWhiteSpace(playlistVideoSearchText) is false)
+        {
+            output = output
+                .OrderByDescending(v => v.Title.Contains(playlistVideoSearchText, StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+        }
+
+        videoLibrary.PlaylistVideos = output;
+    }
+
+    private async Task<IEnumerable<string>> SearchVideos(string searchInput)
+    {
+        return await Task.Run(() =>
+        {
+            videoSearchText = searchInput;
+            var output = videoLibrary.Videos;
+            if (string.IsNullOrWhiteSpace(searchInput) is false)
+            {
+                output = output
+                .Where(v => v.Title
+                .Contains(searchInput, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            }
+
+            return output.Select(v => v.Title);
+        });
+    }
+
+    private void FilterVideos()
+    {
+        var output = videoLibrary.Videos;
+
+        if (string.IsNullOrWhiteSpace(videoSearchText) is false)
+        {
+            output = output
+                .OrderByDescending(v => v.Title.Contains(videoSearchText, StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+        }
+
+        videoLibrary.Videos = output;
     }
 
     private void CancelVideosDownload()
