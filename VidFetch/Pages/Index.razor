@@ -163,11 +163,22 @@
                         <div>Index: @GetIndex(v)</div>
                     </MudCardContent>
                     <MudCardActions Class="justify-content-between">
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                        @onclick="(() => DownloadVideo(v.Url))">
-                            Download
-                        </MudButton>
+                       @if (currentDownloadingPlaylistVideo is null || currentDownloadingPlaylistVideo.Id != v.Id)
+                       {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                            @onclick="(() => DownloadVideo(v.Url))">
+                                Download
+                            </MudButton>
+                       }
+                       else if (currentDownloadingPlaylistVideo is not null && currentDownloadingPlaylistVideo.Id == v.Id)
+                       {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Error"
+                            @onclick="CancelVideoDownload">
+                                Cancel Download
+                            </MudButton>
+                       }
                         <MudButton Variant="Variant.Outlined"
                                    Color="Color.Secondary"
                         @onclick="(() => LoadWatchPage(v.Url))">
@@ -206,6 +217,7 @@
     private List<string> downloadPaths = new();
     private List<string> videoExtensions = new();
     private Video currentDownloadingVideo;
+    private PlaylistVideo currentDownloadingPlaylistVideo;
     private string selectedPath = DefaultDownloadPath;
     private string selectedExtension = DefaultExtension;
     private string customPath = "";
@@ -288,7 +300,14 @@
 
             var cancellationToken = videoCancellationSource.Token;
             string path = string.IsNullOrWhiteSpace(customPath) ? selectedPath : customPath;
-            currentDownloadingVideo = videoLibrary.Videos.FirstOrDefault(v => v.Url == url);
+
+            if (currentDownloadingVideo is not null || currentDownloadingPlaylistVideo is not null)
+            {
+                // Don't allow to download multiple things at once.
+                return;
+            }
+
+            CheckDownloadVideos(url);
 
             await youtubeDownloader.DownloadVideoAsync(url, path, selectedExtension, cancellationToken);
             CancelVideoDownload();
@@ -297,6 +316,19 @@
         catch (Exception ex)
         {
             errorMessage = ex.Message;
+        }
+    }
+
+    private void CheckDownloadVideos(string url)
+    {
+        if (currentDownloadingVideo is null)
+        {
+            currentDownloadingVideo = videoLibrary.Videos.FirstOrDefault(v => v.Url == url);
+        }
+
+        if (currentDownloadingPlaylistVideo is null)
+        {
+            currentDownloadingPlaylistVideo = videoLibrary.PlaylistVideos.FirstOrDefault(v => v.Url == url);
         }
     }
 
@@ -406,6 +438,7 @@
         videoCancellationSource?.Cancel();
         videoCancellationSource = null;
         currentDownloadingVideo = null;
+        currentDownloadingPlaylistVideo = null;
     }
 
     private void CancelPlaylistDownload()
