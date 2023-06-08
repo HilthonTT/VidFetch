@@ -2,7 +2,7 @@
 @inject NavigationManager navManager
 
 <MudCard Class="mb-4">
-    <MudCardMedia Image="@Model.Thumbnails.OrderBy(t => rnd.Next()).FirstOrDefault().Url" Height="200"></MudCardMedia>
+    <MudCardMedia Image="@Model.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
     <MudCardHeader>
         <MudText Typo="Typo.subtitle1">@Model.Title</MudText>
     </MudCardHeader>
@@ -12,6 +12,12 @@
         <div>@Model.Duration</div>
         <div>@Model.Url</div>
         <div>Index: @Index</div>
+        <MudProgressLinear Color="Color.Primary"
+                           Striped="true"
+                           Size="Size.Medium"
+                           Max="1"
+                           Value="@progress"
+                           Class="my-7" />
     </MudCardContent>
     <MudCardActions Class="justify-content-between">
         @if (isDownloading is false)
@@ -61,6 +67,7 @@
 
     private Random rnd = new();
     private bool isDownloading = false;
+    private double progress = 0;
     private CancellationTokenSource tokenSource;
 
     private async Task DownloadVideo()
@@ -68,10 +75,16 @@
         tokenSource = new();
         isDownloading = true;
 
+        var progressReporter = new Progress<double>(value =>
+        {
+            progress = value;
+            StateHasChanged();
+        });
+
         var cancellationToken = tokenSource.Token;
         string path = string.IsNullOrWhiteSpace(CustomPath) ? SelectedPath : CustomPath;
 
-        await youtubeDownloader.DownloadVideoAsync(Model.Url, path, SelectedExtension, cancellationToken);
+        await youtubeDownloader.DownloadVideoAsync(Model.Url, path, SelectedExtension, progressReporter, cancellationToken);
         CancelVideoDownload();
     }
 

@@ -78,6 +78,12 @@
                 SearchFunc="SearchVideos"
                 ResetValueOnEmptyText="true"
                 @bind-Value="videoSearchText" />
+            <MudProgressLinear Color="Color.Primary"
+                               Striped="true"
+                               Size="Size.Medium"
+                               Max="1"
+                               Value="@videosProgress"
+                               Class="my-7" />
             <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
                 <VideoComponent Model="v"
                                 SelectedExtension="@selectedExtension"
@@ -86,22 +92,22 @@
             </MudVirtualize>
         </MudItem>
         <MudItem xs="6">
-            @if (playlistCancellationSource is not null)
-            {
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Error"
-                           Class="w-100"
-                @onclick="CancelPlaylistDownload">
-                    Cancel
-                </MudButton>
-            }
-            else
+            @if (playlistCancellationSource is null)
             {
                 <MudButton Color="Color.Primary"
                            Variant="Variant.Filled"
                            Class="w-100 mb-4"
                 @onclick="DownloadAllPlaylists">
                     Download Playlist
+                </MudButton>
+            }
+            else
+            {
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Error"
+                           Class="w-100 mb-4"
+                @onclick="CancelPlaylistDownload">
+                    Cancel
                 </MudButton>
             }
             <MudButton Color="Color.Warning"
@@ -118,6 +124,12 @@
                 SearchFunc="SearchPlaylistVideos"
                 ResetValueOnEmptyText="true"
                 @bind-Value="playlistVideoSearchText" />
+            <MudProgressLinear Color="Color.Primary"
+                               Striped="true"
+                               Size="Size.Medium"
+                               Max="1"
+                               Value="@playlistProgress"
+                               Class="my-7" />
             <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
                 <PlaylistVideoComponent Model="v"
                                         SelectedExtension="@selectedExtension"
@@ -136,6 +148,13 @@
             <p>
                 Would you like to download your video's Url?
             </p>
+            <MudProgressLinear Color="Color.Primary"
+                               Striped="true"
+                               Size="Size.Medium"
+                               Buffer="true" Max="1"
+                               Value="@firstPlaylistProgress"
+                               BufferValue="@((firstPlaylistProgress + 0.1))"
+                               Class="my-7" />
         </DialogContent>
         <DialogActions>
             <MudButton Color="Color.Primary" OnClick="(() => DownloadVideo(youtubeUrl))">Download</MudButton>
@@ -161,6 +180,9 @@
     private string errorMessage = "";
     private string videoSearchText = "";
     private string playlistVideoSearchText = "";
+    private double videosProgress = 0;
+    private double playlistProgress = 0;
+    private double firstPlaylistProgress = 0;
     private bool showDialog = false;
 
     protected override async Task OnInitializedAsync()
@@ -237,7 +259,15 @@
             var cancellationToken = videoCancellationSource.Token;
             string path = string.IsNullOrWhiteSpace(customPath) ? selectedPath : customPath;
 
-            await youtubeDownloader.DownloadVideoAsync(url, path, selectedExtension, cancellationToken);
+            var progressReport = new Progress<double>(value =>
+            {
+                firstPlaylistProgress = value;
+                StateHasChanged();
+            });
+
+            await youtubeDownloader
+            .DownloadVideoAsync(url, path, selectedExtension, progressReport, cancellationToken);
+
             CancelVideoDownload();
             await SaveStates();
         }
@@ -252,32 +282,45 @@
         videosCancellationSource = new();
         var cancellationToken = videosCancellationSource.Token;
 
+        var progressReport = new Progress<double>(value =>
+        {
+            videosProgress = value;
+            StateHasChanged();
+        });
+
         foreach (var v in videoLibrary.Videos)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             await youtubeDownloader
-                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, cancellationToken);
+                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, progressReport, cancellationToken);
         }
 
         CancelVideosDownload();
+        await SaveStates();
     }
-
 
     private async Task DownloadAllPlaylists()
     {
         playlistCancellationSource = new();
         var cancellationToken = playlistCancellationSource.Token;
 
+        var progressReport = new Progress<double>(value =>
+        {
+            playlistProgress = value;
+            StateHasChanged();
+        });
+
         foreach (var v in videoLibrary.PlaylistVideos)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             await youtubeDownloader
-                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, cancellationToken);
+                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, progressReport, cancellationToken);
         }
 
         CancelPlaylistDownload();
+        await SaveStates();
     }
 
     private async Task<IEnumerable<string>> SearchPlaylistVideos(string searchInput)
@@ -363,11 +406,13 @@
     private void ClearVideos()
     {
         videoLibrary.Videos.Clear();
+        videosProgress = 0;
     }
 
     private void ClearPlaylist()
     {
         videoLibrary.PlaylistVideos.Clear();
+        playlistProgress = 0;
     }
 
     private void ToggleDialog()

@@ -18,7 +18,8 @@ public class DownloadHelper : IDownloadHelper
         YoutubeClient client,
         string videoUrl,
         string path,
-        string extension, 
+        string extension,
+        IProgress<double> progress,
         CancellationToken token,
         bool downloadSubtitles = false)
     {
@@ -34,7 +35,7 @@ public class DownloadHelper : IDownloadHelper
 
             string sanitizedTitle = GetSanizitedFileName(video.Title);
             string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle, extension, path);
-            await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, cancellationToken: token);
+            await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, cancellationToken: token);
 
             if (downloadSubtitles)
             {

@@ -19,12 +19,20 @@ public class YoutubeDownloader : IYoutubeDownloader
         string url,
         string downloadPath,
         string extension,
+        IProgress<double> progress,
         CancellationToken token,
         bool downloadSubtitles = false)
     { 
         var youtube = new YoutubeClient();
 
-        await _downloaderHelper.DownloadVideoAsync(youtube, url, downloadPath, extension, token, downloadSubtitles);
+        await _downloaderHelper.DownloadVideoAsync(
+            youtube,
+            url,
+            downloadPath,
+            extension,
+            progress,
+            token,
+            downloadSubtitles);
     }
 
     public async Task<List<PlaylistVideo>> GetPlayListVideosAsync(string url)
