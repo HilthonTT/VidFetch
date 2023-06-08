@@ -1,0 +1,85 @@
+﻿@inject IYoutubeDownloader youtubeDownloader
+@inject NavigationManager navManager
+
+<MudCard Class="mb-4">
+    <MudCardMedia Image="@Model.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
+    <MudCardHeader>
+        <MudText Typo="Typo.subtitle1">@Model.Title</MudText>
+    </MudCardHeader>
+    <MudDivider />
+    <MudCardContent Class="text-start">
+        <div>@Model.Author</div>
+        <div>@Model.Duration</div>
+        <div>@Model.Url</div>
+    </MudCardContent>
+    <MudCardActions Class="justify-content-between">
+        @if (isDownloading is false)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+            @onclick="DownloadVideo">
+                Download
+            </MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Error"
+            @onclick="CancelVideoDownload">
+                Cancel Download
+            </MudButton>
+        }
+        <MudButton Variant="Variant.Outlined"
+                   Color="Color.Secondary"
+        @onclick="LoadWatchPage">
+            Watch
+        </MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public Video Model { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public string SelectedExtension { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public string SelectedPath { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public string CustomPath { get; set; }
+
+    private Random rnd = new();
+    private bool isDownloading = false;
+    private CancellationTokenSource tokenSource;
+
+    private async Task DownloadVideo()
+    {
+        tokenSource = new();
+        isDownloading = true;
+
+        var cancellationToken = tokenSource.Token;
+        string path = string.IsNullOrWhiteSpace(CustomPath) ? SelectedPath : CustomPath;
+
+        await youtubeDownloader.DownloadVideoAsync(Model.Url, path, SelectedExtension, cancellationToken);
+        CancelVideoDownload();
+    }
+
+    private void CancelVideoDownload()
+    {
+        tokenSource?.Cancel();
+        tokenSource = null;
+        isDownloading = false;
+    }
+
+    private void LoadWatchPage()
+    {
+        string encodedUrl = Uri.EscapeDataString(Model.Url);
+        navManager.NavigateTo($"/Watch/{encodedUrl}");
+    }
+}
