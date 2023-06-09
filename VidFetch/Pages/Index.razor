@@ -19,6 +19,7 @@
     <MudGrid>
         <MudItem xs="12" Class="text-center">
             <MudTextField @bind-Value="youtubeUrl"
+                          Class="mb-4"
                           Label="Enter YouTube URL"
                           Variant="Variant.Outlined"
                           Adornment="Adornment.End"
@@ -27,6 +28,7 @@
                           OnAdornmentClick="LoadVideoOrPlaylist"
                           Required="true"
                           Clearable="true" />
+
             <MudButtonGroup Class="mt-2">
                 @foreach (var p in downloadPaths)
                 {
@@ -83,12 +85,12 @@
                                Size="Size.Medium"
                                Max="1"
                                Value="@videosProgress"
-                               Class="my-7" />
+                               Class="my-7" 
+                               Buffer="true" />
             <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
                 <VideoComponent Model="v"
                                 SelectedExtension="@selectedExtension"
-                                SelectedPath="@selectedPath"
-                                CustomPath="@customPath"/>
+                                SelectedPath="@selectedPath"/>
             </MudVirtualize>
         </MudItem>
         <MudItem xs="6">
@@ -129,12 +131,12 @@
                                Size="Size.Medium"
                                Max="1"
                                Value="@playlistProgress"
-                               Class="my-7" />
+                               Class="my-7" 
+                               Buffer="true"/>
             <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
                 <PlaylistVideoComponent Model="v"
                                         SelectedExtension="@selectedExtension"
                                         SelectedPath="@selectedPath"
-                                        CustomPath="@customPath"
                                         Index="@GetIndex(v)" />
             </MudVirtualize>
         </MudItem>
@@ -175,7 +177,6 @@
     private List<string> videoExtensions = new();
     private string selectedPath = DefaultDownloadPath;
     private string selectedExtension = DefaultExtension;
-    private string customPath = "";
     private string youtubeUrl = "";
     private string errorMessage = "";
     private string videoSearchText = "";
@@ -257,16 +258,14 @@
             videoCancellationSource = new();
 
             var cancellationToken = videoCancellationSource.Token;
-            string path = string.IsNullOrWhiteSpace(customPath) ? selectedPath : customPath;
 
             var progressReport = new Progress<double>(value =>
             {
-                firstPlaylistProgress = value;
-                StateHasChanged();
+                UpdateProgress(ref firstPlaylistProgress, value);
             });
 
             await youtubeDownloader
-            .DownloadVideoAsync(url, path, selectedExtension, progressReport, cancellationToken);
+                .DownloadVideoAsync(url, selectedPath, selectedExtension, progressReport, cancellationToken);
 
             CancelVideoDownload();
             await SaveStates();
@@ -284,8 +283,7 @@
 
         var progressReport = new Progress<double>(value =>
         {
-            videosProgress = value;
-            StateHasChanged();
+            UpdateProgress(ref videosProgress, value);
         });
 
         foreach (var v in videoLibrary.Videos)
@@ -307,8 +305,7 @@
 
         var progressReport = new Progress<double>(value =>
         {
-            playlistProgress = value;
-            StateHasChanged();
+            UpdateProgress(ref playlistProgress, value);
         });
 
         foreach (var v in videoLibrary.PlaylistVideos)
@@ -418,6 +415,12 @@
     private void ToggleDialog()
     {
         showDialog = !showDialog;
+    }
+
+    private void UpdateProgress(ref double progressVariable, double value)
+    {
+        progressVariable = value;
+        StateHasChanged();
     }
 
     private string GetButtonClass(string path)

@@ -17,7 +17,8 @@
                            Size="Size.Medium"
                            Max="1"
                            Value="@progress"
-                           Class="my-7" />
+                           Class="my-7"
+                           Buffer="true" />
     </MudCardContent>
     <MudCardActions Class="justify-content-between">
         @if (isDownloading is false)
@@ -59,10 +60,6 @@
 
     [Parameter]
     [EditorRequired]
-    public string CustomPath { get; set; }
-
-    [Parameter]
-    [EditorRequired]
     public int Index { get; set; }
 
     private Random rnd = new();
@@ -82,9 +79,10 @@
         });
 
         var cancellationToken = tokenSource.Token;
-        string path = string.IsNullOrWhiteSpace(CustomPath) ? SelectedPath : CustomPath;
 
-        await youtubeDownloader.DownloadVideoAsync(Model.Url, path, SelectedExtension, progressReporter, cancellationToken);
+        await youtubeDownloader
+            .DownloadVideoAsync(Model.Url, SelectedPath, SelectedExtension, progressReporter, cancellationToken);
+
         CancelVideoDownload();
     }
 
