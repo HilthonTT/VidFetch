@@ -6,11 +6,9 @@ public class PathHelper : IPathHelper
         return path switch
         {
             "Download Folder" => GetDownloadPath(title, extension),
-            "Custom" => GetCustomPath(title, extension, path),
             _ => GetSelectedPath(title, extension, path),
         };
     }
-
 
     private static string GetDownloadPath(string title, string extension)
     {
@@ -26,12 +24,6 @@ public class PathHelper : IPathHelper
         return Path.Combine(downloadsFolder, fileName);
     }
 
-    private static string GetCustomPath(string title, string extension, string path)
-    {
-        string fileName = title + extension;
-        return Path.Combine(path, fileName);
-    }
-
     private static Environment.SpecialFolder GetFolder(string path)
     {
         return path switch
@@ -39,6 +31,7 @@ public class PathHelper : IPathHelper
             "Video Folder" => Environment.SpecialFolder.MyVideos,
             "Document Folder" => Environment.SpecialFolder.MyDocuments,
             "Picture Folder" => Environment.SpecialFolder.MyPictures,
+            "Music Folder" => Environment.SpecialFolder.MyMusic,
             "Desktop" => Environment.SpecialFolder.Desktop,
             _ => throw new NotImplementedException("No suitable paths."),
         };

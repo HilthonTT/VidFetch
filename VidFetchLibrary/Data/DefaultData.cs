@@ -27,6 +27,7 @@ public class DefaultData : IDefaultData
             "Picture Folder",
             "Document Folder",
             "Video Folder",
+            "Music Folder",
             "Desktop",
         };
     }
