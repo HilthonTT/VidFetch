@@ -3,9 +3,10 @@
 @inject ISecureStorage secureStorage
 @inject IDefaultData defaultData
 @inject IVideoLibrary videoLibrary
+@inject ISnackbar snackbar
 @inject NavigationManager navManager
 
-<MudContainer>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
         Vid Fetch
         <MudIcon Icon="@Icons.Material.Filled.MusicVideo" Title="Video"></MudIcon>
@@ -87,6 +88,10 @@
                                Value="@videosProgress"
                                Class="my-7" 
                                Buffer="true" />
+            @if (string.IsNullOrWhiteSpace(currentDownloadingVideo) is false)
+            {
+                <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingVideo</MudAlert>
+            }
             <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
                 <VideoComponent Model="v"
                                 SelectedExtension="@selectedExtension"
@@ -133,6 +138,10 @@
                                Value="@playlistProgress"
                                Class="my-7" 
                                Buffer="true"/>
+            @if (string.IsNullOrWhiteSpace(currentDownloadingPlaylistVideo) is false)
+            {
+                <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingPlaylistVideo</MudAlert>
+            }
             <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
                 <PlaylistVideoComponent Model="v"
                                         SelectedExtension="@selectedExtension"
@@ -163,7 +172,6 @@
             <MudButton OnClick="ToggleDialog">Cancel</MudButton>
         </DialogActions>
     </MudDialog>
-
 </MudContainer>
 
 @code {
@@ -181,6 +189,8 @@
     private string errorMessage = "";
     private string videoSearchText = "";
     private string playlistVideoSearchText = "";
+    private string currentDownloadingVideo = "";
+    private string currentDownloadingPlaylistVideo = "";
     private double videosProgress = 0;
     private double playlistProgress = 0;
     private double firstPlaylistProgress = 0;
@@ -220,6 +230,8 @@
             {
                 await LoadSingleVideo();
             }
+
+            youtubeUrl = "";
         }
         catch (Exception ex)
         {
@@ -289,11 +301,15 @@
         foreach (var v in videoLibrary.Videos)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            currentDownloadingVideo = v.Title;
 
             await youtubeDownloader
                 .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, progressReport, cancellationToken);
+
+            AddSnackbar(v.Title);
         }
 
+        currentDownloadingVideo = "";
         CancelVideosDownload();
         await SaveStates();
     }
@@ -311,11 +327,15 @@
         foreach (var v in videoLibrary.PlaylistVideos)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            currentDownloadingPlaylistVideo = v.Title;
 
             await youtubeDownloader
                 .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, progressReport, cancellationToken);
+
+            AddSnackbar(v.Title);
         }
 
+        currentDownloadingPlaylistVideo = "";
         CancelPlaylistDownload();
         await SaveStates();
     }
@@ -366,6 +386,11 @@
 
             return output.Select(v => v.Title);
         });
+    }
+
+    private void AddSnackbar(string title)
+    {
+        snackbar.Add($"Successfully downloaded {title}", Severity.Normal);
     }
 
     private void FilterVideos()

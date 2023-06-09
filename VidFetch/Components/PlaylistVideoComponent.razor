@@ -1,4 +1,5 @@
 ﻿@inject IYoutubeDownloader youtubeDownloader
+@inject ISnackbar snackbar
 @inject NavigationManager navManager
 
 <MudCard Class="mb-4">
@@ -83,6 +84,7 @@
         await youtubeDownloader
             .DownloadVideoAsync(Model.Url, SelectedPath, SelectedExtension, progressReporter, cancellationToken);
 
+        AddSnackbar();
         CancelVideoDownload();
     }
 
@@ -97,5 +99,10 @@
     {
         string encodedUrl = Uri.EscapeDataString(Model.Url);
         navManager.NavigateTo($"/Watch/{encodedUrl}");
+    }
+
+    private void AddSnackbar()
+    {
+        snackbar.Add($"Successfully downloaded {Model.Title}", Severity.Normal);
     }
 }
