@@ -1,4 +1,6 @@
 ﻿@inject NavigationManager navManager
+@inject ISettingsLibrary settingsLibrary
+@inject ISettingsData settingsData
 
 <MudAppBar Color="Color.Primary" Fixed="false">
     <MudIconButton 
@@ -8,15 +10,24 @@
         @onclick="LoadHomePage" />
     <MudSpacer />
     <MudIconButton 
+        Icon="@Icons.Material.Filled.Settings"
+        Color="Color.Inherit"
+        @onclick="LoadSettingsPage" />
+    <MudIconButton 
         Icon="@Icons.Custom.Brands.GitHub" 
-        Color="Color.Inherit" 
-        @onclick="LoadHomePage"/>
+        Color="Color.Inherit"
+        @onclick="LoadGithubPage" />
 </MudAppBar>
 
 @code {
     private void LoadHomePage()
     {
         navManager.NavigateTo("/");
+    }
+
+    private void LoadSettingsPage()
+    {
+        navManager.NavigateTo("/Settings");
     }
 
     private void LoadGithubPage()

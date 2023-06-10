@@ -1,5 +1,108 @@
-﻿<h3>Settings</h3>
+﻿@page "/Settings"
+@inject ISettingsLibrary settingsLibrary
+@inject ISettingsData settingsData
+@inject NavigationManager navManager
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    @if (string.IsNullOrWhiteSpace(errorMessage) is false)
+    {
+        <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+    }
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
+                    Settings
+                    <MudIcon Icon="@Icons.Material.Filled.Settings" />
+                </MudText>
+            </CardHeaderContent>
+        </MudCardHeader>
+        <MudCardContent>
+            <EditForm Model="model" OnValidSubmit="SaveSettings">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <MudGrid>
+                    <MudItem xs="12" Class="text-center">
+                        <div class="d-flex align-items-center mb-3">
+                            <MudText class="mr-2">Dark Mode:</MudText>
+                            <MudSwitch @bind-Checked="model.IsDarkMode"
+                                        Color="MudBlazor.Color.Primary" />
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <MudText class="mr-2">Download Subtitles:</MudText>
+                            <MudSwitch @bind-Checked="model.DownloadSubtitles"
+                                        Color="MudBlazor.Color.Primary" />
+                        </div>
+                        <div class="text-center">
+                            <MudButton Variant="Variant.Filled"
+                                        Color="MudBlazor.Color.Primary"
+                                        StartIcon="@Icons.Material.Filled.Save"
+                                        Class="w-50"
+                                        ButtonType="ButtonType.Submit">
+                                Save
+                            </MudButton>
+                        </div>
+                    </MudItem>
+                </MudGrid>
+            </EditForm>
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
 
 @code {
+    private SaveSettingsModel model = new();
+    private SettingsLibrary settings; 
+    private string errorMessage = "";
 
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSettings();
+    }
+
+    private async Task LoadSettings()
+    {
+        settings = await settingsData.GetSettingsAsync();
+        if (settings is null)
+        {
+            model.IsDarkMode = true;
+            model.DownloadSubtitles = false;
+        }
+        else
+        {
+            model.IsDarkMode = settings.IsDarkMode;
+            model.DownloadSubtitles = settings.DownloadSubtitles;
+        }
+    }
+
+    private async Task SaveSettings()
+    {
+        try
+        {
+            errorMessage = "";
+
+            var s = new SettingsLibrary
+                {
+                    IsDarkMode = model.IsDarkMode,
+                    DownloadSubtitles = model.DownloadSubtitles,
+                };
+
+            await settingsData.UpdateSettingsAsync(s);
+
+            navManager.NavigateTo("/Settings", IsReload());
+        }
+        catch
+        {
+            errorMessage = "Failed to save settings.";
+        }
+    }
+
+    private bool IsReload()
+    {
+        if (settings.IsDarkMode == model.IsDarkMode)
+        {
+            return false;
+        }
+
+        return true;
+    }
 }

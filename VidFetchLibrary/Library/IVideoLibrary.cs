@@ -1,7 +1,7 @@
 ﻿using YoutubeExplode.Playlists;
 using YoutubeExplode.Videos;
 
-namespace VidFetchLibrary.Models;
+namespace VidFetchLibrary.Library;
 
 public interface IVideoLibrary
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using SQLite;
-using VidFetchLibrary.Models;
+using VidFetchLibrary.Library;
 
 namespace VidFetchLibrary.DataAccess;
 public class SettingsData : ISettingsData
@@ -26,32 +26,34 @@ public class SettingsData : ISettingsData
                     Environment.SpecialFolder.LocalApplicationData), DbName);
 
             _db = new(dbPath);
-            _db.CreateTableAsync<SettingsModel>();
+            _db.CreateTableAsync<SettingsLibrary>();
         }
     }
 
-    public async Task<SettingsModel> GetSettingsAsync()
+    public async Task<SettingsLibrary> GetSettingsAsync()
     {
-        var output = _cache.Get<SettingsModel>(CacheName);
+        var output = _cache.Get<SettingsLibrary>(CacheName);
         if (output is null)
         {
-            output = await _db.Table<SettingsModel>().FirstOrDefaultAsync();
+            output = await _db.Table<SettingsLibrary>().FirstOrDefaultAsync();
             _cache.Set(CacheName, output, TimeSpan.FromHours(1));
         }
 
         return output;
     }
 
-    public async Task<int> UpdateSettingsAsync(SettingsModel settings)
+    public async Task<int> UpdateSettingsAsync(SettingsLibrary settings)
     {
         RemoveCache();
-        if (settings.Id == 0)
+        var existingSettings = await _db.Table<SettingsLibrary>().FirstOrDefaultAsync();
+        if (existingSettings is not null)
         {
-            return await _db.InsertAsync(settings);
+            settings.Id = existingSettings.Id;
+            return await _db.UpdateAsync(settings);
         }
         else
         {
-            return await _db.UpdateAsync(settings);
+            return await _db.InsertAsync(settings);
         }
     }
 

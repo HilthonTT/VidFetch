@@ -1,8 +1,8 @@
-﻿using VidFetchLibrary.Models;
+﻿using VidFetchLibrary.Library;
 
 namespace VidFetchLibrary.DataAccess;
 public interface ISettingsData
 {
-    Task<SettingsModel> GetSettingsAsync();
-    Task<int> UpdateSettingsAsync(SettingsModel settings);
+    Task<SettingsLibrary> GetSettingsAsync();
+    Task<int> UpdateSettingsAsync(SettingsLibrary settings);
 }

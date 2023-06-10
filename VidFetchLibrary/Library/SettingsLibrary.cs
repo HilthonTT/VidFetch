@@ -1,7 +1,7 @@
 ﻿using SQLite;
 
-namespace VidFetchLibrary.Models;
-public class SettingsModel
+namespace VidFetchLibrary.Library;
+public class SettingsLibrary : ISettingsLibrary
 {
     [PrimaryKey, AutoIncrement]
     public int Id { get; set; }
