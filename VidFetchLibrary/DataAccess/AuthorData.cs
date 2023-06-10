@@ -30,13 +30,26 @@ public class AuthorData : IAuthorData
         }
     }
 
-    public async Task<List<AuthorModel>> GetAuthorsAsync()
+    public async Task<List<AuthorModel>> GetAllAuthorsAsync()
     {
         var output = _cache.Get<List<AuthorModel>>(CacheName);
         if (output is null)
         {
             output = await _db.Table<AuthorModel>().ToListAsync();
             _cache.Set(CacheName, output, TimeSpan.FromHours(1));
+        }
+
+        return output;
+    }
+
+    public async Task<AuthorModel> GetAuthorAsync(string id)
+    {
+        string key = $"{CacheName}-{id}";
+        var output = _cache.Get<AuthorModel>(key);
+        if (output is null)
+        {
+            output = await _db.Table<AuthorModel>().FirstOrDefaultAsync(a => a.Id == id);
+            _cache.Set(key, output, TimeSpan.FromHours(1));
         }
 
         return output;

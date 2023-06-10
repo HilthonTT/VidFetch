@@ -30,7 +30,7 @@ public class VideoData : IVideoData
         }
     }
 
-    public async Task<List<VideoModel>> GetVideosAsync()
+    public async Task<List<VideoModel>> GetAllVideosAsync()
     {
         var output = _cache.Get<List<VideoModel>>(CacheName);
         if (output is null)
