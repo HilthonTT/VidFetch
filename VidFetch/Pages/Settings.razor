@@ -51,27 +51,17 @@
 
 @code {
     private SaveSettingsModel model = new();
-    private SettingsLibrary settings; 
     private string errorMessage = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await LoadSettings();
+        MapSettings();
     }
 
-    private async Task LoadSettings()
+    private void MapSettings()
     {
-        settings = await settingsData.GetSettingsAsync();
-        if (settings is null)
-        {
-            model.IsDarkMode = true;
-            model.DownloadSubtitles = false;
-        }
-        else
-        {
-            model.IsDarkMode = settings.IsDarkMode;
-            model.DownloadSubtitles = settings.DownloadSubtitles;
-        }
+        model.IsDarkMode = settingsLibrary.IsDarkMode;
+        model.DownloadSubtitles = settingsLibrary.DownloadSubtitles;
     }
 
     private async Task SaveSettings()
@@ -89,16 +79,20 @@
             await settingsData.UpdateSettingsAsync(s);
 
             navManager.NavigateTo("/Settings", IsReload());
+
+            settingsLibrary.IsDarkMode = model.IsDarkMode;
+            settingsLibrary.DownloadSubtitles = model.DownloadSubtitles;
+            model = new();
         }
         catch
         {
             errorMessage = "Failed to save settings.";
         }
-    }
+    } 
 
     private bool IsReload()
     {
-        if (settings.IsDarkMode == model.IsDarkMode)
+        if (settingsLibrary.IsDarkMode == model.IsDarkMode)
         {
             return false;
         }

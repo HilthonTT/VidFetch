@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject ISettingsData settingsData
+@inject ISettingsLibrary settingsLibrary
 
 <div>
     <NavMenu />
@@ -29,10 +30,18 @@
         if (settings is not null)
         {
             isDarkMode = settings.IsDarkMode;
+            MapSettings();
         }
         else
         {
             isDarkMode = true;
         }
+    }
+
+    private void MapSettings()
+    {
+        settingsLibrary.Id = settings.Id;
+        settingsLibrary.IsDarkMode = settings.IsDarkMode;
+        settingsLibrary.DownloadSubtitles = settings.DownloadSubtitles;
     }
 }

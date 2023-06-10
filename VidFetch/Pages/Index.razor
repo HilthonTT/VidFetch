@@ -3,8 +3,8 @@
 @inject ISecureStorage secureStorage
 @inject IDefaultData defaultData
 @inject IVideoLibrary videoLibrary
+@inject ISettingsLibrary settingsLibrary
 @inject ISnackbar snackbar
-@inject ISettingsData settingsData
 @inject NavigationManager navManager
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
@@ -179,7 +179,6 @@
     private const string DefaultDownloadPath = "Download Folder";
     private const string DefaultExtension = ".mp4";
 
-    private SettingsLibrary settings;
     private CancellationTokenSource playlistCancellationSource;
     private CancellationTokenSource videosCancellationSource;
     private CancellationTokenSource videoCancellationSource;
@@ -197,27 +196,12 @@
     private double playlistProgress = 0;
     private double firstPlaylistProgress = 0;
     private bool showDialog = false;
-    private bool downloadSubtitles = false;
 
     protected override async Task OnInitializedAsync()
     {
         downloadPaths = defaultData.GetDownloadPaths();
         videoExtensions = defaultData.GetVideoExtensions();
-        await LoadSettings();
         await LoadStates();
-    }
-
-    private async Task LoadSettings()
-    {
-        settings = await settingsData.GetSettingsAsync();
-        if (settings is not null)
-        {
-            downloadSubtitles = settings.DownloadSubtitles;
-        }
-        else
-        {
-            downloadSubtitles = false;
-        }
     }
 
     private async Task LoadStates()
@@ -294,7 +278,7 @@
             });
 
             await youtubeDownloader
-                .DownloadVideoAsync(url, selectedPath, selectedExtension, progressReport, cancellationToken, downloadSubtitles);
+            .DownloadVideoAsync(url, selectedPath, selectedExtension, progressReport, cancellationToken, settingsLibrary.DownloadSubtitles);
 
             CancelVideoDownload();
             await SaveStates();
@@ -321,7 +305,7 @@
             currentDownloadingVideo = v.Title;
 
             await youtubeDownloader
-                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, progressReport, cancellationToken, downloadSubtitles);
+                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, progressReport, cancellationToken, settingsLibrary.DownloadSubtitles);
 
             AddSnackbar(v.Title);
         }
@@ -347,7 +331,7 @@
             currentDownloadingPlaylistVideo = v.Title;
 
             await youtubeDownloader
-                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, progressReport, cancellationToken, downloadSubtitles);
+                .DownloadVideoAsync(v.Url, selectedPath, selectedExtension, progressReport, cancellationToken, settingsLibrary.DownloadSubtitles);
 
             AddSnackbar(v.Title);
         }
