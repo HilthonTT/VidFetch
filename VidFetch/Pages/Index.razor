@@ -5,7 +5,6 @@
 @inject IVideoLibrary videoLibrary
 @inject ISettingsLibrary settingsLibrary
 @inject ISnackbar snackbar
-@inject NavigationManager navManager
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
@@ -35,15 +34,18 @@
                 @foreach (var p in downloadPaths)
                 {
                     <MudButton Class="@GetButtonClass(p)"
-                               OnClick="(() => selectedPath = p)">
+                               OnClick="(() => OnButtonClick(p))">
                         @p
                     </MudButton>
                 }
             </MudButtonGroup>
-            <MudSelect Label="Video Format:" @bind-Value="selectedExtension" Class="mud-input-root text-start">
+            <MudSelect Label="Video Format:"
+                       @bind-Value="selectedExtension"
+                       Class="mud-input-root text-start"
+                       HelperText="Pick your preferred format.">
                 @foreach (var e in videoExtensions)
                 {
-                    <MudSelectItem Value="@e">@e</MudSelectItem>
+                    <MudSelectItem Value="@e" OnClick="SaveStates">@e</MudSelectItem>
                 }
             </MudSelect>
         </MudItem>
@@ -221,6 +223,10 @@
         try
         {
             errorMessage = "";
+            if (string.IsNullOrWhiteSpace(youtubeUrl))
+            {
+                return;
+            }
 
             if (IsPlaylistUrl())
             {
@@ -447,6 +453,12 @@
     {
         progressVariable = value;
         StateHasChanged();
+    }
+
+    private async Task OnButtonClick(string path)
+    {
+        selectedPath = path;
+        await SaveStates();
     }
 
     private string GetButtonClass(string path)
