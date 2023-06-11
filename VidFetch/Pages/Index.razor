@@ -53,7 +53,7 @@
                 }
             </MudSelect>
             <MudButton Class="mt-4 w-100"
-                       Color="Color.Tertiary"
+                       Color="Color.Warning"
                        Variant="Variant.Outlined"
             @onclick="OpenFileLocation">
                 Open Folder Location
@@ -181,7 +181,7 @@
                                Class="my-7" />
         </DialogContent>
         <DialogActions>
-            <MudButton Color="Color.Primary" OnClick="(() => DownloadVideo(youtubeUrl))">Download</MudButton>
+            <MudButton Color="Color.Primary" OnClick="(() => DownloadVideo(playlistUrl))">Download</MudButton>
             <MudButton OnClick="ToggleDialog">Cancel</MudButton>
         </DialogActions>
     </MudDialog>

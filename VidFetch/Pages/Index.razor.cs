@@ -20,6 +20,7 @@ public partial class Index
     private string playlistVideoSearchText = "";
     private string currentDownloadingVideo = "";
     private string currentDownloadingPlaylistVideo = "";
+    private string playlistUrl = "";
     private double videosProgress = 0;
     private double playlistProgress = 0;
     private double firstPlaylistProgress = 0;
@@ -58,6 +59,7 @@ public partial class Index
             {
                 await LoadPlaylistVideos();
                 showDialog = true;
+                playlistUrl = youtubeUrl;
             }
             else
             {
@@ -98,7 +100,6 @@ public partial class Index
         try
         {
             errorMessage = "";
-            showDialog = false;
             var cancellationToken = tokenHelper.InitializeToken(ref videoTokenSource);
 
             var progressReport = new Progress<double>(value =>
@@ -125,62 +126,78 @@ public partial class Index
 
     private async Task DownloadAllVideos()
     {
-        var cancellationToken = tokenHelper.InitializeToken(ref allVideosTokenSource);
-
-        var progressReport = new Progress<double>(value =>
+        try
         {
-            UpdateProgress(ref videosProgress, value);
-        });
+            errorMessage = "";
+            var cancellationToken = tokenHelper.InitializeToken(ref allVideosTokenSource);
 
-        foreach (var v in videoLibrary.Videos)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            currentDownloadingVideo = v.Title;
+            var progressReport = new Progress<double>(value =>
+            {
+                UpdateProgress(ref videosProgress, value);
+            });
 
-            await youtubeDownloader.DownloadVideoAsync(
-                v.Url,
-                selectedPath,
-                selectedExtension,
-                progressReport,
-                cancellationToken,
-                settingsLibrary.DownloadSubtitles);
+            foreach (var v in videoLibrary.Videos)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                currentDownloadingVideo = v.Title;
 
-            AddSnackbar(v.Title);
+                await youtubeDownloader.DownloadVideoAsync(
+                    v.Url,
+                    selectedPath,
+                    selectedExtension,
+                    progressReport,
+                    cancellationToken,
+                    settingsLibrary.DownloadSubtitles);
+
+                AddSnackbar(v.Title);
+            }
+
+            currentDownloadingVideo = "";
+            CancelVideosDownload();
+            await SaveStates();
         }
-
-        currentDownloadingVideo = "";
-        CancelVideosDownload();
-        await SaveStates();
+        catch (Exception ex)
+        {
+            errorMessage = $"There was an issue while downloading your videos: {ex.Message}";
+        }
     }
 
     private async Task DownloadAllPlaylists()
     {
-        var cancellationToken = tokenHelper.InitializeToken(ref playlistTokenSource);
-
-        var progressReport = new Progress<double>(value =>
+        try
         {
-            UpdateProgress(ref playlistProgress, value);
-        });
+            errorMessage = "";
+            var cancellationToken = tokenHelper.InitializeToken(ref playlistTokenSource);
 
-        foreach (var v in videoLibrary.PlaylistVideos)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            currentDownloadingPlaylistVideo = v.Title;
+            var progressReport = new Progress<double>(value =>
+            {
+                UpdateProgress(ref playlistProgress, value);
+            });
 
-            await youtubeDownloader.DownloadVideoAsync(
-                v.Url,
-                selectedPath,
-                selectedExtension,
-                progressReport,
-                cancellationToken,
-                settingsLibrary.DownloadSubtitles);
+            foreach (var v in videoLibrary.PlaylistVideos)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                currentDownloadingPlaylistVideo = v.Title;
 
-            AddSnackbar(v.Title);
+                await youtubeDownloader.DownloadVideoAsync(
+                    v.Url,
+                    selectedPath,
+                    selectedExtension,
+                    progressReport,
+                    cancellationToken,
+                    settingsLibrary.DownloadSubtitles);
+
+                AddSnackbar(v.Title);
+            }
+
+            currentDownloadingPlaylistVideo = "";
+            CancelPlaylistDownload();
+            await SaveStates();
         }
-
-        currentDownloadingPlaylistVideo = "";
-        CancelPlaylistDownload();
-        await SaveStates();
+        catch (Exception ex)
+        {
+            errorMessage = $"There was an issue while downloading your playlist: {ex.Message}";
+        }
     }
 
     private async Task<IEnumerable<string>> SearchPlaylistVideos(string searchInput)
@@ -212,6 +229,7 @@ public partial class Index
     {
         tokenHelper.CancelRequest(ref allVideosTokenSource);
         videosProgress = 0;
+        currentDownloadingVideo = "";
     }
 
     private void CancelVideoDownload()
@@ -223,6 +241,7 @@ public partial class Index
     {
         tokenHelper.CancelRequest(ref playlistTokenSource);
         playlistProgress = 0;
+        currentDownloadingPlaylistVideo = "";
     }
 
     private void ClearVideos()
