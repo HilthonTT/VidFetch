@@ -5,6 +5,10 @@
 @inject IVideoLibrary videoLibrary
 @inject ISettingsLibrary settingsLibrary
 @inject ISnackbar snackbar
+@inject ISearchHelper searchHelper
+@inject ITokenHelper tokenHelper
+@inject IVideoLibraryHelper videoLibraryHelper
+
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
@@ -52,7 +56,7 @@
     </MudGrid>
     <MudGrid Spacing="5">
         <MudItem xs="6">
-            @if (videosCancellationSource is null)
+            @if (allVideosTokenSource is null)
             {
                 <MudButton Color="Color.Primary"
                            Variant="Variant.Filled"
@@ -102,7 +106,7 @@
             </MudVirtualize>
         </MudItem>
         <MudItem xs="6">
-            @if (playlistCancellationSource is null)
+            @if (playlistTokenSource is null)
             {
                 <MudButton Color="Color.Primary"
                            Variant="Variant.Filled"
@@ -165,9 +169,9 @@
             <MudProgressLinear Color="Color.Primary"
                                Striped="true"
                                Size="Size.Medium"
-                               Buffer="true" Max="1"
+                               Buffer="true" 
+                               Max="1"
                                Value="@firstPlaylistProgress"
-                               BufferValue="@((firstPlaylistProgress + 0.1))"
                                Class="my-7" />
         </DialogContent>
         <DialogActions>
@@ -181,9 +185,9 @@
     private const string DefaultDownloadPath = "Download Folder";
     private const string DefaultExtension = ".mp4";
 
-    private CancellationTokenSource playlistCancellationSource;
-    private CancellationTokenSource videosCancellationSource;
-    private CancellationTokenSource videoCancellationSource;
+    private CancellationTokenSource playlistTokenSource;
+    private CancellationTokenSource allVideosTokenSource;
+    private CancellationTokenSource videoTokenSource;
     private List<string> downloadPaths = new();
     private List<string> videoExtensions = new();
     private string selectedPath = DefaultDownloadPath;
@@ -274,9 +278,8 @@
         {
             errorMessage = "";
             showDialog = false;
-            videoCancellationSource = new();
 
-            var cancellationToken = videoCancellationSource.Token;
+            var cancellationToken = tokenHelper.InitializeToken(ref videoTokenSource);
 
             var progressReport = new Progress<double>(value =>
             {
@@ -297,8 +300,7 @@
 
     private async Task DownloadAllVideos()
     {
-        videosCancellationSource = new();
-        var cancellationToken = videosCancellationSource.Token;
+        var cancellationToken = tokenHelper.InitializeToken(ref allVideosTokenSource);
 
         var progressReport = new Progress<double>(value =>
         {
@@ -323,8 +325,7 @@
 
     private async Task DownloadAllPlaylists()
     {
-        playlistCancellationSource = new();
-        var cancellationToken = playlistCancellationSource.Token;
+        var cancellationToken = tokenHelper.InitializeToken(ref playlistTokenSource);
 
         var progressReport = new Progress<double>(value =>
         {
@@ -349,50 +350,22 @@
 
     private async Task<IEnumerable<string>> SearchPlaylistVideos(string searchInput)
     {
-        return await Task.Run(() =>
-        {
-            playlistVideoSearchText = searchInput;
-            var output = videoLibrary.PlaylistVideos;
-            if (string.IsNullOrWhiteSpace(searchInput) is false)
-            {
-                output = output
-                .Where(v => v.Title
-                .Contains(searchInput, StringComparison.InvariantCultureIgnoreCase)).ToList();
-            }
-
-            return output.Select(v => v.Title);
-        });
+        return await searchHelper.SearchAsync(videoLibrary.PlaylistVideos, searchInput);
     }
 
     private void FilterPlaylistVideo()
     {
-        var output = videoLibrary.PlaylistVideos;
-
-        if (string.IsNullOrWhiteSpace(playlistVideoSearchText) is false)
-        {
-            output = output
-                .OrderByDescending(v => v.Title.Contains(playlistVideoSearchText, StringComparison.InvariantCultureIgnoreCase))
-                .ToList();
-        }
-
-        videoLibrary.PlaylistVideos = output;
+        videoLibrary.PlaylistVideos = searchHelper.FilterList(videoLibrary.PlaylistVideos, playlistVideoSearchText);
     }
 
     private async Task<IEnumerable<string>> SearchVideos(string searchInput)
     {
-        return await Task.Run(() =>
-        {
-            videoSearchText = searchInput;
-            var output = videoLibrary.Videos;
-            if (string.IsNullOrWhiteSpace(searchInput) is false)
-            {
-                output = output
-                .Where(v => v.Title
-                .Contains(searchInput, StringComparison.InvariantCultureIgnoreCase)).ToList();
-            }
+        return await searchHelper.SearchAsync(videoLibrary.Videos, searchInput);
+    }
 
-            return output.Select(v => v.Title);
-        });
+    private void FilterVideos()
+    {
+        videoLibrary.Videos = searchHelper.FilterList(videoLibrary.Videos, videoSearchText);
     }
 
     private void AddSnackbar(string title)
@@ -400,48 +373,29 @@
         snackbar.Add($"Successfully downloaded {title}", Severity.Normal);
     }
 
-    private void FilterVideos()
-    {
-        var output = videoLibrary.Videos;
-
-        if (string.IsNullOrWhiteSpace(videoSearchText) is false)
-        {
-            output = output
-                .OrderByDescending(v => v.Title.Contains(videoSearchText, StringComparison.InvariantCultureIgnoreCase))
-                .ToList();
-        }
-
-        videoLibrary.Videos = output;
-    }
-
     private void CancelVideosDownload()
     {
-        videosCancellationSource?.Cancel();
-        videosCancellationSource = null;
+        tokenHelper.CancelRequest(ref allVideosTokenSource);
     }
 
     private void CancelVideoDownload()
     {
-        videoCancellationSource?.Cancel();
-        videoCancellationSource = null;
+        tokenHelper.CancelRequest(ref videoTokenSource);
     }
 
     private void CancelPlaylistDownload()
     {
-        playlistCancellationSource?.Cancel();
-        playlistCancellationSource = null;
+        tokenHelper.CancelRequest(ref playlistTokenSource);
     }
 
     private void ClearVideos()
     {
-        videoLibrary.Videos.Clear();
-        videosProgress = 0;
+        videoLibraryHelper.ClearVideos(ref videosProgress);
     }
 
     private void ClearPlaylist()
     {
-        videoLibrary.PlaylistVideos.Clear();
-        playlistProgress = 0;
+        videoLibraryHelper.ClearPlaylist(ref playlistProgress);
     }
 
     private void ToggleDialog()

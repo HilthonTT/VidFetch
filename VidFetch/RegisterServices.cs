@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
+using VidFetch.Helpers;
 using VidFetch.Services;
 using VidFetchLibrary.Data;
 using VidFetchLibrary.DataAccess;
@@ -29,11 +29,14 @@ public static class RegisterServices
         builder.Services.AddMudServices();
         builder.Services.AddMemoryCache();
         builder.Services.AddSingleton<IVideoLibrary, VideoLibrary>();
-        builder.Services.TryAddSingleton<ISettingsLibrary, SettingsLibrary>();
+        builder.Services.AddSingleton<ISettingsLibrary, SettingsLibrary>();
+
+        // Helpers
+        builder.Services.AddSingleton<ISearchHelper,  SearchHelper>();
+        builder.Services.AddSingleton<ITokenHelper, TokenHelper>();
+        builder.Services.AddSingleton<IVideoLibraryHelper, VideoLibraryHelper>();
 
         // Data Access
-        builder.Services.AddSingleton<IVideoData, VideoData>();
-        builder.Services.AddSingleton<IAuthorData, AuthorData>();
         builder.Services.AddSingleton<ISettingsData, SettingsData>();
 
         // Personal Services
