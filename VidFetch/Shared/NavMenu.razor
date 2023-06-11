@@ -21,19 +21,3 @@
         @onclick="LoadGithubPage" />
 </MudAppBar>
 
-@code {
-    private void LoadHomePage()
-    {
-        navManager.NavigateTo("/");
-    }
-
-    private void LoadSettingsPage()
-    {
-        navManager.NavigateTo("/Settings");
-    }
-
-    private void LoadGithubPage()
-    {
-        navManager.NavigateTo("https://github.com/HilthonTT");
-    }
-}
