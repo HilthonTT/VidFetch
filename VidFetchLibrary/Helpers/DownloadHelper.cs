@@ -61,15 +61,24 @@ public class DownloadHelper : IDownloadHelper
         var subtitleManifest = await client.Videos.ClosedCaptions.GetManifestAsync(video.Id, token);
         var subtitleinfo = subtitleManifest.Tracks;
 
-        if (subtitleinfo is null)
+        if (subtitleinfo is null || subtitleinfo.Count <= 0)
         {
             return;
         }
 
+        string videoFolder = _pathHelper.GetVideoDownloadPath("", "", path);
+        string sanitizedVideoTitle = GetSanizitedFileName(video.Title);
+        string videoFolderPath = Path.Combine(videoFolder, sanitizedVideoTitle);
+
+        if (Directory.Exists(videoFolderPath) is false)
+        {
+            Directory.CreateDirectory(videoFolderPath);
+        }
+
         foreach (var s in subtitleinfo)
         {
-            string sanitizedSubtitle = GetSanizitedFileName($"{s.Language} - {video.Title}");
-            string subtitleDownloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedSubtitle, ".vtt", path);
+            string sanitizedSubtitle = GetSanizitedFileName($"{s.Language}");
+            string subtitleDownloadFolder = Path.Combine(videoFolderPath, $"{sanitizedSubtitle}.vtt");
             await client.Videos.ClosedCaptions.DownloadAsync(s, subtitleDownloadFolder, cancellationToken: token);
         }
     }
