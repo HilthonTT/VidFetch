@@ -1,5 +1,7 @@
 ﻿@inject IYoutubeDownloader youtubeDownloader
 @inject ISnackbar snackbar
+@inject ITokenHelper tokenHelper
+@inject IFolderHelper folderHelper
 @inject NavigationManager navManager
 
 <MudCard Class="mb-4">
@@ -42,6 +44,14 @@
         @onclick="LoadWatchPage">
             Watch
         </MudButton>
+        @if (isDownloadSuccessful)
+        {
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Warning"
+            @onclick="OpenFolderLocation">
+                Open Location
+            </MudButton>
+        }
     </MudCardActions>
 </MudCard>
 
@@ -60,13 +70,14 @@
 
     private Random rnd = new();
     private bool isDownloading = false;
+    private bool isDownloadSuccessful = false;
     private double progress = 0;
     private CancellationTokenSource tokenSource;
 
     private async Task DownloadVideo()
     {
-        tokenSource = new();
         isDownloading = true;
+        var cancellationToken = tokenHelper.InitializeToken(ref tokenSource);
 
         var progressReporter = new Progress<double>(value =>
         {
@@ -74,20 +85,19 @@
             StateHasChanged();
         });
 
-        var cancellationToken = tokenSource.Token;
-
         await youtubeDownloader
             .DownloadVideoAsync(Model.Url, SelectedPath, SelectedExtension, progressReporter, cancellationToken);
 
         AddSnackbar();
         CancelVideoDownload();
+        isDownloadSuccessful = true;
     }
 
     private void CancelVideoDownload()
     {
-        tokenSource?.Cancel();
-        tokenSource = null;
+        tokenHelper.CancelRequest(ref tokenSource);
         isDownloading = false;
+        progress = 0;
     }
 
     private void LoadWatchPage()
@@ -99,5 +109,10 @@
     private void AddSnackbar()
     {
         snackbar.Add($"Successfully downloaded {Model.Title}", Severity.Normal);
+    }
+
+    private async Task OpenFolderLocation()
+    {
+        await folderHelper.OpenFolderLocationAsync(SelectedPath);
     }
 }

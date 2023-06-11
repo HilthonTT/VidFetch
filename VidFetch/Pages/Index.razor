@@ -8,7 +8,7 @@
 @inject ISearchHelper searchHelper
 @inject ITokenHelper tokenHelper
 @inject IVideoLibraryHelper videoLibraryHelper
-
+@inject IFolderHelper folderHelper
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
@@ -21,7 +21,7 @@
             @errorMessage
         </MudAlert>
     }
-    <MudGrid>
+    <MudGrid Spacing="5">
         <MudItem xs="12" Class="text-center">
             <MudTextField @bind-Value="youtubeUrl"
                           Class="mb-4"
@@ -52,6 +52,12 @@
                     <MudSelectItem Value="@e" OnClick="SaveStates">@e</MudSelectItem>
                 }
             </MudSelect>
+            <MudButton Class="mt-4 w-100"
+                       Color="Color.Tertiary"
+                       Variant="Variant.Outlined"
+            @onclick="OpenFileLocation">
+                Open Folder Location
+            </MudButton>
         </MudItem>
     </MudGrid>
     <MudGrid Spacing="5">
@@ -125,8 +131,8 @@
                 </MudButton>
             }
             <MudButton Color="Color.Warning"
-                        Variant="Variant.Filled"
-                        Class="w-100 mb-4"
+                       Variant="Variant.Filled"
+                       Class="w-100 mb-4"
             @onclick="ClearPlaylist">
                 Clear Playlist
             </MudButton>
@@ -376,6 +382,7 @@
     private void CancelVideosDownload()
     {
         tokenHelper.CancelRequest(ref allVideosTokenSource);
+        videosProgress = 0;
     }
 
     private void CancelVideoDownload()
@@ -386,6 +393,7 @@
     private void CancelPlaylistDownload()
     {
         tokenHelper.CancelRequest(ref playlistTokenSource);
+        playlistProgress = 0;
     }
 
     private void ClearVideos()
@@ -407,6 +415,11 @@
     {
         progressVariable = value;
         StateHasChanged();
+    }
+
+    private async Task OpenFileLocation()
+    {
+        await folderHelper.OpenFolderLocationAsync(selectedPath);
     }
 
     private async Task OnButtonClick(string path)

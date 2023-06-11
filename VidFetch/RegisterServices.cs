@@ -35,6 +35,7 @@ public static class RegisterServices
         builder.Services.AddSingleton<ISearchHelper,  SearchHelper>();
         builder.Services.AddSingleton<ITokenHelper, TokenHelper>();
         builder.Services.AddSingleton<IVideoLibraryHelper, VideoLibraryHelper>();
+        builder.Services.AddSingleton<IFolderHelper, FolderHelper>();
 
         // Data Access
         builder.Services.AddSingleton<ISettingsData, SettingsData>();
