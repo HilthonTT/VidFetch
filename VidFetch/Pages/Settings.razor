@@ -1,6 +1,7 @@
 ﻿@page "/Settings"
 @inject ISettingsLibrary settingsLibrary
 @inject ISettingsData settingsData
+@inject ISnackbar snackbar
 @inject NavigationManager navManager
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
@@ -83,6 +84,8 @@
             settingsLibrary.IsDarkMode = model.IsDarkMode;
             settingsLibrary.DownloadSubtitles = model.DownloadSubtitles;
             model = new();
+
+            snackbar.Add("Successfully saved settings.", Severity.Normal);
         }
         catch
         {

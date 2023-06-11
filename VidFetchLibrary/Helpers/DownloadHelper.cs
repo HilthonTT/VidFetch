@@ -35,7 +35,7 @@ public class DownloadHelper : IDownloadHelper
 
             string sanitizedTitle = GetSanizitedFileName(video.Title);
             string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle, extension, path);
-            await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, cancellationToken: token);
+            await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, token);
 
             if (downloadSubtitles)
             {
