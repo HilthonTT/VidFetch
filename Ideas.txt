@@ -1,0 +1,10 @@
+
+Ideas
+-----
+
+* Implement circular loading when loading the video/playlist.
+* Implement embedded database for videos.
+* Implement second language option such as French.
+
+* Be able to remove video/playlist-video from the list.
+* Be able to choose resolution to download the video.
