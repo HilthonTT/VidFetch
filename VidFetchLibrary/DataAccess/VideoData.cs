@@ -59,7 +59,7 @@ public class VideoData : IVideoData
 
     public async Task<int> SetAsync(Video video)
     {
-        var existingVideo = await _db.GetAsync<VideoModel>(v => v.Url == video.Url);
+        var existingVideo = await _db.GetAsync<VideoModel>(v => v.VideoId == video.Id);
         RemoveCache();
 
         if (existingVideo is null)
@@ -74,14 +74,15 @@ public class VideoData : IVideoData
 
     public async Task<int> DeleteAsync(VideoModel video)
     {
-        var existingVideo = await _db.GetAsync<VideoModel>(v => v.Url == video.Url);
-        RemoveCache();
+        string key = $"{CacheName}-{video.Id}";
+        var existingVideo = await _db.GetAsync<VideoModel>(v => v.Id == video.Id);
 
         if (existingVideo is null)
         {
             return 0;
         }
 
+        RemoveCache(key);
         return await _db.DeleteAsync<VideoModel>(video);
     }
 
@@ -97,9 +98,14 @@ public class VideoData : IVideoData
         return await _db.UpdateAsync(video);
     }
 
-    private void RemoveCache()
+    private void RemoveCache(string id = "")
     {
         _cache.Remove(CacheName);
+
+        if (string.IsNullOrWhiteSpace(id) is false)
+        {
+            _cache.Remove(id);
+        }
     }
 
     private static VideoModel MapVideo(Video video)
