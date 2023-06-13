@@ -39,6 +39,7 @@ public static class RegisterServices
 
         // Data Access
         builder.Services.AddSingleton<ISettingsData, SettingsData>();
+        builder.Services.AddSingleton<IVideoData, VideoData>();
 
         // Personal Services
         builder.Services.AddSingleton<IDefaultData, DefaultData>();
