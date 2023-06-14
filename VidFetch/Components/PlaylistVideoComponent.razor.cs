@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using System;
 using YoutubeExplode.Playlists;
 
 namespace VidFetch.Components;
@@ -21,6 +22,10 @@ public partial class PlaylistVideoComponent
     [Parameter]
     [EditorRequired]
     public int Index { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<PlaylistVideo> RemoveEvent { get; set; }
 
     private bool isDownloading = false;
     private bool isDownloadSuccessful = false;
@@ -66,6 +71,11 @@ public partial class PlaylistVideoComponent
     private void AddSnackbar()
     {
         snackbar.Add($"Successfully downloaded {Model.Title}", Severity.Normal);
+    }
+
+    private async Task Remove()
+    {
+        await RemoveEvent.InvokeAsync(Model);
     }
 
     private async Task OpenFolderLocation()

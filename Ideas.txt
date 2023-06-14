@@ -8,3 +8,4 @@ Ideas
 
 * Be able to remove video/playlist-video from the list.
 * Be able to choose resolution to download the video.
+* Be able to to copy the video URL via a click.

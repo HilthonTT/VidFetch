@@ -108,7 +108,8 @@
             <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
                 <VideoComponent Model="v"
                                 SelectedExtension="@selectedExtension"
-                                SelectedPath="@selectedPath"/>
+                                SelectedPath="@selectedPath"
+                                RemoveEvent="RemoveVideo"/>
             </MudVirtualize>
         </MudItem>
         <MudItem xs="6">
@@ -159,7 +160,8 @@
                 <PlaylistVideoComponent Model="v"
                                         SelectedExtension="@selectedExtension"
                                         SelectedPath="@selectedPath"
-                                        Index="@GetIndex(v)" />
+                                        Index="@GetIndex(v)"
+                                        RemoveEvent="RemovePlaylistVideo"/>
             </MudVirtualize>
         </MudItem>
     </MudGrid>

@@ -2,25 +2,35 @@
 @inject ISnackbar snackbar
 @inject ITokenHelper tokenHelper
 @inject IFolderHelper folderHelper
+@inject IVideoLibraryHelper videoLibraryHelper
 @inject NavigationManager navManager
 
 <MudCard Class="mb-4">
-    <MudCardMedia Image="@Model.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
     <MudCardHeader>
-        <MudText Typo="Typo.subtitle1">@Model.Title</MudText>
+        <CardHeaderContent>
+            <MudText Typo="Typo.subtitle1">@Model.Title</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton 
+                Icon="@Icons.Material.Filled.RemoveCircleOutline" 
+                Color="Color.Default"
+                Title="Remove"
+            @onclick="Remove"/>
+        </CardHeaderActions>
     </MudCardHeader>
-    <MudDivider />
+    <MudCardMedia Image="@Model.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
     <MudCardContent Class="text-start">
         <div>@Model.Author</div>
         <div>@Model.Duration</div>
         <div>@Model.Url</div>
-        <MudProgressLinear Color="Color.Primary"
-                           Striped="true"
-                           Size="Size.Medium"
-                           Max="1"
-                           Value="@progress"
-                           Class="my-7"
-                           Buffer="true" />
+        <MudProgressLinear 
+            Color="Color.Primary"
+            Striped="true"
+            Size="Size.Medium"
+            Max="1"
+            Value="@progress"
+            Class="my-7"
+            Buffer="true" />
     </MudCardContent>
     <MudCardActions Class="justify-content-between">
         @if (isDownloading is false)

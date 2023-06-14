@@ -18,6 +18,10 @@ public partial class VideoComponent
     [EditorRequired]
     public string SelectedPath { get; set; }
 
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<Video> RemoveEvent { get; set; }
+
     private bool isDownloading = false;
     private bool isDownloadSuccessful = false;
     private double progress = 0;
@@ -62,6 +66,11 @@ public partial class VideoComponent
     private void AddSnackbar()
     {
         snackbar.Add($"Successfully downloaded {Model.Title}", Severity.Normal);
+    }
+
+    private async Task Remove()
+    {
+        await RemoveEvent.InvokeAsync(Model);
     }
 
     private async Task OpenFolderLocation()

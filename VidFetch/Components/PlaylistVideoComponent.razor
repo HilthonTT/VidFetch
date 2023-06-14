@@ -5,11 +5,19 @@
 @inject NavigationManager navManager
 
 <MudCard Class="mb-4">
-    <MudCardMedia Image="@Model.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
     <MudCardHeader>
-        <MudText Typo="Typo.subtitle1">@Model.Title</MudText>
+        <CardHeaderContent>
+            <MudText Typo="Typo.subtitle1">@Model.Title</MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton 
+                Icon="@Icons.Material.Filled.RemoveCircleOutline" 
+                Color="Color.Default"
+                Title="Remove"
+                @onclick="Remove"/>
+        </CardHeaderActions>
     </MudCardHeader>
-    <MudDivider />
+    <MudCardMedia Image="@Model.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
     <MudCardContent Class="text-start">
         <div>@Model.Author</div>
         <div>@Model.Duration</div>

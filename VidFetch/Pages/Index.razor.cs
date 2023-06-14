@@ -1,5 +1,7 @@
+using Microsoft.Maui.Controls;
 using MudBlazor;
 using YoutubeExplode.Playlists;
+using YoutubeExplode.Videos;
 
 namespace VidFetch.Pages;
 
@@ -252,6 +254,16 @@ public partial class Index
     private void ClearPlaylist()
     {
         videoLibraryHelper.ClearPlaylist(ref playlistProgress);
+    }
+
+    private void RemoveVideo(Video video)
+    {
+        videoLibraryHelper.RemoveVideo(video);
+    }
+
+    private void RemovePlaylistVideo(PlaylistVideo playlistVideo)
+    {
+        videoLibraryHelper.RemovePlaylistVideo(playlistVideo);
     }
 
     private void ToggleDialog()
