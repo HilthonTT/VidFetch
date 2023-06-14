@@ -1,0 +1,21 @@
+﻿@page "/SavedMedias"
+@inject IVideoData videoData
+
+<h3>SavedMedia</h3>
+
+@if (videos is not null)
+{
+    @foreach (var v in videos)
+    {
+        <div>@v.Title</div>
+    }
+}
+
+@code {
+    private List<VideoModel> videos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        videos = await videoData.GetAllVideosAsync();
+    }
+}

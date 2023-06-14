@@ -10,4 +10,9 @@ public class SaveSettingsModel
     [Display(Name = "Download Subtitles")]
     [Required(ErrorMessage = "You must set your set your download subtitles settings.")]
     public bool DownloadSubtitles { get; set; } = false;
+
+
+    [Display(Name = "Save Videos")]
+    [Required(ErrorMessage = "You must set your set your save videos settings.")]
+    public bool SaveVideos { get; set; } = false;
 }

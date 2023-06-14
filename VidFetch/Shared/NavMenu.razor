@@ -9,15 +9,22 @@
         Edge="Edge.Start"
         Title="Home"
         @onclick="LoadHomePage"/>
+    <MudIconButton 
+        Icon="@Icons.Material.Filled.PersonalVideo" 
+        Color="Color.Inherit" 
+        Edge="Edge.Start"
+        Title="Home"
+        @onclick="LoadSavedMedias"/>
     <MudSpacer />
     <MudIconButton 
         Icon="@Icons.Material.Filled.Settings"
         Color="Color.Inherit"
-         Title="Settings"
+        Title="Settings"
         @onclick="LoadSettingsPage" />
     <MudIconButton 
         Icon="@Icons.Custom.Brands.GitHub" 
         Color="Color.Inherit"
+        Title="GitHub"
         @onclick="LoadGithubPage" />
 </MudAppBar>
 

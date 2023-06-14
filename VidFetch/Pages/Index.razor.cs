@@ -1,4 +1,3 @@
-using Microsoft.Maui.Controls;
 using MudBlazor;
 using YoutubeExplode.Playlists;
 using YoutubeExplode.Videos;
@@ -89,6 +88,12 @@ public partial class Index
                 videoLibrary.PlaylistVideos.Add(v);
             }
         }
+
+        if (settingsLibrary.SaveVideos)
+        {
+            await SavePlaylistVideos();
+        }
+
         isPlaylistLoading = false;
     }
 
@@ -100,7 +105,29 @@ public partial class Index
         {
             videoLibrary.Videos.Add(video);
         }
+
+        if (settingsLibrary.SaveVideos)
+        {
+            await SaveVideos();
+        }
+
         isVideoLoading = false;
+    }
+
+    private async Task SaveVideos()
+    {
+        foreach (var v in videoLibrary.Videos)
+        {
+            await videoData.SetVideoAsync(v.Url, v.Id);
+        }
+    }
+
+    private async Task SavePlaylistVideos()
+    {
+        foreach(var v in videoLibrary.PlaylistVideos)
+        {
+            await videoData.SetVideoAsync(v.Url, v.Id);
+        }
     }
 
     private async Task DownloadVideo(string url)
@@ -321,7 +348,37 @@ public partial class Index
             return "Download 1 Video";
         }
 
-        return $"Download {videoLibrary.Videos?.Count} videos";
+        return $"Download {videoLibrary.Videos?.Count} Videos";
+    }
+
+    private string GetVideoSearchBarText()
+    {
+        if (videoLibrary?.Videos.Count <= 0)
+        {
+            return "Search Video";
+        }
+
+        if (videoLibrary.Videos?.Count == 1)
+        {
+            return "Search 1 Video";
+        }
+
+        return $"Search {videoLibrary.Videos?.Count} Videos";
+    }
+
+    private string GetPlaylistVideoSearchBarText()
+    {
+        if (videoLibrary?.PlaylistVideos.Count <= 0)
+        {
+            return "Search Playlist Video";
+        }
+
+        if (videoLibrary.PlaylistVideos?.Count == 1)
+        {
+            return "Search 1 Playlist Video";
+        }
+
+        return $"Search {videoLibrary.PlaylistVideos?.Count} Playlist Videos";
     }
 
     private bool IsVideoNotLoaded(string videoId)

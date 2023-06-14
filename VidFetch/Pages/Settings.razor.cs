@@ -18,6 +18,7 @@ public partial class Settings
     {
         model.IsDarkMode = settingsLibrary.IsDarkMode;
         model.DownloadSubtitles = settingsLibrary.DownloadSubtitles;
+        model.SaveVideos = settingsLibrary.SaveVideos;
     }
 
     private async Task SaveSettings()
@@ -29,6 +30,7 @@ public partial class Settings
             {
                 IsDarkMode = model.IsDarkMode,
                 DownloadSubtitles = model.DownloadSubtitles,
+                SaveVideos = model.SaveVideos,
             };
             await settingsData.UpdateSettingsAsync(s);
 
@@ -36,6 +38,7 @@ public partial class Settings
 
             settingsLibrary.IsDarkMode = model.IsDarkMode;
             settingsLibrary.DownloadSubtitles = model.DownloadSubtitles;
+            settingsLibrary.SaveVideos = model.SaveVideos;
 
             snackbar.Add("Successfully saved settings.", Severity.Normal);
         }

@@ -34,6 +34,11 @@
                             <MudSwitch @bind-Checked="model.DownloadSubtitles"
                                         Color="MudBlazor.Color.Primary" />
                         </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <MudText class="mr-2">Save Videos:</MudText>
+                            <MudSwitch @bind-Checked="model.SaveVideos"
+                                       Color="MudBlazor.Color.Primary" />
+                        </div>
                         <div class="text-center">
                             <MudButton Variant="Variant.Filled"
                                         Color="MudBlazor.Color.Primary"

@@ -7,4 +7,5 @@ public class SettingsLibrary : ISettingsLibrary
     public int Id { get; set; }
     public bool IsDarkMode { get; set; }
     public bool DownloadSubtitles { get; set; }
+    public bool SaveVideos { get; set; }
 }

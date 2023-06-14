@@ -9,6 +9,7 @@
 @inject ITokenHelper tokenHelper
 @inject IVideoLibraryHelper videoLibraryHelper
 @inject IFolderHelper folderHelper
+@inject IVideoData videoData
 
 <MudContainer MaxWidth="MaxWidth.ExtraLarge">
     <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
@@ -86,7 +87,7 @@
             @onclick="ClearVideos">
                 Clear Videos
             </MudButton>
-            <MudAutocomplete T="string" Label="Search Video"
+            <MudAutocomplete T="string" Label="@GetVideoSearchBarText()"
                 Variant="Variant.Outlined"
                 Class="mb-4"
                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
@@ -143,7 +144,7 @@
             @onclick="ClearPlaylist">
                 Clear Playlist
             </MudButton>
-            <MudAutocomplete T="string" Label="Search Playlist Video"
+            <MudAutocomplete T="string" Label="@GetPlaylistVideoSearchBarText()"
                 Variant="Variant.Outlined"
                 Class="mb-4"
                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"

@@ -24,6 +24,10 @@ public partial class MainLayout
         else
         {
             isDarkMode = true;
+
+            settingsLibrary.IsDarkMode = true;
+            settingsLibrary.DownloadSubtitles = false;
+            settingsLibrary.SaveVideos = false;
         }
     }
 
@@ -32,5 +36,6 @@ public partial class MainLayout
         settingsLibrary.Id = settings.Id;
         settingsLibrary.IsDarkMode = settings.IsDarkMode;
         settingsLibrary.DownloadSubtitles = settings.DownloadSubtitles;
+        settingsLibrary.SaveVideos = settings.SaveVideos;
     }
 }
