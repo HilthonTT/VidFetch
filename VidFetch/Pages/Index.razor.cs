@@ -27,6 +27,8 @@ public partial class Index
     private double playlistProgress = 0;
     private double firstPlaylistProgress = 0;
     private bool showDialog = false;
+    private bool isVideoLoading = false;
+    private bool isPlaylistLoading = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -78,6 +80,7 @@ public partial class Index
 
     private async Task LoadPlaylistVideos()
     {
+        isPlaylistLoading = true;
         var videos = await youtubeDownloader.GetPlayListVideosAsync(youtubeUrl);
         foreach (var v in videos)
         {
@@ -86,15 +89,18 @@ public partial class Index
                 videoLibrary.PlaylistVideos.Add(v);
             }
         }
+        isPlaylistLoading = false;
     }
 
     private async Task LoadSingleVideo()
     {
+        isVideoLoading = true;
         var video = await youtubeDownloader.GetVideoAsync(youtubeUrl);
         if (IsVideoNotLoaded(video.Id))
         {
             videoLibrary.Videos.Add(video);
         }
+        isVideoLoading = false;
     }
 
     private async Task DownloadVideo(string url)

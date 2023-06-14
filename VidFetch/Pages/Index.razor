@@ -105,6 +105,12 @@
             {
                 <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingVideo</MudAlert>
             }
+            @if (isVideoLoading)
+            {
+                <div class="text-center">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </div>
+            }
             <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
                 <VideoComponent Model="v"
                                 SelectedExtension="@selectedExtension"
@@ -155,6 +161,12 @@
             @if (string.IsNullOrWhiteSpace(currentDownloadingPlaylistVideo) is false)
             {
                 <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingPlaylistVideo</MudAlert>
+            }
+            @if (isPlaylistLoading)
+            {
+                <div class="text-center">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </div>
             }
             <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
                 <PlaylistVideoComponent Model="v"
