@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System.Web;
 using VidFetchLibrary.Helpers;
 using YoutubeExplode;
 using YoutubeExplode.Common;
@@ -9,10 +10,16 @@ namespace VidFetchLibrary.Downloader;
 public class YoutubeDownloader : IYoutubeDownloader
 {
     private readonly IDownloadHelper _downloaderHelper;
+    private readonly IMemoryCache _cache;
+    private readonly ICachingHelper _cachingHelper;
 
-    public YoutubeDownloader(IDownloadHelper downloaderHelper)
+    public YoutubeDownloader(IDownloadHelper downloaderHelper,
+                             IMemoryCache cache,
+                             ICachingHelper cachingHelper)
     {
         _downloaderHelper = downloaderHelper;
+        _cache = cache;
+        _cachingHelper = cachingHelper;
     }
 
     public async Task DownloadVideoAsync(
@@ -37,17 +44,35 @@ public class YoutubeDownloader : IYoutubeDownloader
 
     public async Task<List<PlaylistVideo>> GetPlayListVideosAsync(string url)
     {
-        var youtube = new YoutubeClient();
-        string playlistId = GetPlaylistId(url) ?? throw new Exception("Invalid playlist URL.");
+        string key = _cachingHelper.CacheVideoPlaylistKey(url);
 
-        var playlistVideos = await youtube.Playlists.GetVideosAsync(playlistId);
-        return playlistVideos.ToList();
+        var output = _cache.Get<List<PlaylistVideo>>(key);
+        if (output is null)
+        {
+            var youtube = new YoutubeClient();
+            string playlistId = GetPlaylistId(url) ?? throw new Exception("Invalid playlist URL.");
+            var playlistVideos = await youtube.Playlists.GetVideosAsync(playlistId);
+
+            output = playlistVideos.ToList();
+            _cache.Set(key, output, TimeSpan.FromHours(5));
+        }
+
+        return output;
     }
 
     public async Task<Video> GetVideoAsync(string url)
     {
-        var youtube = new YoutubeClient();
-        return await youtube.Videos.GetAsync(url);
+        string key = _cachingHelper.CacheVideoKey(url);
+
+        var output = _cache.Get<Video>(key);
+        if (output is null)
+        {
+            var youtube = new YoutubeClient();
+            output = await youtube.Videos.GetAsync(url);
+            _cache.Set(key, output, TimeSpan.FromHours(5));
+        }
+
+        return output;
     }
 
     private static string GetPlaylistId(string url) 

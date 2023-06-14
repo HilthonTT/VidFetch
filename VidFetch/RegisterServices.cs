@@ -46,6 +46,8 @@ public static class RegisterServices
         builder.Services.AddSingleton<IYoutubeDownloader, YoutubeDownloader>();
         builder.Services.AddSingleton<IDownloadHelper, DownloadHelper>();
         builder.Services.AddSingleton<IPathHelper, PathHelper>();
+        builder.Services.AddSingleton<ICachingHelper, CachingHelper>();
+
         builder.Services.AddSingleton<ISecureStorage, SecureStorageWrapper>();
     }
 }
