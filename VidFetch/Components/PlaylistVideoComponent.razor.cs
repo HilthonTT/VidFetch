@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using System;
 using YoutubeExplode.Playlists;
 
 namespace VidFetch.Components;
@@ -29,8 +28,14 @@ public partial class PlaylistVideoComponent
 
     private bool isDownloading = false;
     private bool isDownloadSuccessful = false;
+    private bool isSaved = false;
     private double progress = 0;
     private CancellationTokenSource tokenSource;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isSaved = await videoData.VideoExistAsync(Model.Url, Model.Id);
+    }
 
     private async Task DownloadVideo()
     {
@@ -53,6 +58,15 @@ public partial class PlaylistVideoComponent
         AddSnackbar();
         CancelVideoDownload();
         isDownloadSuccessful = true;
+    }
+
+    private async Task SaveVideo()
+    {
+        if (isSaved is false)
+        {
+            await videoData.SetVideoAsync(Model.Url, Model.Id);
+            isSaved = true;
+        }
     }
 
     private void CancelVideoDownload()

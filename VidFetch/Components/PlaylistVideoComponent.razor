@@ -2,6 +2,7 @@
 @inject ISnackbar snackbar
 @inject ITokenHelper tokenHelper
 @inject IFolderHelper folderHelper
+@inject IVideoData videoData
 @inject NavigationManager navManager
 
 <MudCard Class="mb-4">
@@ -10,6 +11,14 @@
             <MudText Typo="Typo.subtitle1">@Model.Title</MudText>
         </CardHeaderContent>
         <CardHeaderActions>
+            @if (isSaved is false)
+            {
+                <MudIconButton 
+                    Icon="@Icons.Material.Filled.Save" 
+                    Color="Color.Default"
+                    Title="Save Video"
+                    @onclick="SaveVideo"/>
+            }
             <MudIconButton 
                 Icon="@Icons.Material.Filled.RemoveCircleOutline" 
                 Color="Color.Default"
