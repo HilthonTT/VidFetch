@@ -46,18 +46,29 @@ public class VideoData : IVideoData
         return output;
     }
 
-    public async Task<VideoModel> GetVideoAsync(int id)
+    public async Task<VideoModel> GetVideoAsync(string url, string videoId)
     {
-        string key = $"{CacheName}-{id}";
+        string key = $"{CacheName}-{videoId}";
 
         var output = _cache.Get<VideoModel>(key);
         if (output is null)
         {
-            output = await _db.GetAsync<VideoModel>(v => v.Id == id);
+            output = await _db.Table<VideoModel>().FirstOrDefaultAsync(v => v.VideoId == videoId || v.Url == url);
             _cache.Set(key, output, TimeSpan.FromHours(5));
         }
 
         return output;
+    }
+
+    public async Task<bool> VideoExistAsync(string url, string videoId)
+    {
+        var video = await GetVideoAsync(url, videoId);
+        if (video is null)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public async Task<int> SetVideoAsync(string url, string videoId)
