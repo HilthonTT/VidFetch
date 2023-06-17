@@ -47,12 +47,20 @@ public partial class VideoComponent
     {
         isDownloading = true;
         var cancellationToken = tokenHelper.InitializeToken(ref tokenSource);
+        
         var progressReporter = new Progress<double>(value =>
         {
             progress = value;
             StateHasChanged();
         });
-        await youtubeDownloader.DownloadVideoAsync(video.Url, SelectedPath, SelectedExtension, progressReporter, cancellationToken);
+
+        await youtubeDownloader.DownloadVideoAsync(
+            video.Url,
+            SelectedPath,
+            SelectedExtension,
+            progressReporter,
+            cancellationToken);
+        
         AddSnackbar();
         CancelVideoDownload();
         isDownloadSuccessful = true;
@@ -93,5 +101,11 @@ public partial class VideoComponent
     private async Task OpenFolderLocation()
     {
         await folderHelper.OpenFolderLocationAsync(SelectedPath);
+    }
+
+    private async Task CopyToClipboard(string text)
+    {
+        await Clipboard.SetTextAsync(text);
+        snackbar.Add($"Copied to clipboard: {text}");
     }
 }

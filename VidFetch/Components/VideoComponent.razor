@@ -29,9 +29,16 @@
             </MudCardHeader>
             <MudCardMedia Image="@video.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
             <MudCardContent Class="text-start">
-                <MudText title="@video.Author">@video.Author</MudText>
-                <MudText title="@video.Duration">@video.Duration</MudText>
-                <MudText title="@video.Url">@video.Url</MudText>
+                <MudLink Color="Color.Default" title="@video.Author" @onclick="(() => CopyToClipboard(video.Author.ChannelUrl))">
+                    @video.Author
+                </MudLink>
+                <MudText title="@video.Duration">
+                    @video.Duration
+                </MudText>
+                <MudLink title="@video.Url"
+                @onclick="(() => CopyToClipboard(video.Url))">
+                    @video.Url
+                </MudLink>
                 @if (Index is not 0)
                 {
                     <MudText title="@Index">Index: @Index</MudText>

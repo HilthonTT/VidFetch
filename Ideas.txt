@@ -2,8 +2,4 @@
 Ideas
 -----
 
-* Implement embedded database for videos.
 * Implement second language option such as French.
-
-* Be able to choose resolution to download the video.
-* Be able to to copy the video URL via a click.

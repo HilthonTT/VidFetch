@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using YoutubeExplode;
+using YoutubeExplode.Common;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
@@ -116,9 +117,9 @@ public class DownloadHelper : IDownloadHelper
             var streamManifest = await client.Videos.Streams.GetManifestAsync(video.Id, token);
             output = streamManifest
                 .GetMuxedStreams()
-                .GetWithHighestVideoQuality()
-                ?? throw new Exception(NoSuitableVideoStreamErrorMessage);
-            
+                .TryGetWithHighestVideoQuality()
+                ?? throw new Exception(NoSuitableVideoStreamErrorMessage);    
+
             _cache.Set(key, output, TimeSpan.FromHours(5));
         }
 
