@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using SQLite;
-using VidFetchLibrary.Downloader;
+using VidFetchLibrary.Client;
 using VidFetchLibrary.Models;
 using YoutubeExplode.Videos;
 
@@ -10,11 +10,11 @@ public class VideoData : IVideoData
     private const string DbName = "Video.db3";
     private const string CacheName = "VideoData";
     private readonly IMemoryCache _cache;
-    private readonly IYoutubeDownloader _youtubeDownloader;
+    private readonly IYoutube _youtubeDownloader;
     private SQLiteAsyncConnection _db;
 
     public VideoData(IMemoryCache cache,
-                     IYoutubeDownloader youtubeDownloader)
+                     IYoutube youtubeDownloader)
     {
         _cache = cache;
         _youtubeDownloader = youtubeDownloader;

@@ -16,11 +16,11 @@ public partial class Watch
 
     protected override async Task OnInitializedAsync()
     {
-        Video = await youtubeDownloader.GetVideoAsync(Url);
+        Video = await youtube.GetVideoAsync(Url);
         SourcePath = $"https://www.youtube.com/embed/{Video.Id}";
         if (Video is not null)
         {
-            channel = await youtubeDownloader.GetChannelAsync(Video.Author.ChannelUrl);
+            channel = await youtube.GetChannelAsync(Video.Author.ChannelUrl);
         }
     }
 

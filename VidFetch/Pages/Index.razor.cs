@@ -80,7 +80,8 @@ public partial class Index
     private async Task LoadPlaylistVideos()
     {
         isPlaylistLoading = true;
-        var videos = await youtubeDownloader.GetPlayListVideosAsync(youtubeUrl);
+        var videos = await youtube.GetPlayListVideosAsync(youtubeUrl);
+
         foreach (var v in videos)
         {
             if (IsVideoNotLoaded(v.Id))
@@ -100,7 +101,8 @@ public partial class Index
     private async Task LoadSingleVideo()
     {
         isVideoLoading = true;
-        var video = await youtubeDownloader.GetVideoAsync(youtubeUrl);
+        var video = await youtube.GetVideoAsync(youtubeUrl);
+
         if (IsVideoNotLoaded(video.Id))
         {
             videoLibrary.Videos.Add(video);
@@ -142,7 +144,7 @@ public partial class Index
                 UpdateProgress(ref firstPlaylistProgress, value);
             });
 
-            await youtubeDownloader.DownloadVideoAsync(
+            await youtube.DownloadVideoAsync(
                 url,
                 selectedPath,
                 selectedExtension,
@@ -176,7 +178,7 @@ public partial class Index
                 cancellationToken.ThrowIfCancellationRequested();
                 currentDownloadingVideo = v.Title;
 
-                await youtubeDownloader.DownloadVideoAsync(
+                await youtube.DownloadVideoAsync(
                     v.Url,
                     selectedPath,
                     selectedExtension,
@@ -214,7 +216,7 @@ public partial class Index
                 cancellationToken.ThrowIfCancellationRequested();
                 currentDownloadingPlaylistVideo = v.Title;
 
-                await youtubeDownloader.DownloadVideoAsync(
+                await youtube.DownloadVideoAsync(
                     v.Url,
                     selectedPath,
                     selectedExtension,

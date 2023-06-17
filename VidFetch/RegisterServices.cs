@@ -4,7 +4,7 @@ using VidFetch.Helpers;
 using VidFetch.Services;
 using VidFetchLibrary.Data;
 using VidFetchLibrary.DataAccess;
-using VidFetchLibrary.Downloader;
+using VidFetchLibrary.Client;
 using VidFetchLibrary.Helpers;
 using VidFetchLibrary.Library;
 
@@ -43,7 +43,7 @@ public static class RegisterServices
 
         // Personal Services
         builder.Services.AddSingleton<IDefaultData, DefaultData>();
-        builder.Services.AddSingleton<IYoutubeDownloader, YoutubeDownloader>();
+        builder.Services.AddSingleton<IYoutube, Youtube>();
         builder.Services.AddSingleton<IDownloadHelper, DownloadHelper>();
         builder.Services.AddSingleton<IPathHelper, PathHelper>();
         builder.Services.AddSingleton<ICachingHelper, CachingHelper>();

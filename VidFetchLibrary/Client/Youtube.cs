@@ -5,22 +5,30 @@ using YoutubeExplode;
 using YoutubeExplode.Channels;
 using YoutubeExplode.Common;
 using YoutubeExplode.Playlists;
+using YoutubeExplode.Search;
 using YoutubeExplode.Videos;
 
-namespace VidFetchLibrary.Downloader;
-public class YoutubeDownloader : IYoutubeDownloader
+namespace VidFetchLibrary.Client;
+public class Youtube : IYoutube
 {
     private readonly IDownloadHelper _downloaderHelper;
     private readonly IMemoryCache _cache;
     private readonly ICachingHelper _cachingHelper;
+    private YoutubeClient _client;
 
-    public YoutubeDownloader(IDownloadHelper downloaderHelper,
+    public Youtube(IDownloadHelper downloaderHelper,
                              IMemoryCache cache,
                              ICachingHelper cachingHelper)
     {
         _downloaderHelper = downloaderHelper;
         _cache = cache;
         _cachingHelper = cachingHelper;
+        InitializeClient();
+    }
+
+    private void InitializeClient()
+    {
+        _client = new();
     }
 
     public async Task DownloadVideoAsync(
@@ -50,9 +58,8 @@ public class YoutubeDownloader : IYoutubeDownloader
         var output = _cache.Get<List<PlaylistVideo>>(key);
         if (output is null)
         {
-            var youtube = new YoutubeClient();
             string playlistId = GetPlaylistId(url) ?? throw new Exception("Invalid playlist URL.");
-            var playlistVideos = await youtube.Playlists.GetVideosAsync(playlistId);
+            var playlistVideos = await _client.Playlists.GetVideosAsync(playlistId);
 
             output = playlistVideos.ToList();
             _cache.Set(key, output, TimeSpan.FromHours(5));
@@ -68,8 +75,7 @@ public class YoutubeDownloader : IYoutubeDownloader
         var output = _cache.Get<Video>(key);
         if (output is null)
         {
-            var youtube = new YoutubeClient();
-            output = await youtube.Videos.GetAsync(url);
+            output = await _client.Videos.GetAsync(url);
             _cache.Set(key, output, TimeSpan.FromHours(5));
         }
 
@@ -83,12 +89,29 @@ public class YoutubeDownloader : IYoutubeDownloader
         var output = _cache.Get<Channel>(key);
         if (output is null)
         {
-            var youtube = new YoutubeClient();
-            output = await youtube.Channels.GetAsync(url);
+            output = await _client.Channels.GetAsync(url);
             _cache.Set(key, output, TimeSpan.FromHours(5));
         }
 
         return output;
+    }
+
+    public async Task<List<VideoSearchResult>> GetVideosBySearchAsync(string searchInput)
+    {
+        var results = await _client.Search.GetVideosAsync(searchInput);
+        return results.ToList();
+    }
+
+    public async Task<List<ChannelSearchResult>> GetChannelBySearchAsync(string searchInput)
+    {
+        var results = await _client.Search.GetChannelsAsync(searchInput);
+        return results.ToList();
+    }
+
+    public async Task<List<PlaylistSearchResult>> GetPlaylistsBySearchAsync(string searchInput)
+    {
+        var results = await _client.Search.GetPlaylistsAsync(searchInput);
+        return results.ToList();
     }
 
     private static string GetPlaylistId(string url) 

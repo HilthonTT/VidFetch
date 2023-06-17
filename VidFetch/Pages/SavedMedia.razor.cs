@@ -73,7 +73,7 @@ public partial class SavedMedia
                 cancellationToken.ThrowIfCancellationRequested();
                 currentDownloadingVideo = v.Title;
 
-                await youtubeDownloader.DownloadVideoAsync(
+                await youtube.DownloadVideoAsync(
                     v.Url,
                     selectedPath,
                     selectedExtension,

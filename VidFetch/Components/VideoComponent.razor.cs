@@ -38,11 +38,11 @@ public partial class VideoComponent
     private CancellationTokenSource tokenSource;
     protected override async Task OnInitializedAsync()
     {
-        video = await youtubeDownloader.GetVideoAsync(Url);
+        video = await youtube.GetVideoAsync(Url);
         if (video is not null)
         {
             isSaved = await videoData.VideoExistAsync(Url, video.Id);
-            channel = await youtubeDownloader.GetChannelAsync(video.Author.ChannelUrl);
+            channel = await youtube.GetChannelAsync(video.Author.ChannelUrl);
         }
     }
 
@@ -57,7 +57,7 @@ public partial class VideoComponent
             StateHasChanged();
         });
 
-        await youtubeDownloader.DownloadVideoAsync(
+        await youtube.DownloadVideoAsync(
             video.Url,
             SelectedPath,
             SelectedExtension,
