@@ -31,9 +31,14 @@ public partial class Index
 
     protected override async Task OnInitializedAsync()
     {
+        LoadPathsAndExtensions();
+        await LoadStates();
+    }
+
+    private void LoadPathsAndExtensions()
+    {
         downloadPaths = defaultData.GetDownloadPaths();
         videoExtensions = defaultData.GetVideoExtensions();
-        await LoadStates();
     }
 
     private async Task LoadStates()
@@ -386,7 +391,7 @@ public partial class Index
 
     private bool IsVideoNotLoaded(string videoId)
     {
-        return videoLibrary.Videos.Any(v => v.Id == videoId)is false;
+        return videoLibrary.Videos.Any(v => v.Id == videoId) is false;
     }
 
     private bool IsPlaylistUrl()

@@ -2,4 +2,6 @@
 Ideas
 -----
 
-* Implement second language option such as French.
+* Implement Search for channels, videos, playlist.
+* Implement page for channel:
+	- Will display the Channel's information and it's videos.
