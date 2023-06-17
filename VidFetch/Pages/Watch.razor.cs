@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using YoutubeExplode.Videos;
 using System.Text.RegularExpressions;
+using YoutubeExplode.Channels;
 
 namespace VidFetch.Pages;
 
@@ -11,18 +12,29 @@ public partial class Watch
     public string SourcePath { get; set; }
     public Video Video { get; set; }
 
+    private Channel channel;
+
     protected override async Task OnInitializedAsync()
     {
         Video = await youtubeDownloader.GetVideoAsync(Url);
         SourcePath = $"https://www.youtube.com/embed/{Video.Id}";
+        if (Video is not null)
+        {
+            channel = await youtubeDownloader.GetChannelAsync(Video.Author.ChannelUrl);
+        }
+    }
+
+    private async Task CopyToClipboard(string text)
+    {
+        await Clipboard.SetTextAsync(text);
+        snackbar.Add($"Copied to clipboard: {text}");
     }
 
     private string FormatDescription()
     {
         if (Video is not null)
         {
-            string description = "";
-            description = MyRegex().Replace(Video.Description, "<a href=\"$1\">$1</a>");
+            string description = MyRegex().Replace(Video.Description, "<a href=\"$1\">$1</a>");
 
             // Split the description into separate lines
             string[] lines = description.Split('\n');

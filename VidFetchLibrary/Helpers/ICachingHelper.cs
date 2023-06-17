@@ -2,6 +2,7 @@
 
 public interface ICachingHelper
 {
+    string CacheChannelKey(string id);
     string CacheStreamInfoKey(string id);
     string CacheSubtitlesInfoKey(string id);
     string CacheVideoKey(string id);

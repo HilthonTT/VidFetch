@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using YoutubeExplode.Channels;
 using YoutubeExplode.Videos;
 
 namespace VidFetch.Components;
@@ -29,6 +30,7 @@ public partial class VideoComponent
     public int Index { get; set; }
 
     private Video video;
+    private Channel channel;
     private bool isDownloading = false;
     private bool isDownloadSuccessful = false;
     private bool isSaved = false;
@@ -40,6 +42,7 @@ public partial class VideoComponent
         if (video is not null)
         {
             isSaved = await videoData.VideoExistAsync(Url, video.Id);
+            channel = await youtubeDownloader.GetChannelAsync(video.Author.ChannelUrl);
         }
     }
 

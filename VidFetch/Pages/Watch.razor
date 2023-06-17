@@ -1,13 +1,27 @@
 ﻿@page "/Watch/{Url}"
 @inject IYoutubeDownloader youtubeDownloader
+@inject ISnackbar snackbar
 
 <MudCard>
     <div class="text-center">
         <iframe class="w-100" style="height: 600px;" src="@SourcePath" allowfullscreen />
     </div>
     <MudCardContent>
-        <MudText Typo="Typo.h5">@Video?.Title</MudText>
-        <MudText Typo="Typo.body2">@Video?.Author</MudText>
+        <MudItem>
+            <MudLink Typo="Typo.h5" @onclick="(() => CopyToClipboard(Video.Url))">
+                @Video?.Title
+            </MudLink>
+        </MudItem>
+        <MudItem>
+            <MudAvatar>
+                <MudImage title="@Video?.Author" Src="@channel?.Thumbnails.FirstOrDefault().Url" />
+            </MudAvatar>
+        </MudItem>
+        <MudItem>
+            <MudLink Color="Color.Warning" Typo="Typo.body1" @onclick="(() => CopyToClipboard(Video.Author.ChannelUrl))">
+                @Video?.Author
+            </MudLink>
+        </MudItem>
         <MudText Typo="Typo.body2">Uploaded: @Video?.UploadDate</MudText>
         <MudDivider Class="mt-5 mb-5"/>
         <MudText Typo="Typo.body2">

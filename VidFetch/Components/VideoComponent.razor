@@ -10,6 +10,11 @@
     <MudItem xs="CardSize">
         <MudCard Class="mb-4">
             <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar>
+                        <MudImage title="@video.Author" Src="@channel?.Thumbnails.FirstOrDefault().Url"></MudImage>
+                    </MudAvatar>
+                </CardHeaderAvatar>
                 <CardHeaderContent>
                     <MudText Typo="Typo.subtitle1" title="@video.Title">@video.Title</MudText>
                 </CardHeaderContent>

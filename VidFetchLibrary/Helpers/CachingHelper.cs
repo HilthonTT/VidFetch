@@ -2,7 +2,8 @@
 public class CachingHelper : ICachingHelper
 {
     private const string CacheNameVideo = "VideoData";
-    private const string CacheNamePlaylistVIdeo = "PlaylistVideoData";
+    private const string CacheNamePlaylistVideo = "PlaylistVideoData";
+    private const string CacheNameChannel = "ChannelData";
     private const string CacheNameStreamInfo = "StreamInfoData";
     private const string CacheNameSubtitlesInfo = "SubtitlesInfoData";
 
@@ -13,7 +14,12 @@ public class CachingHelper : ICachingHelper
 
     public string CacheVideoPlaylistKey(string id)
     {
-        return $"{CacheNamePlaylistVIdeo}-{id}";
+        return $"{CacheNamePlaylistVideo}-{id}";
+    }
+
+    public string CacheChannelKey(string id)
+    {
+        return $"{CacheNameChannel}-{id}";
     }
 
     public string CacheStreamInfoKey(string id)

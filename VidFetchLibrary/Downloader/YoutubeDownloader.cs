@@ -2,6 +2,7 @@
 using System.Web;
 using VidFetchLibrary.Helpers;
 using YoutubeExplode;
+using YoutubeExplode.Channels;
 using YoutubeExplode.Common;
 using YoutubeExplode.Playlists;
 using YoutubeExplode.Videos;
@@ -69,6 +70,21 @@ public class YoutubeDownloader : IYoutubeDownloader
         {
             var youtube = new YoutubeClient();
             output = await youtube.Videos.GetAsync(url);
+            _cache.Set(key, output, TimeSpan.FromHours(5));
+        }
+
+        return output;
+    }
+
+    public async Task<Channel> GetChannelAsync(string url)
+    {
+        string key = _cachingHelper.CacheChannelKey(url);
+
+        var output = _cache.Get<Channel>(key);
+        if (output is null)
+        {
+            var youtube = new YoutubeClient();
+            output = await youtube.Channels.GetAsync(url);
             _cache.Set(key, output, TimeSpan.FromHours(5));
         }
 
