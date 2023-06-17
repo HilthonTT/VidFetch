@@ -13,7 +13,8 @@ public class VideoData : IVideoData
     private readonly IYoutubeDownloader _youtubeDownloader;
     private SQLiteAsyncConnection _db;
 
-    public VideoData(IMemoryCache cache, IYoutubeDownloader youtubeDownloader)
+    public VideoData(IMemoryCache cache,
+                     IYoutubeDownloader youtubeDownloader)
     {
         _cache = cache;
         _youtubeDownloader = youtubeDownloader;
@@ -48,7 +49,7 @@ public class VideoData : IVideoData
 
     public async Task<VideoModel> GetVideoAsync(string url, string videoId)
     {
-        string key = $"{CacheName}-{videoId}";
+        string key = GetCache(videoId);
 
         var output = _cache.Get<VideoModel>(key);
         if (output is null)
@@ -76,12 +77,12 @@ public class VideoData : IVideoData
         var existingVideo = await _db.Table<VideoModel>().FirstOrDefaultAsync(
             v => v.Url == url || v.VideoId == videoId
         );
-        var video = await _youtubeDownloader.GetVideoAsync(url);
-
+        
         RemoveCache();
 
         if (existingVideo is null)
         {
+            var video = await _youtubeDownloader.GetVideoAsync(url);
             return await CreateVideoAsync(video);
         }
         else
@@ -92,16 +93,21 @@ public class VideoData : IVideoData
 
     public async Task<int> DeleteAsync(VideoModel video)
     {
-        string key = $"{CacheName}-{video.Id}";
-        var existingVideo = await _db.GetAsync<VideoModel>(v => v.Id == video.Id);
+        string key = GetCache(video.VideoId);
 
-        if (existingVideo is null)
+        var existingVideo = await _db.Table<VideoModel>().FirstOrDefaultAsync(
+            v => v.Id == video.Id || v.Url == video.Url
+        );
+
+        if (existingVideo is not null)
+        {
+            RemoveCache(key);
+            return await _db.DeleteAsync<VideoModel>(existingVideo.Id);
+        }
+        else
         {
             return 0;
         }
-
-        RemoveCache(key);
-        return await _db.DeleteAsync<VideoModel>(video);
     }
 
     private async Task<int> CreateVideoAsync(Video video) // Using YoutubeExplode Video Class to create 
@@ -124,6 +130,11 @@ public class VideoData : IVideoData
         {
             _cache.Remove(id);
         }
+    }
+
+    private static string GetCache(string id)
+    {
+        return $"{CacheName}-{id}";
     }
 
     private static VideoModel MapVideo(Video video)
