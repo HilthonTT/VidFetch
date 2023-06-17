@@ -1,77 +1,83 @@
 ﻿@inject IYoutubeDownloader youtubeDownloader
-@inject ISnackbar snackbar
+@inject IVideoData videoData
 @inject ITokenHelper tokenHelper
 @inject IFolderHelper folderHelper
-@inject IVideoLibraryHelper videoLibraryHelper
-@inject IVideoData videoData
+@inject ISnackbar snackbar
 @inject NavigationManager navManager
 
-<MudCard Class="mb-4">
-    <MudCardHeader>
-        <CardHeaderContent>
-            <MudText Typo="Typo.subtitle1">@Model.Title</MudText>
-        </CardHeaderContent>
-        <CardHeaderActions>
-            @if (isSaved is false)
-            {
-                 <MudIconButton 
-                    Icon="@Icons.Material.Filled.Save" 
-                    Color="Color.Default"
-                    Title="Save Video"
-                @onclick="SaveVideo"/>
-            }
-            <MudIconButton 
-                Icon="@Icons.Material.Filled.RemoveCircleOutline" 
-                Color="Color.Default"
-                Title="Remove"
-            @onclick="Remove"/>
-        </CardHeaderActions>
-    </MudCardHeader>
-    <MudCardMedia Image="@Model.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
-    <MudCardContent Class="text-start">
-        <div>@Model.Author</div>
-        <div>@Model.Duration</div>
-        <div>@Model.Url</div>
-        <MudProgressLinear 
-            Color="Color.Primary"
-            Striped="true"
-            Size="Size.Medium"
-            Max="1"
-            Value="@progress"
-            Class="my-7"
-            Buffer="true" />
-    </MudCardContent>
-    <MudCardActions Class="justify-content-between">
-        @if (isDownloading is false)
-        {
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-            @onclick="DownloadVideo">
-                Download
-            </MudButton>
-        }
-        else
-        {
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Error"
-            @onclick="CancelVideoDownload">
-                Cancel Download
-            </MudButton>
-        }
-        <MudButton Variant="Variant.Outlined"
-                   Color="Color.Secondary"
-        @onclick="LoadWatchPage">
-            Watch
-        </MudButton>
-        @if (isDownloadSuccessful)
-        {
-            <MudButton Variant="Variant.Outlined"
-                       Color="Color.Warning"
-            @onclick="OpenFolderLocation">
-                Open Location
-            </MudButton>
-        }
-    </MudCardActions>
-</MudCard>
+@if (video is not null)
+{
+    <MudItem xs="CardSize">
+        <MudCard Class="mb-4">
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.subtitle1" title="@video.Title">@video.Title</MudText>
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    @if (isSaved is false)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Save"
+                                       Color="Color.Default"
+                                       Title="Save Video"
+                        @onclick="SaveVideo" />
+                    }
+                    <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
+                                   Color="Color.Default"
+                                   Title="Remove"
+                    @onclick="Remove" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardMedia Image="@video.Thumbnails.FirstOrDefault().Url" Height="200"></MudCardMedia>
+            <MudCardContent Class="text-start">
+                <MudText title="@video.Author">@video.Author</MudText>
+                <MudText title="@video.Duration">@video.Duration</MudText>
+                <MudText title="@video.Url">@video.Url</MudText>
+                @if (Index is not 0)
+                {
+                    <MudText title="@Index">Index: @Index</MudText>
+                }
+                <MudProgressLinear Color="Color.Primary"
+                                   Striped="true"
+                                   Size="Size.Medium"
+                                   Max="1"
+                                   Value="@progress"
+                                   Class="my-7"
+                                   Buffer="true" />
+            </MudCardContent>
+            <MudCardActions Class="justify-content-between">
+                @if (isDownloading is false)
+                {
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                    @onclick="DownloadVideo">
+                        Download
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Error"
+                    @onclick="CancelVideoDownload">
+                        Cancel Download
+                    </MudButton>
+                }
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Secondary"
+                @onclick="LoadWatchPage">
+                    Watch
+                </MudButton>
+                @if (isDownloadSuccessful)
+                {
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Warning"
+                    @onclick="OpenFolderLocation">
+                        Open Location
+                    </MudButton>
+                }
+            </MudCardActions>
+        </MudCard>
+    </MudItem>
+}
+
 
 

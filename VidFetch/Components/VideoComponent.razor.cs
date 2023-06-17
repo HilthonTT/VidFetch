@@ -8,7 +8,10 @@ public partial class VideoComponent
 {
     [Parameter]
     [EditorRequired]
-    public Video Model { get; set; }
+    public string Url { get; set; }
+
+    [Parameter]
+    public int CardSize { get; set; } = 12;
 
     [Parameter]
     [EditorRequired]
@@ -22,35 +25,34 @@ public partial class VideoComponent
     [EditorRequired]
     public EventCallback<Video> RemoveEvent { get; set; }
 
+    [Parameter]
+    public int Index { get; set; }
+
+    private Video video;
     private bool isDownloading = false;
     private bool isDownloadSuccessful = false;
     private bool isSaved = false;
     private double progress = 0;
     private CancellationTokenSource tokenSource;
-
     protected override async Task OnInitializedAsync()
     {
-        isSaved = await videoData.VideoExistAsync(Model.Url, Model.Id);
+        video = await youtubeDownloader.GetVideoAsync(Url);
+        if (video is not null)
+        {
+            isSaved = await videoData.VideoExistAsync(Url, video.Id);
+        }
     }
 
     private async Task DownloadVideo()
     {
         isDownloading = true;
         var cancellationToken = tokenHelper.InitializeToken(ref tokenSource);
-
         var progressReporter = new Progress<double>(value =>
         {
             progress = value;
             StateHasChanged();
         });
-
-        await youtubeDownloader.DownloadVideoAsync(
-            Model.Url,
-            SelectedPath,
-            SelectedExtension,
-            progressReporter,
-            cancellationToken);
-
+        await youtubeDownloader.DownloadVideoAsync(video.Url, SelectedPath, SelectedExtension, progressReporter, cancellationToken);
         AddSnackbar();
         CancelVideoDownload();
         isDownloadSuccessful = true;
@@ -60,7 +62,7 @@ public partial class VideoComponent
     {
         if (isSaved is false)
         {
-            await videoData.SetVideoAsync(Model.Url, Model.Id);
+            await videoData.SetVideoAsync(video.Url, video.Id);
             isSaved = true;
         }
     }
@@ -74,18 +76,18 @@ public partial class VideoComponent
 
     private void LoadWatchPage()
     {
-        string encodedUrl = Uri.EscapeDataString(Model.Url);
+        string encodedUrl = Uri.EscapeDataString(video.Url);
         navManager.NavigateTo($"/Watch/{encodedUrl}");
     }
 
     private void AddSnackbar()
     {
-        snackbar.Add($"Successfully downloaded {Model.Title}", Severity.Normal);
+        snackbar.Add($"Successfully downloaded {video.Title}", Severity.Normal);
     }
 
     private async Task Remove()
     {
-        await RemoveEvent.InvokeAsync(Model);
+        await RemoveEvent.InvokeAsync(video);
     }
 
     private async Task OpenFolderLocation()
