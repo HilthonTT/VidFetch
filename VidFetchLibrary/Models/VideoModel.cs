@@ -12,6 +12,7 @@ public class VideoModel
     public string Url { get; set; }
     public string AuthorName { get; set; }
     public string AuthorUrl { get; set; }
+    public string AuthorThumbnailUrl { get; set; }
     public string ThumbnailUrl { get; set; }
     public string KeywordsJson
     {

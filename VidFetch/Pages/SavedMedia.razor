@@ -97,10 +97,17 @@
                 <MudVirtualize Items="videos" Context="v" OverscanCount="10">
                     <VideoComponent 
                         @key="v.Id" 
-                        Url="@v.Url"
+                        VideoId="@v.VideoId"
                         CardSize="6"
+                        Url="@v.Url"
+                        Title="@v.Title"
+                        Author="@v.AuthorName"
+                        AuthorUrl="@v.AuthorUrl"
+                        Duration="@v.Duration"
+                        VideoThumbnail="@v.ThumbnailUrl"
                         SelectedExtension="@selectedExtension"
                         SelectedPath="@selectedPath"
+                        AuthorThumbnailUrl="@v.AuthorThumbnailUrl"
                         RemoveEvent="DeleteVideo"/>
                 </MudVirtualize>
             </MudGrid>

@@ -10,14 +10,14 @@ public class VideoData : IVideoData
     private const string DbName = "Video.db3";
     private const string CacheName = "VideoData";
     private readonly IMemoryCache _cache;
-    private readonly IYoutube _youtubeDownloader;
+    private readonly IYoutube _youtube;
     private SQLiteAsyncConnection _db;
 
     public VideoData(IMemoryCache cache,
-                     IYoutube youtubeDownloader)
+                     IYoutube youtube)
     {
         _cache = cache;
-        _youtubeDownloader = youtubeDownloader;
+        _youtube = youtube;
         SetUpDb();
     }
 
@@ -82,7 +82,7 @@ public class VideoData : IVideoData
 
         if (existingVideo is null)
         {
-            var video = await _youtubeDownloader.GetVideoAsync(url);
+            var video = await _youtube.GetVideoAsync(url);
             return await CreateVideoAsync(video);
         }
         else
@@ -112,7 +112,7 @@ public class VideoData : IVideoData
 
     private async Task<int> CreateVideoAsync(Video video) // Using YoutubeExplode Video Class to create 
     {
-        var v = MapVideo(video);
+        var v = await MapVideoAsync(video);
 
         return await _db.InsertAsync(v);
     }
@@ -137,10 +137,13 @@ public class VideoData : IVideoData
         return $"{CacheName}-{id}";
     }
 
-    private static VideoModel MapVideo(Video video)
+    private async Task<VideoModel> MapVideoAsync(Video video)
     {
         string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
         string thumbnailUrl = video.Thumbnails.Count > 0 ? video.Thumbnails[0].Url : defaultUrl;
+
+        var channel = await _youtube.GetChannelAsync(video.Author.ChannelUrl);
+        string channelThumbnail = channel.Thumbnails.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
 
         return new VideoModel()
         {
@@ -150,6 +153,7 @@ public class VideoData : IVideoData
             Url = video.Url,
             AuthorName = video.Author.ChannelTitle,
             AuthorUrl = video.Author.ChannelUrl,
+            AuthorThumbnailUrl = channelThumbnail,
             ThumbnailUrl = thumbnailUrl,
             Keywords = video.Keywords.ToList(),
             Duration = video.Duration.Value,
