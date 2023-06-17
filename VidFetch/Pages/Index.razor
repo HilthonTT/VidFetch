@@ -113,10 +113,12 @@
                 </div>
             }
             <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
-                <VideoComponent Model="v"
-                                SelectedExtension="@selectedExtension"
-                                SelectedPath="@selectedPath"
-                                RemoveEvent="RemoveVideo"/>
+                <VideoComponent 
+                    @key="v.Id" 
+                    Url="@v.Url" 
+                    SelectedExtension="@selectedExtension" 
+                    SelectedPath="@selectedPath" 
+                    RemoveEvent="RemoveVideo"/>
             </MudVirtualize>
         </MudItem>
         <MudItem xs="6">
@@ -170,11 +172,13 @@
                 </div>
             }
             <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
-                <PlaylistVideoComponent Model="v"
-                                        SelectedExtension="@selectedExtension"
-                                        SelectedPath="@selectedPath"
-                                        Index="@GetIndex(v)"
-                                        RemoveEvent="RemovePlaylistVideo"/>
+                <VideoComponent 
+                    @key="v.Id" 
+                    Url="@v.Url"
+                    SelectedExtension="@selectedExtension"
+                    SelectedPath="@selectedPath"
+                    Index="@GetIndex(v)"
+                    RemoveEvent="RemovePlaylistVideo"/>
             </MudVirtualize>
         </MudItem>
     </MudGrid>

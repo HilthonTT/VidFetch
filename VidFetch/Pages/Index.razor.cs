@@ -294,9 +294,10 @@ public partial class Index
         videoLibraryHelper.RemoveVideo(video);
     }
 
-    private void RemovePlaylistVideo(PlaylistVideo playlistVideo)
+    private void RemovePlaylistVideo(Video video)
     {
-        videoLibraryHelper.RemovePlaylistVideo(playlistVideo);
+        var v = videoLibrary.PlaylistVideos.FirstOrDefault(v => v.Id == video.Id || v.Url == video.Url);
+        videoLibraryHelper.RemovePlaylistVideo(v);
     }
 
     private void ToggleDialog()
