@@ -9,13 +9,104 @@
 @inject ITokenHelper tokenHelper
 @inject IFolderHelper folderHelper
 
-<h3>SavedMedia</h3>
-
-
-@foreach (var v in videos)
-{
-    <div>@v.Title</div>
-}
+<MudContainer MaxWidth="MaxWidth.ExtraLarge">
+    <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
+        Saved Medias
+        <MudIcon Icon="@Icons.Material.Filled.PersonalVideo"></MudIcon>
+    </MudText>
+    @if (string.IsNullOrWhiteSpace(errorMessage) is false)
+    {
+        <MudAlert Severity="Severity.Error" Class="mb-4">
+            @errorMessage
+        </MudAlert>
+    }
+    <MudGrid Spacing="5">
+        <MudItem xs="12" Class="text-center">
+            <MudButtonGroup Class="mt-2">
+                @foreach (var p in downloadPaths)
+                {
+                    <MudButton Class="@GetButtonClass(p)"
+                               OnClick="(() => OnButtonClick(p))">
+                        @p
+                    </MudButton>
+                }
+            </MudButtonGroup>
+            <MudSelect Label="Video Format:"
+                       @bind-Value="selectedExtension"
+                       Class="mud-input-root text-start"
+                       HelperText="Pick your preferred format.">
+                @foreach (var e in videoExtensions)
+                {
+                    <MudSelectItem Value="@e" OnClick="SaveStates">@e</MudSelectItem>
+                }
+            </MudSelect>
+            <MudButton Class="mt-4 w-100"
+                       Color="Color.Warning"
+                       Variant="Variant.Outlined"
+            @onclick="OpenFileLocation">
+                Open Folder Location
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+    <MudGrid Spacing="5">
+        <MudItem xs="12">
+            @if (allVideosTokenSource is null)
+            {
+                <MudButton Color="Color.Primary"
+                           Variant="Variant.Filled"
+                           Class="w-100 mb-4"
+                @onclick="DownloadAll">
+                    @GetDownloadVideoText()
+                </MudButton>
+            }
+            else
+            {
+                <MudButton Color="Color.Error"
+                           Variant="Variant.Filled"
+                           Class="w-100 mb-4"
+                @onclick="CancelDownload">
+                    Cancel
+                </MudButton>
+            }
+            <MudAutocomplete T="string" Label="@GetVideoSearchBarText()"
+                             Variant="Variant.Outlined"
+                             Class="mb-4"
+                             AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                             OnAdornmentClick="FilterVideos"
+                             SearchFunc="SearchVideos"
+                             ResetValueOnEmptyText="true"
+            @bind-Value="searchText" />
+            <MudProgressLinear Color="Color.Primary"
+                               Striped="true"
+                               Size="Size.Medium"
+                               Max="1"
+                               Value="@videosProgress"
+                               Class="my-7"
+                               Buffer="true" />
+            @if (string.IsNullOrWhiteSpace(currentDownloadingVideo) is false)
+            {
+                <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingVideo</MudAlert>
+            }
+            @if (isVideosLoading)
+            {
+                <div class="text-center">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </div>
+            }
+            <MudGrid>
+                <MudVirtualize Items="videos" Context="v" OverscanCount="10">
+                    <VideoComponent 
+                        @key="v.Id" 
+                        Url="@v.Url"
+                        CardSize="6"
+                        SelectedExtension="@selectedExtension"
+                        SelectedPath="@selectedPath"
+                        RemoveEvent="DeleteVideo"/>
+                </MudVirtualize>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 
 @code {
@@ -108,15 +199,33 @@
         }
     }
 
-    private async Task RemoveVideo(VideoModel video)
+    private async Task DeleteVideo(Video video)
     {
-        videos.Remove(video);
-        await videoData.DeleteAsync(video);
+        var v = videos.FirstOrDefault(v => v.VideoId == video.Id || v.Url == video.Url);
+
+        videos.Remove(v);
+        await videoData.DeleteAsync(v);
     }
 
     private async Task<IEnumerable<string>> SearchVideos(string searchInput)
     {
         return await searchHelper.SearchAsync(videos, searchInput);
+    }
+
+    private async Task OnButtonClick(string path)
+    {
+        selectedPath = path;
+        await SaveStates();
+    }
+
+    private async Task OpenFileLocation()
+    {
+        if (string.IsNullOrWhiteSpace(selectedPath))
+        {
+            return;
+        }
+
+        await folderHelper.OpenFolderLocationAsync(selectedPath);
     }
 
     private void FilterVideos()
@@ -140,5 +249,45 @@
         tokenHelper.CancelRequest(ref allVideosTokenSource);
         videosProgress = 0;
         currentDownloadingVideo = "";
+    }
+
+    private string GetButtonClass(string path)
+    {
+        if (selectedPath == path)
+        {
+            return "text-success";
+        }
+
+        return "text-danger";
+    }
+
+    private string GetDownloadVideoText()
+    {
+        if (videos?.Count <= 0)
+        {
+            return "Download Video";
+        }
+
+        if (videos?.Count == 1)
+        {
+            return "Download 1 Video";
+        }
+
+        return $"Download {videos?.Count} Videos";
+    }
+
+    private string GetVideoSearchBarText()
+    {
+        if (videos?.Count <= 0)
+        {
+            return "Search Video";
+        }
+
+        if (videos?.Count == 1)
+        {
+            return "Search 1 Video";
+        }
+
+        return $"Search {videos?.Count} Videos";
     }
 }
