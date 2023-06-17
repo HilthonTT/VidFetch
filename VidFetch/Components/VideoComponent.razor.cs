@@ -65,6 +65,7 @@ public partial class VideoComponent
     {
         isSaved = await videoData.VideoExistAsync(Url, VideoId);
         video = await youtube.GetVideoAsync(Url);
+        AuthorThumbnailUrl = await GetAuthorThumbnail();
     }
 
     private async Task DownloadVideo()
@@ -113,6 +114,20 @@ public partial class VideoComponent
     {
         await Clipboard.SetTextAsync(text);
         snackbar.Add($"Copied to clipboard: {text}");
+    }
+
+    private async Task<string> GetAuthorThumbnail()
+    {
+        if (string.IsNullOrWhiteSpace(AuthorThumbnailUrl))
+        {
+            string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
+
+            var channel = await youtube.GetChannelAsync(AuthorUrl);
+            string channelThumbnail = channel.Thumbnails?.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
+            return channelThumbnail;
+        }
+
+        return AuthorThumbnailUrl;
     }
 
     private void CancelVideoDownload()
