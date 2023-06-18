@@ -11,11 +11,11 @@
         <MudCardHeader>
             <CardHeaderAvatar>
                 <MudAvatar>
-                    <MudImage title="@Author" Src="@AuthorThumbnailUrl"></MudImage>
+                    <MudImage title="@Video.AuthorName" Src="@Video.AuthorThumbnailUrl"></MudImage>
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
-                <MudText Typo="Typo.subtitle1" title="@Title">@Title</MudText>
+                <MudText Typo="Typo.subtitle1" title="@Video.Title">@Video.Title</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
                 @if (isSaved is false)
@@ -31,17 +31,17 @@
                 @onclick="Remove" />
             </CardHeaderActions>
         </MudCardHeader>
-        <MudCardMedia Image="@VideoThumbnail" Height="200"></MudCardMedia>
+        <MudCardMedia Image="@Video.ThumbnailUrl" Height="200"></MudCardMedia>
         <MudCardContent Class="text-start">
-            <MudLink Color="Color.Default" title="@Author" @onclick="(() => CopyToClipboard(AuthorUrl))">
-                @Author
+            <MudLink Color="Color.Default" title="@Video.AuthorName" @onclick="(() => CopyToClipboard(Video.AuthorUrl))">
+                @Video.AuthorName
             </MudLink>
-            <MudText title="@Duration">
-                @Duration
+            <MudText title="@Video.Duration">
+                @Video.Duration
             </MudText>
-            <MudLink title="@Url"
-            @onclick="(() => CopyToClipboard(Url))">
-                @Url
+            <MudLink title="@Video.Url"
+            @onclick="(() => CopyToClipboard(Video.Url))">
+                @Video.Url
             </MudLink>
             @if (Index is not 0)
             {

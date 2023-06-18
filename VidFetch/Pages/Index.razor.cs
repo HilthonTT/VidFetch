@@ -1,4 +1,5 @@
 using MudBlazor;
+using VidFetchLibrary.Models;
 using YoutubeExplode.Playlists;
 using YoutubeExplode.Videos;
 
@@ -397,6 +398,42 @@ public partial class Index
     private bool IsPlaylistUrl()
     {
         return youtubeUrl.Contains("list=");
+    }
+
+    private VideoModel MapVideo(Video video)
+    {
+        string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
+        string thumbnailUrl = video.Thumbnails?.Count > 0 ? video.Thumbnails[0].Url : defaultUrl;
+        return new VideoModel()
+        {
+            VideoId = video.Id,
+            Title = video.Title,
+            Description = video.Description,
+            Url = video.Url,
+            AuthorName = video.Author.ToString(),
+            AuthorUrl = video.Author.ChannelUrl,
+            AuthorThumbnailUrl = "",
+            ThumbnailUrl = thumbnailUrl,
+            Duration = video.Duration.GetValueOrDefault(),
+            UploadDate = video.UploadDate,
+        };
+    }
+
+    private VideoModel MapPlaylistVideo(PlaylistVideo video)
+    {
+        string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
+        string thumbnailUrl = video.Thumbnails?.Count > 0 ? video.Thumbnails[0].Url : defaultUrl;
+        return new VideoModel()
+        {
+            VideoId = video.Id,
+            Title = video.Title,
+            Url = video.Url,
+            AuthorName = video.Author.ToString(),
+            AuthorUrl = video.Author.ChannelUrl,
+            AuthorThumbnailUrl = "",
+            ThumbnailUrl = thumbnailUrl,
+            Duration = video.Duration.GetValueOrDefault(),
+        };
     }
 
     private int GetIndex(PlaylistVideo playlistVideo)

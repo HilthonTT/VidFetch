@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using VidFetchLibrary.Models;
 using YoutubeExplode.Videos;
 
 namespace VidFetch.Components;
@@ -7,34 +8,11 @@ namespace VidFetch.Components;
 public partial class VideoComponent
 {
     [Parameter]
-    public string VideoId { get; set; }
-
-    [Parameter]
     [EditorRequired]
-    public string Url { get; set; }
+    public VideoModel Video { get; set; }
 
     [Parameter]
     public int CardSize { get; set; } = 12;
-
-    [Parameter]
-    [EditorRequired]
-    public string Title { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public string Author { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public string AuthorUrl { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public TimeSpan Duration { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public string VideoThumbnail { get; set; }
 
     [Parameter]
     [EditorRequired]
@@ -49,9 +27,6 @@ public partial class VideoComponent
     public EventCallback<Video> RemoveEvent { get; set; }
 
     [Parameter]
-    public string AuthorThumbnailUrl { get; set; }
-
-    [Parameter]
     public int Index { get; set; }
 
     private Video video;
@@ -63,9 +38,17 @@ public partial class VideoComponent
 
     protected override async Task OnInitializedAsync()
     {
-        isSaved = await videoData.VideoExistAsync(Url, VideoId);
-        video = await youtube.GetVideoAsync(Url);
-        AuthorThumbnailUrl = await GetAuthorThumbnail();
+        isSaved = await videoData.VideoExistAsync(Video.Url, Video.VideoId);
+        video = await youtube.GetVideoAsync(Video.Url);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadNullData();
+            StateHasChanged();
+        }
     }
 
     private async Task DownloadVideo()
@@ -80,7 +63,7 @@ public partial class VideoComponent
         });
 
         await youtube.DownloadVideoAsync(
-            Url,
+            Video.Url,
             SelectedPath,
             SelectedExtension,
             progressReporter,
@@ -95,7 +78,7 @@ public partial class VideoComponent
     {
         if (isSaved is false)
         {
-            await videoData.SetVideoAsync(Url, VideoId);
+            await videoData.SetVideoAsync(Video.Url, Video.VideoId);
             isSaved = true;
         }
     }
@@ -116,18 +99,22 @@ public partial class VideoComponent
         snackbar.Add($"Copied to clipboard: {text}");
     }
 
-    private async Task<string> GetAuthorThumbnail()
+    private async Task LoadNullData()
     {
-        if (string.IsNullOrWhiteSpace(AuthorThumbnailUrl))
+        if (string.IsNullOrWhiteSpace(Video.AuthorThumbnailUrl))
         {
             string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
 
-            var channel = await youtube.GetChannelAsync(AuthorUrl);
+            var channel = await youtube.GetChannelAsync(Video.AuthorUrl);
             string channelThumbnail = channel.Thumbnails?.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
-            return channelThumbnail;
+            Video.AuthorThumbnailUrl =  channelThumbnail;
         }
 
-        return AuthorThumbnailUrl;
+        if (string.IsNullOrWhiteSpace(Video.Description))
+        {
+            var video = await youtube.GetVideoAsync(Video.Url);
+            Video.Description = video.Description;
+        }
     }
 
     private void CancelVideoDownload()
@@ -139,12 +126,12 @@ public partial class VideoComponent
 
     private void LoadWatchPage()
     {
-        string encodedUrl = Uri.EscapeDataString(Url);
+        string encodedUrl = Uri.EscapeDataString(Video.Url);
         navManager.NavigateTo($"/Watch/{encodedUrl}");
     }
 
     private void AddSnackbar()
     {
-        snackbar.Add($"Successfully downloaded {Title}", Severity.Normal);
+        snackbar.Add($"Successfully downloaded {Video.Title}", Severity.Normal);
     }
 }

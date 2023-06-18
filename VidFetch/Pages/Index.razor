@@ -114,17 +114,11 @@
             }
             <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
                 <VideoComponent 
-                    @key="v.Id" 
-                    VideoId="@v.Id"
-                    Url="@v.Url" 
-                    Title="@v.Title"
-                    Author="@v.Author.ToString()"
-                    AuthorUrl="@v.Author.ChannelUrl"
-                    Duration="@v.Duration.GetValueOrDefault()"
-                    VideoThumbnail="@v.Thumbnails.FirstOrDefault().Url"
+                    @key="v.Id"
+                    Video="@MapVideo(v)"
                     SelectedExtension="@selectedExtension" 
                     SelectedPath="@selectedPath" 
-                    RemoveEvent="RemoveVideo"/>
+                    RemoveEvent="RemoveVideo" />
             </MudVirtualize>
         </MudItem>
         <MudItem xs="6">
@@ -178,15 +172,8 @@
                 </div>
             }
             <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
-                <VideoComponent 
+                <VideoComponent Video="@MapPlaylistVideo(v)"
                     @key="v.Id" 
-                    VideoId="@v.Id"
-                    Url="@v.Url"
-                    Title="@v.Title"
-                    Author="@v.Author.ToString()"
-                    AuthorUrl="@v.Author.ChannelUrl"
-                    Duration="@v.Duration.GetValueOrDefault()"
-                    VideoThumbnail="@v.Thumbnails.FirstOrDefault().Url"
                     SelectedExtension="@selectedExtension"
                     SelectedPath="@selectedPath"
                     Index="@GetIndex(v)"
