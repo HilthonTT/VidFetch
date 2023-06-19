@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SQLite;
 using YoutubeExplode.Playlists;
+using YoutubeExplode.Search;
 using YoutubeExplode.Videos;
 
 namespace VidFetchLibrary.Models;
@@ -49,6 +50,19 @@ public class VideoModel
     }
 
     public VideoModel(PlaylistVideo video)
+    {
+        VideoId = video.Id;
+        Title = video.Title;
+        Description = "";
+        Url = video.Url;
+        AuthorName = video.Author.ChannelTitle;
+        AuthorUrl = video.Author.ChannelUrl;
+        AuthorThumbnailUrl = "";
+        ThumbnailUrl = GetThumbnailSource(video.Thumbnails[0].Url);
+        Duration = video.Duration.GetValueOrDefault();
+    }
+
+    public VideoModel(VideoSearchResult video)
     {
         VideoId = video.Id;
         Title = video.Title;

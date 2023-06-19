@@ -33,14 +33,14 @@
         </MudCardHeader>
         <MudCardMedia Image="@Video.ThumbnailUrl" Height="200"></MudCardMedia>
         <MudCardContent Class="text-start">
-            <MudLink Color="Color.Default" title="@Video.AuthorName" @onclick="(() => CopyToClipboard(Video.AuthorUrl))">
+            <MudLink Color="Color.Default" title="@Video.AuthorName" @onclick="(() => OpenUrl(Video.AuthorUrl))">
                 @Video.AuthorName
             </MudLink>
             <MudText title="@Video.Duration">
                 @Video.Duration
             </MudText>
             <MudLink title="@Video.Url"
-            @onclick="(() => CopyToClipboard(Video.Url))">
+            @onclick="(() => OpenUrl(Video.Url))">
                 @Video.Url
             </MudLink>
             @if (Index is not 0)

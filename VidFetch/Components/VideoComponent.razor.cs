@@ -89,10 +89,9 @@ public partial class VideoComponent
         await folderHelper.OpenFolderLocationAsync(SelectedPath);
     }
 
-    private async Task CopyToClipboard(string text)
+    private async Task OpenUrl(string text)
     {
-        await Clipboard.SetTextAsync(text);
-        snackbar.Add($"Copied to clipboard: {text}");
+        await Launcher.OpenAsync(text);
     }
 
     private async Task LoadNullData()

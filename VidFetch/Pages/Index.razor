@@ -11,195 +11,192 @@
 @inject IFolderHelper folderHelper
 @inject IVideoData videoData
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
-        Vid Fetch
-        <MudIcon Icon="@Icons.Custom.Brands.YouTube" Title="Video"></MudIcon>
-    </MudText>
-    @if (string.IsNullOrWhiteSpace(errorMessage) is false)
-    {
-        <MudAlert Severity="Severity.Error" Class="mb-4">
-            @errorMessage
-        </MudAlert>
-    }
-    <MudGrid Spacing="5">
-        <MudItem xs="12" Class="text-center">
-            <MudTextField @bind-Value="youtubeUrl"
-                          Class="mb-4"
-                          Label="Enter YouTube URL"
-                          Variant="Variant.Outlined"
-                          Adornment="Adornment.End"
-                          AdornmentIcon="@Icons.Material.Filled.Download"
-                          AdornmentColor="Color.Secondary"
-                          OnAdornmentClick="LoadVideoOrPlaylist"
-                          Required="true"
-                          Clearable="true" />
 
-            <MudButtonGroup Class="mt-2">
-                @foreach (var p in downloadPaths)
-                {
-                    <MudButton Class="@GetButtonClass(p)"
-                               OnClick="(() => OnButtonClick(p))">
-                        @p
-                    </MudButton>
-                }
-            </MudButtonGroup>
-            <MudSelect Label="Video Format:"
-                       @bind-Value="selectedExtension"
-                       Class="mud-input-root text-start"
-                       HelperText="Pick your preferred format.">
-                @foreach (var e in videoExtensions)
-                {
-                    <MudSelectItem Value="@e" OnClick="SaveStates">@e</MudSelectItem>
-                }
-            </MudSelect>
-            <MudButton Class="mt-4 w-100"
-                       Color="Color.Warning"
-                       Variant="Variant.Outlined"
-            @onclick="OpenFileLocation">
-                Open Folder Location
-            </MudButton>
-        </MudItem>
-    </MudGrid>
-    <MudGrid Spacing="5">
-        <MudItem xs="6">
-            @if (allVideosTokenSource is null)
+<MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
+    Vid Fetch
+    <MudIcon Icon="@Icons.Custom.Brands.YouTube" Title="Vid Fetch"></MudIcon>
+</MudText>
+@if (string.IsNullOrWhiteSpace(errorMessage) is false)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">
+        @errorMessage
+    </MudAlert>
+}
+<MudGrid Spacing="5">
+    <MudItem xs="12" Class="text-center">
+        <MudTextField @bind-Value="youtubeUrl"
+                      Class="mb-4"
+                      Label="Enter YouTube URL"
+                      Variant="Variant.Outlined"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Download"
+                      AdornmentColor="Color.Secondary"
+                      OnAdornmentClick="LoadVideoOrPlaylist"
+                      Required="true"
+                      Clearable="true" />
+
+        <MudButtonGroup Class="mt-2">
+            @foreach (var p in downloadPaths)
             {
-                <MudButton Color="Color.Primary"
-                           Variant="Variant.Filled"
-                           Class="w-100 mb-4"
-                @onclick="DownloadAllVideos">
-                    @GetDownloadVideoText()
+                <MudButton Class="@GetButtonClass(p)"
+                           OnClick="(() => OnButtonClick(p))">
+                    @p
                 </MudButton>
             }
-            else
+        </MudButtonGroup>
+        <MudSelect Label="Video Format:"
+        @bind-Value="selectedExtension"
+                   Class="mud-input-root text-start"
+                   HelperText="Pick your preferred format.">
+            @foreach (var e in videoExtensions)
             {
-                <MudButton Color="Color.Error"
-                           Variant="Variant.Filled"
-                           Class="w-100 mb-4"
-                @onclick="CancelVideosDownload">
-                    Cancel
-                </MudButton>
+                <MudSelectItem Value="@e" OnClick="SaveStates">@e</MudSelectItem>
             }
-            <MudButton Color="Color.Warning"
-                        Variant="Variant.Filled"
-                        Class="w-100 mb-4"
-            @onclick="ClearVideos">
-                Clear Videos
-            </MudButton>
-            <MudAutocomplete T="string" Label="@GetVideoSearchBarText()"
-                Variant="Variant.Outlined"
-                Class="mb-4"
-                AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                OnAdornmentClick="FilterVideos"
-                SearchFunc="SearchVideos"
-                ResetValueOnEmptyText="true"
-                @bind-Value="videoSearchText" />
-            <MudProgressLinear Color="Color.Primary"
-                               Striped="true"
-                               Size="Size.Medium"
-                               Max="1"
-                               Value="@videosProgress"
-                               Class="my-7" 
-                               Buffer="true" />
-            @if (string.IsNullOrWhiteSpace(currentDownloadingVideo) is false)
-            {
-                <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingVideo</MudAlert>
-            }
-            @if (isVideoLoading)
-            {
-                <div class="text-center">
-                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-                </div>
-            }
-            <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
-                <VideoComponent 
-                    @key="v.Id"
-                    Video="new VideoModel(v)"
-                    SelectedExtension="@selectedExtension" 
-                    SelectedPath="@selectedPath" 
-                    RemoveEvent="RemoveVideo" />
-            </MudVirtualize>
-        </MudItem>
-        <MudItem xs="6">
-            @if (playlistTokenSource is null)
-            {
-                <MudButton Color="Color.Primary"
-                           Variant="Variant.Filled"
-                           Class="w-100 mb-4"
-                @onclick="DownloadAllPlaylists">
-                    Download Playlist
-                </MudButton>
-            }
-            else
-            {
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Error"
-                           Class="w-100 mb-4"
-                @onclick="CancelPlaylistDownload">
-                    Cancel
-                </MudButton>
-            }
-            <MudButton Color="Color.Warning"
+        </MudSelect>
+        <MudButton Class="mt-4 w-100"
+                   Color="Color.Warning"
+                   Variant="Variant.Outlined"
+        @onclick="OpenFileLocation">
+            Open Folder Location
+        </MudButton>
+    </MudItem>
+</MudGrid>
+<MudGrid Spacing="5">
+    <MudItem xs="6">
+        @if (allVideosTokenSource is null)
+        {
+            <MudButton Color="Color.Primary"
                        Variant="Variant.Filled"
                        Class="w-100 mb-4"
-            @onclick="ClearPlaylist">
-                Clear Playlist
+            @onclick="DownloadAllVideos">
+                @GetDownloadVideoText()
             </MudButton>
-            <MudAutocomplete T="string" Label="@GetPlaylistVideoSearchBarText()"
-                Variant="Variant.Outlined"
-                Class="mb-4"
-                AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                OnAdornmentClick="FilterPlaylistVideo"
-                SearchFunc="SearchPlaylistVideos"
-                ResetValueOnEmptyText="true"
-                @bind-Value="playlistVideoSearchText" />
-            <MudProgressLinear Color="Color.Primary"
-                               Striped="true"
-                               Size="Size.Medium"
-                               Max="1"
-                               Value="@playlistProgress"
-                               Class="my-7" 
-                               Buffer="true"/>
-            @if (string.IsNullOrWhiteSpace(currentDownloadingPlaylistVideo) is false)
-            {
-                <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingPlaylistVideo</MudAlert>
-            }
-            @if (isPlaylistLoading)
-            {
-                <div class="text-center">
-                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-                </div>
-            }
-            <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
-                <VideoComponent 
-                    @key="v.Id" 
-                    Video="new VideoModel(v)"
-                    SelectedExtension="@selectedExtension"
-                    SelectedPath="@selectedPath"
-                    Index="@GetIndex(v)"
-                    RemoveEvent="RemovePlaylistVideo"/>
-            </MudVirtualize>
-        </MudItem>
-    </MudGrid>
+        }
+        else
+        {
+            <MudButton Color="Color.Error"
+                       Variant="Variant.Filled"
+                       Class="w-100 mb-4"
+            @onclick="CancelVideosDownload">
+                Cancel
+            </MudButton>
+        }
+        <MudButton Color="Color.Warning"
+                   Variant="Variant.Filled"
+                   Class="w-100 mb-4"
+        @onclick="ClearVideos">
+            Clear Videos
+        </MudButton>
+        <MudAutocomplete T="string" Label="@GetVideoSearchBarText()"
+                         Variant="Variant.Outlined"
+                         Class="mb-4"
+                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                         OnAdornmentClick="FilterVideos"
+                         SearchFunc="SearchVideos"
+                         ResetValueOnEmptyText="true"
+        @bind-Value="videoSearchText" />
+        <MudProgressLinear Color="Color.Primary"
+                           Striped="true"
+                           Size="Size.Medium"
+                           Max="1"
+                           Value="@videosProgress"
+                           Class="my-7"
+                           Buffer="true" />
+        @if (string.IsNullOrWhiteSpace(currentDownloadingVideo) is false)
+        {
+            <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingVideo</MudAlert>
+        }
+        @if (isVideoLoading)
+        {
+            <div class="text-center">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
+            <VideoComponent @key="v.Id"
+                            Video="new VideoModel(v)"
+                            SelectedExtension="@selectedExtension"
+                            SelectedPath="@selectedPath"
+                            RemoveEvent="RemoveVideo" />
+        </MudVirtualize>
+    </MudItem>
+    <MudItem xs="6">
+        @if (playlistTokenSource is null)
+        {
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       Class="w-100 mb-4"
+            @onclick="DownloadAllPlaylists">
+                Download Playlist
+            </MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Error"
+                       Class="w-100 mb-4"
+            @onclick="CancelPlaylistDownload">
+                Cancel
+            </MudButton>
+        }
+        <MudButton Color="Color.Warning"
+                   Variant="Variant.Filled"
+                   Class="w-100 mb-4"
+        @onclick="ClearPlaylist">
+            Clear Playlist
+        </MudButton>
+        <MudAutocomplete T="string" Label="@GetPlaylistVideoSearchBarText()"
+                         Variant="Variant.Outlined"
+                         Class="mb-4"
+                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                         OnAdornmentClick="FilterPlaylistVideo"
+                         SearchFunc="SearchPlaylistVideos"
+                         ResetValueOnEmptyText="true"
+        @bind-Value="playlistVideoSearchText" />
+        <MudProgressLinear Color="Color.Primary"
+                           Striped="true"
+                           Size="Size.Medium"
+                           Max="1"
+                           Value="@playlistProgress"
+                           Class="my-7"
+                           Buffer="true" />
+        @if (string.IsNullOrWhiteSpace(currentDownloadingPlaylistVideo) is false)
+        {
+            <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingPlaylistVideo</MudAlert>
+        }
+        @if (isPlaylistLoading)
+        {
+            <div class="text-center">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+        <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
+            <VideoComponent @key="v.Id"
+                            Video="new VideoModel(v)"
+                            SelectedExtension="@selectedExtension"
+                            SelectedPath="@selectedPath"
+                            Index="@GetIndex(v)"
+                            RemoveEvent="RemovePlaylistVideo" />
+        </MudVirtualize>
+    </MudItem>
+</MudGrid>
 
-    <MudDialog IsVisible="showDialog" Class="backdrop-blur">
-        <DialogContent>
-            <MudText Typo="Typo.subtitle1">It appears your URL is a playlist.</MudText>
-            <MudText Typo="Typo.body1">Would you like to download your video's Url?</MudText>
-            <MudProgressLinear Color="Color.Primary"
-                               Striped="true"
-                               Size="Size.Medium"
-                               Buffer="true" 
-                               Max="1"
-                               Value="@firstPlaylistProgress"
-                               Class="my-7" />
-        </DialogContent>
-        <DialogActions>
-            <MudButton Color="Color.Primary" OnClick="(() => DownloadVideo(playlistUrl))">Download</MudButton>
-            <MudButton OnClick="ToggleDialog">Cancel</MudButton>
-        </DialogActions>
-    </MudDialog>
-</MudContainer>
+<MudDialog IsVisible="showDialog" Class="backdrop-blur">
+    <DialogContent>
+        <MudText Typo="Typo.subtitle1">It appears your URL is a playlist.</MudText>
+        <MudText Typo="Typo.body1">Would you like to download your video's Url?</MudText>
+        <MudProgressLinear Color="Color.Primary"
+                           Striped="true"
+                           Size="Size.Medium"
+                           Buffer="true"
+                           Max="1"
+                           Value="@firstPlaylistProgress"
+                           Class="my-7" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="(() => DownloadVideo(playlistUrl))">Download</MudButton>
+        <MudButton OnClick="ToggleDialog">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
 
 

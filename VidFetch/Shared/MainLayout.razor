@@ -2,13 +2,16 @@
 @inject ISettingsData settingsData
 @inject ISettingsLibrary settingsLibrary
 
+
 <div>
     <NavMenu />
-    <main role="main">
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+    <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+        <main role="main">
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+    </MudContainer>
 </div>
 
 <MudThemeProvider IsDarkMode="isDarkMode" />

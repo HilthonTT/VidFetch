@@ -1,30 +1,29 @@
 ﻿@inject NavigationManager navManager
-@inject ISettingsLibrary settingsLibrary
-@inject ISettingsData settingsData
 
 <MudAppBar Color="Color.Primary" Fixed="false">
-    <MudIconButton 
-        Icon="@Icons.Material.Filled.Home" 
-        Color="Color.Inherit" 
-        Edge="Edge.Start"
-        Title="Home"
-        @onclick="LoadHomePage"/>
-    <MudIconButton 
-        Icon="@Icons.Material.Filled.PersonalVideo" 
-        Color="Color.Inherit" 
-        Edge="Edge.Start"
-        Title="Home"
-        @onclick="LoadSavedMedias"/>
+    <MudIconButton Icon="@Icons.Material.Filled.Home"
+                   Color="Color.Inherit"
+                   Edge="Edge.Start"
+                   Title="Home"
+    @onclick="LoadHomePage" />
+    <MudIconButton Icon="@Icons.Material.Filled.PersonalVideo"
+                   Color="Color.Inherit"
+                   Edge="Edge.Start"
+                   Title="Home"
+    @onclick="LoadSavedMediasPage" />
+    <MudIconButton Icon="@Icons.Material.Filled.Search"
+                   Color="Color.Inherit"
+                   Edge="Edge.Start"
+                   Title="Home"
+    @onclick="LoadSearchPage" />
     <MudSpacer />
-    <MudIconButton 
-        Icon="@Icons.Material.Filled.Settings"
-        Color="Color.Inherit"
-        Title="Settings"
-        @onclick="LoadSettingsPage" />
-    <MudIconButton 
-        Icon="@Icons.Custom.Brands.GitHub" 
-        Color="Color.Inherit"
-        Title="GitHub"
-        @onclick="LoadGithubPage" />
+    <MudIconButton Icon="@Icons.Material.Filled.Settings"
+                   Color="Color.Inherit"
+                   Title="Settings"
+    @onclick="LoadSettingsPage" />
+    <MudIconButton Icon="@Icons.Custom.Brands.GitHub"
+                   Color="Color.Inherit"
+                   Title="GitHub"
+    @onclick="LoadGithubPage" />
 </MudAppBar>
 

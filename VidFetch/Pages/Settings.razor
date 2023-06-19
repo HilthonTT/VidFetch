@@ -4,55 +4,55 @@
 @inject ISnackbar snackbar
 @inject NavigationManager navManager
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge">
-    @if (string.IsNullOrWhiteSpace(errorMessage) is false)
-    {
-        <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
-    }
-    <MudCard>
-        <MudCardHeader>
-            <CardHeaderContent>
-                <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
-                    Settings
-                    <MudIcon Icon="@Icons.Material.Filled.Settings" />
-                </MudText>
-            </CardHeaderContent>
-        </MudCardHeader>
-        <MudCardContent>
-            <EditForm Model="model" OnValidSubmit="SaveSettings">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <MudGrid>
-                    <MudItem xs="12" Class="text-center">
-                        <div class="d-flex align-items-center mb-3">
-                            <MudText class="mr-2">Dark Mode:</MudText>
-                            <MudSwitch @bind-Checked="model.IsDarkMode"
-                                        Color="MudBlazor.Color.Primary" />
-                        </div>
-                        <div class="d-flex align-items-center mb-3">
-                            <MudText class="mr-2">Download Subtitles included with video:</MudText>
-                            <MudSwitch @bind-Checked="model.DownloadSubtitles"
-                                        Color="MudBlazor.Color.Primary" />
-                        </div>
-                        <div class="d-flex align-items-center mb-3">
-                            <MudText class="mr-2">Automatically Save Videos:</MudText>
-                            <MudSwitch @bind-Checked="model.SaveVideos"
-                                       Color="MudBlazor.Color.Primary" />
-                        </div>
-                        <div class="text-center">
-                            <MudButton Variant="Variant.Filled"
-                                        Color="MudBlazor.Color.Primary"
-                                        StartIcon="@Icons.Material.Filled.Save"
-                                        Class="w-50"
-                                        ButtonType="ButtonType.Submit">
-                                Save
-                            </MudButton>
-                        </div>
-                    </MudItem>
-                </MudGrid>
-            </EditForm>
-        </MudCardContent>
-    </MudCard>
-</MudContainer>
+
+@if (string.IsNullOrWhiteSpace(errorMessage) is false)
+{
+    <MudAlert Severity="Severity.Error">@errorMessage</MudAlert>
+}
+<MudCard>
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
+                Settings
+                <MudIcon Icon="@Icons.Material.Filled.Settings" />
+            </MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        <EditForm Model="model" OnValidSubmit="SaveSettings">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <MudGrid>
+                <MudItem xs="12" Class="text-center">
+                    <div class="d-flex align-items-center mb-3">
+                        <MudText class="mr-2">Dark Mode:</MudText>
+                        <MudSwitch @bind-Checked="model.IsDarkMode"
+                                   Color="MudBlazor.Color.Primary" />
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <MudText class="mr-2">Download Subtitles included with video:</MudText>
+                        <MudSwitch @bind-Checked="model.DownloadSubtitles"
+                                   Color="MudBlazor.Color.Primary" />
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <MudText class="mr-2">Automatically Save Videos:</MudText>
+                        <MudSwitch @bind-Checked="model.SaveVideos"
+                                   Color="MudBlazor.Color.Primary" />
+                    </div>
+                    <div class="text-center">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="MudBlazor.Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.Save"
+                                   Class="w-50"
+                                   ButtonType="ButtonType.Submit">
+                            Save
+                        </MudButton>
+                    </div>
+                </MudItem>
+            </MudGrid>
+        </EditForm>
+    </MudCardContent>
+</MudCard>
+
 
 

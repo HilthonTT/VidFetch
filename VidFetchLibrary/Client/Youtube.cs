@@ -11,14 +11,16 @@ using YoutubeExplode.Videos;
 namespace VidFetchLibrary.Client;
 public class Youtube : IYoutube
 {
+    private const int MaxDataAmount = 20;
+
     private readonly IDownloadHelper _downloaderHelper;
     private readonly IMemoryCache _cache;
     private readonly ICachingHelper _cachingHelper;
     private YoutubeClient _client;
 
     public Youtube(IDownloadHelper downloaderHelper,
-                             IMemoryCache cache,
-                             ICachingHelper cachingHelper)
+                    IMemoryCache cache,
+                    ICachingHelper cachingHelper)
     {
         _downloaderHelper = downloaderHelper;
         _cache = cache;
@@ -96,22 +98,52 @@ public class Youtube : IYoutube
         return output;
     }
 
-    public async Task<List<VideoSearchResult>> GetVideosBySearchAsync(string searchInput)
+    public async Task<List<VideoSearchResult>> GetVideosBySearchAsync(
+        string searchInput,
+        CancellationToken token)
     {
-        var results = await _client.Search.GetVideosAsync(searchInput);
-        return results.ToList();
+        string key = $"VideoSearch-{searchInput}";
+
+        var output = _cache.Get<List<VideoSearchResult>>(key);
+        if (output is null)
+        {
+            var results = await _client.Search.GetVideosAsync(searchInput, token);
+            output = results.Take(MaxDataAmount).ToList();
+        }
+
+        return output;
     }
 
-    public async Task<List<ChannelSearchResult>> GetChannelBySearchAsync(string searchInput)
+    public async Task<List<ChannelSearchResult>> GetChannelBySearchAsync(
+        string searchInput,
+        CancellationToken token)
     {
-        var results = await _client.Search.GetChannelsAsync(searchInput);
-        return results.ToList();
+        string key = $"ChannelSearch-{searchInput}";
+
+        var output = _cache.Get<List<ChannelSearchResult>>(key);
+        if (output is null)
+        {
+            var results = await _client.Search.GetChannelsAsync(searchInput, token);
+            output = results.Take(MaxDataAmount).ToList();
+        }
+
+        return output;
     }
 
-    public async Task<List<PlaylistSearchResult>> GetPlaylistsBySearchAsync(string searchInput)
+    public async Task<List<PlaylistSearchResult>> GetPlaylistsBySearchAsync(
+        string searchInput,
+        CancellationToken token)
     {
-        var results = await _client.Search.GetPlaylistsAsync(searchInput);
-        return results.ToList();
+        string key = $"PlaylistSearch-{searchInput}";
+
+        var output = _cache.Get<List<PlaylistSearchResult>>(key);
+        if (output is null)
+        {
+            var results = await _client.Search.GetPlaylistsAsync(searchInput);
+            output = results.Take(MaxDataAmount).ToList();
+        }
+
+        return output;
     }
 
     private static string GetPlaylistId(string url) 

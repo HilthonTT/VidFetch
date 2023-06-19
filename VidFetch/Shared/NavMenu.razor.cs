@@ -12,9 +12,14 @@ public partial class NavMenu
         navManager.NavigateTo("/Settings");
     }
 
-    private void LoadSavedMedias()
+    private void LoadSavedMediasPage()
     {
         navManager.NavigateTo("/SavedMedias");
+    }
+
+    private void LoadSearchPage()
+    {
+        navManager.NavigateTo("/Search");
     }
 
     private void LoadGithubPage()
