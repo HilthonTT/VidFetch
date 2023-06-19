@@ -42,13 +42,9 @@ public partial class VideoComponent
         video = await youtube.GetVideoAsync(Video.Url);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender)
-        {
-            await LoadNullData();
-            StateHasChanged();
-        }
+        await LoadNullData();
     }
 
     private async Task DownloadVideo()
@@ -102,8 +98,6 @@ public partial class VideoComponent
     private async Task LoadNullData()
     {
         bool isAuthorThumbnailEmpty = string.IsNullOrWhiteSpace(Video.AuthorThumbnailUrl);
-        bool isDescriptionEmpty = string.IsNullOrWhiteSpace(Video.Description);
-        bool isKeywordsNull = Video.Keywords is null;
 
         if (isAuthorThumbnailEmpty)
         {
@@ -112,14 +106,6 @@ public partial class VideoComponent
             var channel = await youtube.GetChannelAsync(Video.AuthorUrl);
             string channelThumbnail = channel.Thumbnails?.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
             Video.AuthorThumbnailUrl =  channelThumbnail;
-        }
-
-        if (isDescriptionEmpty || isKeywordsNull)
-        {
-            var video = await youtube.GetVideoAsync(Video.Url);
-            Video.Description = video.Description;
-
-            Video.Keywords = video.Keywords.ToList();
         }
     }
 
