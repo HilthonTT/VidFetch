@@ -115,7 +115,7 @@
             <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
                 <VideoComponent 
                     @key="v.Id"
-                    Video="@MapVideo(v)"
+                    Video="new VideoModel(v)"
                     SelectedExtension="@selectedExtension" 
                     SelectedPath="@selectedPath" 
                     RemoveEvent="RemoveVideo" />
@@ -172,8 +172,9 @@
                 </div>
             }
             <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
-                <VideoComponent Video="@MapPlaylistVideo(v)"
+                <VideoComponent 
                     @key="v.Id" 
+                    Video="new VideoModel(v)"
                     SelectedExtension="@selectedExtension"
                     SelectedPath="@selectedPath"
                     Index="@GetIndex(v)"

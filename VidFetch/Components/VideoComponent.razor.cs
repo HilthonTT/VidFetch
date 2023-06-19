@@ -101,7 +101,11 @@ public partial class VideoComponent
 
     private async Task LoadNullData()
     {
-        if (string.IsNullOrWhiteSpace(Video.AuthorThumbnailUrl))
+        bool isAuthorThumbnailEmpty = string.IsNullOrWhiteSpace(Video.AuthorThumbnailUrl);
+        bool isDescriptionEmpty = string.IsNullOrWhiteSpace(Video.Description);
+        bool isKeywordsNull = Video.Keywords is null;
+
+        if (isAuthorThumbnailEmpty)
         {
             string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
 
@@ -110,10 +114,12 @@ public partial class VideoComponent
             Video.AuthorThumbnailUrl =  channelThumbnail;
         }
 
-        if (string.IsNullOrWhiteSpace(Video.Description))
+        if (isDescriptionEmpty || isKeywordsNull)
         {
             var video = await youtube.GetVideoAsync(Video.Url);
             Video.Description = video.Description;
+
+            Video.Keywords = video.Keywords.ToList();
         }
     }
 
