@@ -99,7 +99,7 @@ public partial class SavedMedia
         var v = videos.FirstOrDefault(v => v.VideoId == video.Id || v.Url == video.Url);
 
         videos.Remove(v);
-        await videoData.DeleteAsync(v);
+        await videoData.DeleteVideoAsync(v);
     }
 
     private async Task<IEnumerable<string>> SearchVideos(string searchInput)

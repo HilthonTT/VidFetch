@@ -19,8 +19,8 @@ public class Youtube : IYoutube
     private YoutubeClient _client;
 
     public Youtube(IDownloadHelper downloaderHelper,
-                    IMemoryCache cache,
-                    ICachingHelper cachingHelper)
+                   IMemoryCache cache,
+                   ICachingHelper cachingHelper)
     {
         _downloaderHelper = downloaderHelper;
         _cache = cache;
@@ -92,6 +92,20 @@ public class Youtube : IYoutube
         if (output is null)
         {
             output = await _client.Channels.GetAsync(url);
+            _cache.Set(key, output, TimeSpan.FromHours(5));
+        }
+
+        return output;
+    }
+
+    public async Task<Playlist> GetPlaylistAsync(string url)
+    {
+        string key = _cachingHelper.CachePlaylistKey(url);
+
+        var output = _cache.Get<Playlist>(key);
+        if (output is null)
+        {
+            output = await _client.Playlists.GetAsync(url);
             _cache.Set(key, output, TimeSpan.FromHours(5));
         }
 

@@ -2,7 +2,6 @@
 using SQLite;
 using VidFetchLibrary.Client;
 using VidFetchLibrary.Models;
-using YoutubeExplode.Videos;
 
 namespace VidFetchLibrary.DataAccess;
 public class VideoData : IVideoData
@@ -61,29 +60,28 @@ public class VideoData : IVideoData
         return output;
     }
 
-    public async Task<bool> VideoExistAsync(string url, string videoId)
+    public async Task<bool> VideoExistsAsync(string url, string videoId)
     {
         var video = await GetVideoAsync(url, videoId);
         if (video is null)
         {
             return false;
         }
-
-        return true;
+        else
+        {
+            return true;
+        }
     }
 
     public async Task<int> SetVideoAsync(string url, string videoId)
     {
-        var existingVideo = await _db.Table<VideoModel>().FirstOrDefaultAsync(
-            v => v.Url == url || v.VideoId == videoId
-        );
-        
+        var existingVideo = await GetVideoAsync(url, videoId);
         RemoveCache();
 
         if (existingVideo is null)
         {
             var video = await _youtube.GetVideoAsync(url);
-            return await CreateVideoAsync(video);
+            return await CreateVideoAsync(new VideoModel(video));
         }
         else
         {
@@ -91,13 +89,11 @@ public class VideoData : IVideoData
         }
     }
 
-    public async Task<int> DeleteAsync(VideoModel video)
+    public async Task<int> DeleteVideoAsync(VideoModel video)
     {
         string key = GetCache(video.VideoId);
 
-        var existingVideo = await _db.Table<VideoModel>().FirstOrDefaultAsync(
-            v => v.Id == video.Id || v.Url == video.Url
-        );
+        var existingVideo = await GetVideoAsync(video.Url, video.VideoId);
 
         if (existingVideo is not null)
         {
@@ -110,9 +106,9 @@ public class VideoData : IVideoData
         }
     }
 
-    private async Task<int> CreateVideoAsync(Video video) // Using YoutubeExplode Video Class to create 
+    private async Task<int> CreateVideoAsync(VideoModel video)
     {
-        var v = await MapVideoAsync(video);
+        var v = await FillDataAsync(video);
 
         return await _db.InsertAsync(v);
     }
@@ -137,27 +133,15 @@ public class VideoData : IVideoData
         return $"{CacheName}-{id}";
     }
 
-    private async Task<VideoModel> MapVideoAsync(Video video)
+    private async Task<VideoModel> FillDataAsync(VideoModel video)
     {
         string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
-        string thumbnailUrl = video.Thumbnails.Count > 0 ? video.Thumbnails[0].Url : defaultUrl;
 
-        var channel = await _youtube.GetChannelAsync(video.Author.ChannelUrl);
+        var channel = await _youtube.GetChannelAsync(video.AuthorUrl);
         string channelThumbnail = channel.Thumbnails.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
 
-        return new VideoModel()
-        {
-            Title = video.Title,
-            VideoId = video.Id,
-            Description = video.Description,
-            Url = video.Url,
-            AuthorName = video.Author.ChannelTitle,
-            AuthorUrl = video.Author.ChannelUrl,
-            AuthorThumbnailUrl = channelThumbnail,
-            ThumbnailUrl = thumbnailUrl,
-            Keywords = video.Keywords.ToList(),
-            Duration = video.Duration.Value,
-            UploadDate = video.UploadDate,
-        };
+        video.AuthorThumbnailUrl = channelThumbnail;
+
+        return video;
     }
 }

@@ -1,34 +1,33 @@
 ﻿namespace VidFetchLibrary.Helpers;
 public class CachingHelper : ICachingHelper
 {
-    private const string CacheNameVideo = "VideoData";
-    private const string CacheNamePlaylistVideo = "PlaylistVideoData";
-    private const string CacheNameChannel = "ChannelData";
-    private const string CacheNameStreamInfo = "StreamInfoData";
-    private const string CacheNameSubtitlesInfo = "SubtitlesInfoData";
-
     public string CacheVideoKey(string id)
     {
-        return $"{CacheNameVideo}-{id}";
+        return $"VideoData-{id}";
     }
 
     public string CacheVideoPlaylistKey(string id)
     {
-        return $"{CacheNamePlaylistVideo}-{id}";
+        return $"PlaylistVideoData-{id}";
     }
 
     public string CacheChannelKey(string id)
     {
-        return $"{CacheNameChannel}-{id}";
+        return $"ChannelData-{id}";
+    }
+
+    public string CachePlaylistKey(string id)
+    {
+        return $"PlaylistData-{id}";
     }
 
     public string CacheStreamInfoKey(string id)
     {
-        return $"{CacheNameStreamInfo}-{id}";
+        return $"StreamInfoData-{id}";
     }
 
     public string CacheSubtitlesInfoKey(string id)
     {
-        return $"{CacheNameSubtitlesInfo}-{id}";
+        return $"SubtitlesInfoData-{id}";
     }
 }

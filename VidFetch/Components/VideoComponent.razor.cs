@@ -38,7 +38,7 @@ public partial class VideoComponent
 
     protected override async Task OnInitializedAsync()
     {
-        isSaved = await videoData.VideoExistAsync(Video.Url, Video.VideoId);
+        isSaved = await videoData.VideoExistsAsync(Video.Url, Video.VideoId);
         video = await youtube.GetVideoAsync(Video.Url);
     }
 
