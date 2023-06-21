@@ -7,6 +7,11 @@ public partial class NavMenu
         navManager.NavigateTo("/");
     }
 
+    private void LoadDownloadPage()
+    {
+        navManager.NavigateTo("/Download");
+    }
+
     private void LoadSettingsPage()
     {
         navManager.NavigateTo("/Settings");

@@ -1,0 +1,188 @@
+﻿@page "/"
+@inject IVideoData videoData
+@inject IChannelData channelData
+@inject NavigationManager navManager
+
+<MudGrid>
+    <MudItem xs="12" sm="6" md="4">
+        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Download Videos">
+            <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Primary" @onclick="LoadDownloadPage">
+                <div class="d-flex" style="height: 100%">
+                    <MudIcon Class="mx-auto my-auto"
+                             Icon="@Icons.Material.Filled.Download"
+                             Size="Size.Large"></MudIcon>
+                </div>
+            </MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="4">
+        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Saved Medias">
+            <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Secondary" @onclick="LoadSavedMediaPage">
+                <div class="d-flex" style="height: 100%">
+                    <MudIcon Class="mx-auto my-auto"
+                             Icon="@Icons.Material.Filled.PersonalVideo"
+                             Size="Size.Large"></MudIcon>
+                </div>
+            </MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="12" md="4">
+        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Search">
+            <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Tertiary" @onclick="LoadSearchPage">
+                <div class="d-flex" style="height: 100%">
+                    <MudIcon Class="mx-auto my-auto"
+                             Icon="@Icons.Material.Filled.Search"
+                             Size="Size.Large"></MudIcon>
+                </div>
+            </MudButton>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" Style="height: 400px">
+        <MudGrid Style="height: 100%">
+            <MudItem xs="12">
+                @if (savedVideos?.Count > 0)
+                {
+                    <MudCarousel @ref="videos"
+                                 Style="height: 100%"
+                                 Class="mud-width-full"
+                                 ItemsSource="savedVideos"
+                                 Context="v"
+                                 ShowArrows="true"
+                                 ShowBullets="true"
+                                 EnableSwipeGesture="true"
+                                 AutoCycle="true">
+                        <ItemTemplate>
+                            <MudImage Class="mud-width-full"
+                                      Style="height: 100%;"
+                                      Src="@v.ThumbnailUrl" @onclick="(() => LoadVideoPage(v))"
+                                      title="@v.Title"></MudImage>
+                        </ItemTemplate>
+                    </MudCarousel>
+                }
+                else
+                {
+                    <MudCarousel Style="height: 100%"
+                                 Class="mud-width-full"
+                                 ShowArrows="true"
+                                 ShowBullets="true"
+                                 EnableSwipeGesture="true"
+                                 AutoCycle="true"
+                                 TData="object">
+                        <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
+                            <div class="d-flex" style="height: 100%">
+                                <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.YouTube" Size="Size.Large"></MudIcon>
+                            </div>
+                        </MudCarouselItem>
+                        <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
+                            <div class="d-flex" style="height: 100%">
+                                <MudIcon Class="mx-auto my-auto" Icon="@Icons.Material.Filled.MusicVideo" Size="Size.Large"></MudIcon>
+                            </div>
+                        </MudCarouselItem>
+                    </MudCarousel>
+                }
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+    <MudItem xs="12" sm="6" Style="height: 400px">   
+        <MudGrid Style="height: 100%">
+            <MudItem xs="12">
+                @if (savedChannels?.Count > 0)
+                {
+                    <MudCarousel @ref="channels"
+                                 Style="height: 100%"
+                                 Class="mud-width-full"
+                                 ItemsSource="savedChannels"
+                                 Context="c"
+                                 ShowArrows="true"
+                                 ShowBullets="true"
+                                 EnableSwipeGesture="true"
+                                 AutoCycle="true">
+                        <ItemTemplate>
+                            <MudImage Class="mud-width-full"
+                                      Style="height: 100%"
+                                      Src="@c.ThumbnailUrl" @onclick="(() => LoadChannelPage(c))"
+                                      title="@c.Title"></MudImage>
+                        </ItemTemplate>
+                    </MudCarousel>
+                }
+                else
+                {
+                    <MudCarousel Style="height: 100%"
+                                 Class="mud-width-full"
+                                 ShowArrows="true"
+                                 ShowBullets="true"
+                                 EnableSwipeGesture="true"
+                                 AutoCycle="true"
+                                 TData="object">
+                        <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
+                            <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
+                                <div class="d-flex" style="height: 100%">
+                                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Material.Filled.Person" Size="Size.Large"></MudIcon>
+                                </div>
+                            </MudCarouselItem>
+                            <div class="d-flex" style="height: 100%">
+                                <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.YouTube" Size="Size.Large"></MudIcon>
+                            </div>
+                        </MudCarouselItem>
+                    </MudCarousel>
+                }
+            </MudItem>
+        </MudGrid>
+    </MudItem>
+    <MudItem xs="12">
+        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Settings">
+            <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Error" @onclick="LoadSettingsPage">
+                <div class="d-flex" style="height: 100%">
+                    <MudIcon Class="mx-auto my-auto"
+                             Icon="@Icons.Material.Filled.Settings"
+                             Size="Size.Large"></MudIcon>
+                </div>
+            </MudButton>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private MudCarousel<VideoModel> videos;
+    private MudCarousel<ChannelModel> channels;
+    private List<VideoModel> savedVideos;
+    private List<ChannelModel> savedChannels;
+
+    protected override async Task OnInitializedAsync()
+    {
+        savedVideos = await videoData.GetAllVideosAsync();
+        savedChannels = await channelData.GetAllChannelsAsync();
+    }
+
+    private void LoadDownloadPage()
+    {
+        navManager.NavigateTo("/Download");
+    }
+
+    private void LoadSavedMediaPage()
+    {
+        navManager.NavigateTo("/SavedMedias");
+    }
+
+    private void LoadSearchPage()
+    {
+        navManager.NavigateTo("/Search");
+    }
+
+    private void LoadSettingsPage()
+    {
+        navManager.NavigateTo("/Settings");
+    }
+
+    private void LoadVideoPage(VideoModel video)
+    {
+        string encodedUrl = Uri.EscapeDataString(video.Url);
+        navManager.NavigateTo($"/Watch/{encodedUrl}");
+    }
+
+    private void LoadChannelPage(ChannelModel channel)
+    {
+        string encodedUrl = Uri.EscapeDataString(channel.Url);
+        navManager.NavigateTo($"/Channel/{encodedUrl}");
+    }
+}
