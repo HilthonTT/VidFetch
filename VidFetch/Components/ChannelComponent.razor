@@ -1,0 +1,116 @@
+﻿@inject IChannelData channelData
+@inject ISnackbar snackbar
+@inject IYoutube youtube
+@inject NavigationManager navManager
+
+<MudItem xs="CardSize">
+    <MudCard Class="mb-4">
+        <MudCardHeader>
+            <CardHeaderAvatar>
+                <MudAvatar>
+                    <MudImage title="@Channel.Title" Src="@Channel.ThumbnailUrl"></MudImage>
+                </MudAvatar>
+            </CardHeaderAvatar>
+            <CardHeaderContent>
+                <MudText Typo="Typo.subtitle1" title="@Channel.Title">@Channel.Title</MudText>
+            </CardHeaderContent>
+            <CardHeaderActions>
+                @if (isSaved is false)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.Save"
+                                   Color="Color.Default"
+                                   Title="Save Channel"
+                    @onclick="SaveChannel"></MudIconButton>
+                }
+                <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
+                               Color="Color.Default"
+                               Title="Remove"
+                @onclick="Remove"></MudIconButton>
+            </CardHeaderActions>
+        </MudCardHeader>
+        <MudCardMedia Image="@Channel.ThumbnailUrl" Height="200"></MudCardMedia>
+        <MudCardContent Class="text-start">
+            <MudLink Typo="Typo.h5" Color="Color.Default" title="@Channel.Title" @onclick="(() => OpenUrl(Channel.Url))">
+                @Channel.Title
+            </MudLink>
+        </MudCardContent>
+        <MudCardActions>
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" @onclick="LoadChannelPage">
+                Open Details
+            </MudButton>
+        </MudCardActions>
+    </MudCard>
+</MudItem>
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public ChannelModel Channel { get; set; }
+
+    [Parameter]
+    public int CardSize { get; set; } = 12;
+
+    [Parameter]
+    [EditorRequired]
+    public string SelectedExtension { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public string SelectedPath { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<ChannelModel> RemoveEvent { get; set; }
+
+    private bool isSaved = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isSaved = await channelData.ChannelExistsAsync(Channel.Url, Channel.ChannelId);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadNullData();
+    }
+
+    private async Task SaveChannel()
+    {
+        if (isSaved is false)
+        {
+            await channelData.SetChannelAsync(Channel.Url, Channel.ChannelId);
+            snackbar.Add($"Successfully saved {Channel.Title}");
+            isSaved = true;
+        }
+    }
+
+    private async Task LoadNullData()
+    {
+        bool isThumbnailEmpty = string.IsNullOrWhiteSpace(Channel.ThumbnailUrl);
+
+        if (isThumbnailEmpty)
+        {
+            string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
+
+            var channel = await youtube.GetChannelAsync(Channel.Url);
+            string channelThumbnail = channel.Thumbnails?.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
+            Channel.ThumbnailUrl = channelThumbnail;
+        }
+    }
+
+    private async Task Remove()
+    {
+        await RemoveEvent.InvokeAsync(Channel);
+    }
+
+    private static async Task OpenUrl(string text)
+    {
+        await Launcher.OpenAsync(text);
+    }
+
+    private void LoadChannelPage()
+    {
+        string encodedUrl = Uri.EscapeDataString(Channel.Url);
+        navManager.NavigateTo($"/Channel/{encodedUrl}");
+    }
+}

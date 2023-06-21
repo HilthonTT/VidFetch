@@ -21,14 +21,14 @@
                 @if (isSaved is false)
                 {
                     <MudIconButton Icon="@Icons.Material.Filled.Save"
-                                    Color="Color.Default"
-                                    Title="Save Video"
-                    @onclick="SaveVideo" />
+                                   Color="Color.Default"
+                                   Title="Save Video"
+                    @onclick="SaveVideo"></MudIconButton>
                 }
                 <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
-                                Color="Color.Default"
-                                Title="Remove"
-                @onclick="Remove" />
+                               Color="Color.Default"
+                               Title="Remove"
+                @onclick="Remove"></MudIconButton>
             </CardHeaderActions>
         </MudCardHeader>
         <MudCardMedia Image="@Video.ThumbnailUrl" Height="200"></MudCardMedia>
@@ -48,18 +48,18 @@
                 <MudText title="@Index">Index: @Index</MudText>
             }
             <MudProgressLinear Color="Color.Primary"
-                                Striped="true"
-                                Size="Size.Medium"
-                                Max="1"
-                                Value="@progress"
-                                Class="my-7"
-                                Buffer="true" />
+                               Striped="true"
+                               Size="Size.Medium"
+                               Max="1"
+                               Value="@progress"
+                               Class="my-7"
+                               Buffer="true" />
         </MudCardContent>
         <MudCardActions Class="justify-content-between">
             @if (isDownloading is false)
             {
                 <MudButton Variant="Variant.Filled"
-                            Color="Color.Primary"
+                           Color="Color.Primary"
                 @onclick="DownloadVideo">
                     Download
                 </MudButton>
@@ -67,20 +67,20 @@
             else
             {
                 <MudButton Variant="Variant.Filled"
-                            Color="Color.Error"
+                           Color="Color.Error"
                 @onclick="CancelVideoDownload">
                     Cancel Download
                 </MudButton>
             }
             <MudButton Variant="Variant.Outlined"
-                        Color="Color.Secondary"
+                       Color="Color.Secondary"
             @onclick="LoadWatchPage">
                 Watch
             </MudButton>
             @if (isDownloadSuccessful)
             {
                 <MudButton Variant="Variant.Outlined"
-                            Color="Color.Warning"
+                           Color="Color.Warning"
                 @onclick="OpenFolderLocation">
                     Open Location
                 </MudButton>

@@ -75,6 +75,7 @@ public partial class VideoComponent
         if (isSaved is false)
         {
             await videoData.SetVideoAsync(Video.Url, Video.VideoId);
+            snackbar.Add($"Successfully saved {Video.Title}");
             isSaved = true;
         }
     }
@@ -89,7 +90,7 @@ public partial class VideoComponent
         await folderHelper.OpenFolderLocationAsync(SelectedPath);
     }
 
-    private async Task OpenUrl(string text)
+    private static async Task OpenUrl(string text)
     {
         await Launcher.OpenAsync(text);
     }
