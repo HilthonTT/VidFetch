@@ -17,10 +17,9 @@ public class PlaylistData : IPlaylistData
     {
         _cache = cache;
         _youtube = youtube;
-        SetUpDb();
     }
 
-    private void SetUpDb()
+    private async Task SetUpDb()
     {
         if (_db is null)
         {
@@ -30,12 +29,14 @@ public class PlaylistData : IPlaylistData
                     Environment.SpecialFolder.LocalApplicationData), DbName);
 
             _db = new(dbPath);
-            _db.CreateTableAsync<PlaylistModel>();
+            await _db.CreateTableAsync<PlaylistModel>();
         }
     }
 
     public async Task<List<PlaylistModel>> GetAllPlaylistsAsync()
     {
+        await SetUpDb();
+
         var output = _cache.Get<List<PlaylistModel>>(CacheName);
         if (output is null)
         {
@@ -48,6 +49,7 @@ public class PlaylistData : IPlaylistData
 
     public async Task<PlaylistModel> GetPlaylistAsync(string url, string playlistId)
     {
+        await SetUpDb();
         string key = GetCache(playlistId);
 
         var output = _cache.Get<PlaylistModel>(key);
@@ -62,6 +64,8 @@ public class PlaylistData : IPlaylistData
 
     public async Task<bool> PlaylistExistsAsync(string url, string playlistId)
     {
+        await SetUpDb();
+
         var playlist = await GetPlaylistAsync(url, playlistId);
         if (playlist is null)
         {
@@ -75,6 +79,8 @@ public class PlaylistData : IPlaylistData
 
     public async Task<int> SetPlaylistAsync(string url, string playlistId)
     {
+        await SetUpDb();
+
         var existingPlaylist = await GetPlaylistAsync(url, playlistId);
         RemoveCache();
 
@@ -91,6 +97,7 @@ public class PlaylistData : IPlaylistData
 
     public async Task<int> DeletePlaylistAsync(PlaylistModel playlist)
     {
+        await SetUpDb();
         string key = GetCache(playlist.PlaylistId);
 
         var existingPlaylist = await GetPlaylistAsync(playlist.Url, playlist.PlaylistId);

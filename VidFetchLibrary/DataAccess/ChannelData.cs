@@ -17,10 +17,9 @@ public class ChannelData : IChannelData
     {
         _cache = cache;
         _youtube = youtube;
-        SetUpDb();
     }
 
-    private void SetUpDb()
+    private async Task SetUpDb()
     {
         if (_db is null)
         {
@@ -30,12 +29,14 @@ public class ChannelData : IChannelData
                     Environment.SpecialFolder.LocalApplicationData), DbName);
 
             _db = new(dbPath);
-            _db.CreateTableAsync<ChannelModel>();
+            await _db.CreateTableAsync<ChannelModel>();
         }
     }
 
     public async Task<List<ChannelModel>> GetAllChannelsAsync()
     {
+        await SetUpDb();
+
         var output = _cache.Get<List<ChannelModel>>(CacheName);
         if (output is null)
         {
@@ -48,6 +49,7 @@ public class ChannelData : IChannelData
 
     public async Task<ChannelModel> GetChannelAsync(string url, string channelId)
     {
+        await SetUpDb();
         string key = GetCache(channelId);
 
         var output = _cache.Get<ChannelModel>(key);
@@ -62,6 +64,8 @@ public class ChannelData : IChannelData
 
     public async Task<bool> ChannelExistsAsync(string url, string channelId)
     {
+        await SetUpDb();
+
         var channel = await GetChannelAsync(url, channelId);
         if (channel is null)
         {
@@ -75,6 +79,8 @@ public class ChannelData : IChannelData
 
     public async Task<int> SetChannelAsync(string url, string channelId)
     {
+        await SetUpDb();
+
         var existingChannel = await GetChannelAsync(url, channelId);
         RemoveCache();
 
@@ -91,6 +97,7 @@ public class ChannelData : IChannelData
 
     public async Task<int> DeleteChannelAsync(ChannelModel channel)
     {
+        await SetUpDb();
         string key = GetCache(channel.ChannelId);
 
         var existingChannel = await GetChannelAsync(channel.Url, channel.ChannelId);

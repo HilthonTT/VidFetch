@@ -13,10 +13,9 @@ public class SettingsData : ISettingsData
     public SettingsData(IMemoryCache cache)
     {
         _cache = cache;
-        SetUpDb();
     }
 
-    private void SetUpDb()
+    private async Task SetUpDb()
     {
         if (_db is null)
         {
@@ -26,12 +25,14 @@ public class SettingsData : ISettingsData
                     Environment.SpecialFolder.LocalApplicationData), DbName);
 
             _db = new(dbPath);
-            _db.CreateTableAsync<SettingsLibrary>();
+            await _db.CreateTableAsync<SettingsLibrary>();
         }
     }
 
     public async Task<SettingsLibrary> GetSettingsAsync()
     {
+        await SetUpDb();
+
         var output = _cache.Get<SettingsLibrary>(CacheName);
         if (output is null)
         {
@@ -44,6 +45,8 @@ public class SettingsData : ISettingsData
 
     public async Task<int> UpdateSettingsAsync(SettingsLibrary settings)
     {
+        await SetUpDb();
+
         RemoveCache();
         var existingSettings = await _db.Table<SettingsLibrary>().FirstOrDefaultAsync();
         if (existingSettings is not null)

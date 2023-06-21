@@ -17,10 +17,9 @@ public class VideoData : IVideoData
     {
         _cache = cache;
         _youtube = youtube;
-        SetUpDb();
     }
 
-    private void SetUpDb()
+    private async Task SetUpDb()
     {
         if (_db is null)
         {
@@ -30,12 +29,14 @@ public class VideoData : IVideoData
                     Environment.SpecialFolder.LocalApplicationData), DbName);
 
             _db = new(dbPath);
-            _db.CreateTableAsync<VideoModel>();
+            await _db.CreateTableAsync<VideoModel>();
         }
     }
 
     public async Task<List<VideoModel>> GetAllVideosAsync()
     {
+        await SetUpDb();
+
         var output = _cache.Get<List<VideoModel>>(CacheName);
         if (output is null)
         {
@@ -48,6 +49,7 @@ public class VideoData : IVideoData
 
     public async Task<VideoModel> GetVideoAsync(string url, string videoId)
     {
+        await SetUpDb();
         string key = GetCache(videoId);
 
         var output = _cache.Get<VideoModel>(key);
@@ -62,6 +64,8 @@ public class VideoData : IVideoData
 
     public async Task<bool> VideoExistsAsync(string url, string videoId)
     {
+        await SetUpDb();
+
         var video = await GetVideoAsync(url, videoId);
         if (video is null)
         {
@@ -75,6 +79,8 @@ public class VideoData : IVideoData
 
     public async Task<int> SetVideoAsync(string url, string videoId)
     {
+        await SetUpDb();
+
         var existingVideo = await GetVideoAsync(url, videoId);
         RemoveCache();
 
@@ -91,6 +97,7 @@ public class VideoData : IVideoData
 
     public async Task<int> DeleteVideoAsync(VideoModel video)
     {
+        await SetUpDb();
         string key = GetCache(video.VideoId);
 
         var existingVideo = await GetVideoAsync(video.Url, video.VideoId);
