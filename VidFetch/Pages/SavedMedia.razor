@@ -100,7 +100,7 @@
                                 CardSize="6"
                                 SelectedExtension="@selectedExtension"
                                 SelectedPath="@selectedPath"
-                                RemoveEvent="DeleteVideo" />
+                                RemoveEvent="(() => DeleteVideo(v))" />
             </MudVirtualize>
         </MudGrid>
     </MudItem>

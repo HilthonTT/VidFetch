@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using VidFetchLibrary.Models;
-using YoutubeExplode.Videos;
 
 namespace VidFetch.Components;
 
@@ -24,12 +23,11 @@ public partial class VideoComponent
 
     [Parameter]
     [EditorRequired]
-    public EventCallback<Video> RemoveEvent { get; set; }
+    public EventCallback<VideoModel> RemoveEvent { get; set; }
 
     [Parameter]
     public int Index { get; set; }
 
-    private Video video;
     private CancellationTokenSource tokenSource;
     private bool isDownloading = false;
     private bool isDownloadSuccessful = false;
@@ -81,7 +79,7 @@ public partial class VideoComponent
 
     private async Task Remove()
     {
-        await RemoveEvent.InvokeAsync(video);
+        await RemoveEvent.InvokeAsync(Video);
     }
 
     private async Task OpenFolderLocation()

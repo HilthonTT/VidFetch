@@ -94,9 +94,9 @@ public partial class SavedMedia
         }
     }
 
-    private async Task DeleteVideo(Video video)
+    private async Task DeleteVideo(VideoModel video)
     {
-        var v = videos.FirstOrDefault(v => v.VideoId == video.Id || v.Url == video.Url);
+        var v = videos.FirstOrDefault(v => v.VideoId == video.VideoId || v.Url == video.Url);
 
         videos.Remove(v);
         await videoData.DeleteVideoAsync(v);
