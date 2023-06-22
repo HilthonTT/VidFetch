@@ -1,6 +1,7 @@
 ﻿@page "/Settings"
 @inject ISettingsLibrary settingsLibrary
 @inject ISettingsData settingsData
+@inject IDefaultData defaultData
 @inject ISnackbar snackbar
 @inject NavigationManager navManager
 
@@ -22,8 +23,8 @@
         <EditForm Model="model" OnValidSubmit="SaveSettings">
             <DataAnnotationsValidator />
             <ValidationSummary />
-            <MudGrid>
-                <MudItem xs="12" Class="text-center">
+            <MudGrid Spacing="5">
+                <MudItem xs="6" Class="text-center">
                     <div class="d-flex align-items-center mb-3">
                         <MudText class="mr-2">Dark Mode:</MudText>
                         <MudSwitch @bind-Checked="model.IsDarkMode"
@@ -39,6 +40,36 @@
                         <MudSwitch @bind-Checked="model.SaveVideos"
                                    Color="MudBlazor.Color.Primary" />
                     </div>
+                </MudItem>
+                <MudItem xs="6">
+                    <div class="d-flex align-items-center mb-3">
+                        <MudSelect @bind-Value="model.SelectedPath"
+                                   Label="Download Path:"
+                                   Class="mud-input-root text-start"
+                                   HelperText="Pick your preferred download path."
+                                   Required="true">
+                            @foreach (var p in paths)
+                            {
+                                <MudSelectItem Value="@p">@p</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <MudSelect @bind-Value="model.SelectedFormat"
+                                   Label="Video Format:"
+                                   Class="mud-input-root text-start"
+                                   HelperText="Pick your preferred format."
+                                   Required="true">
+                            @foreach (var f in formats)
+                            {
+                                <MudSelectItem Value="@f">@f</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </div>
+                </MudItem>
+            </MudGrid>
+            <MudGrid Spacing="5">
+                <MudItem xs="12">
                     <div class="text-center">
                         <MudButton Variant="Variant.Filled"
                                    Color="MudBlazor.Color.Primary"

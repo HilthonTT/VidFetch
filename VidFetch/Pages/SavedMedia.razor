@@ -1,9 +1,7 @@
 ﻿@page "/SavedMedias"
 @inject IYoutube youtube
-@inject IDefaultData defaultData
 @inject IVideoData videoData
 @inject ISettingsLibrary settingsLibrary
-@inject ISecureStorage secureStorage
 @inject ISnackbar snackbar
 @inject ISearchHelper searchHelper
 @inject ITokenHelper tokenHelper
@@ -22,24 +20,6 @@
 }
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
-        <MudButtonGroup Class="mt-2">
-            @foreach (var p in downloadPaths)
-            {
-                <MudButton Class="@GetButtonClass(p)"
-                           OnClick="(() => OnButtonClick(p))">
-                    @p
-                </MudButton>
-            }
-        </MudButtonGroup>
-        <MudSelect Label="Video Format:"
-        @bind-Value="selectedExtension"
-                   Class="mud-input-root text-start"
-                   HelperText="Pick your preferred format.">
-            @foreach (var e in videoExtensions)
-            {
-                <MudSelectItem Value="@e" OnClick="SaveStates">@e</MudSelectItem>
-            }
-        </MudSelect>
         <MudButton Class="mt-4 w-100"
                    Color="Color.Warning"
                    Variant="Variant.Outlined"
@@ -98,8 +78,6 @@
                 <VideoComponent @key="v.Id"
                                 Video="v"
                                 CardSize="6"
-                                SelectedExtension="@selectedExtension"
-                                SelectedPath="@selectedPath"
                                 RemoveEvent="(() => DeleteVideo(v))" />
             </MudVirtualize>
         </MudGrid>

@@ -6,4 +6,6 @@ public interface ISettingsLibrary
     int Id { get; set; }
     bool IsDarkMode { get; set; }
     bool SaveVideos { get; set; }
+    string SelectedPath { get; set; }
+    string SelectedFormat { get; set; }
 }

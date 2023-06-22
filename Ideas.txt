@@ -10,6 +10,3 @@ Ideas
 	-Displays the title and each videos in it.
 
 * Implement different tabs in Saved Media for channels and playlist.
-
-* Move Download Folder and Video Format to Settings Page for less clautered screen.
-* Instead of returning a Video in Youtube.cs, return a VideoModel and for other Data such Channel to ChannelModel

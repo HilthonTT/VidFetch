@@ -1,5 +1,4 @@
 using VidFetchLibrary.Models;
-using YoutubeExplode.Search;
 
 namespace VidFetch.Pages;
 
@@ -10,37 +9,10 @@ public partial class Search
     private CancellationTokenSource videoTokenSource;
     private CancellationTokenSource channelTokenSource;
     private CancellationTokenSource playlistTokenSource;
-    private List<string> downloadPaths = new();
-    private List<string> videoExtensions = new();
-    private string selectedPath = DefaultDownloadPath;
-    private string selectedExtension = DefaultExtension;
     private string errorMessage = "";
     private string videoSearchText = "";
     private string playlistSearchText = "";
     private string channelSearchText = "";
-    protected override async Task OnInitializedAsync()
-    {
-        LoadPathsAndExtensions();
-        await LoadStates();
-    }
-
-    private void LoadPathsAndExtensions()
-    {
-        downloadPaths = defaultData.GetDownloadPaths();
-        videoExtensions = defaultData.GetVideoExtensions();
-    }
-
-    private async Task LoadStates()
-    {
-        selectedPath = await secureStorage.GetAsync(nameof(selectedPath)) ?? DefaultDownloadPath;
-        selectedExtension = await secureStorage.GetAsync(nameof(selectedExtension)) ?? DefaultExtension;
-    }
-
-    private async Task SaveStates()
-    {
-        await secureStorage.SetAsync(nameof(selectedPath), selectedPath);
-        await secureStorage.SetAsync(nameof(selectedExtension), selectedExtension);
-    }
 
     private async Task SearchVideos()
     {
@@ -74,18 +46,12 @@ public partial class Search
 
     private async Task OpenFileLocation()
     {
-        if (string.IsNullOrWhiteSpace(selectedPath))
+        if (string.IsNullOrWhiteSpace(settingsLibrary.SelectedPath))
         {
             return;
         }
 
-        await folderHelper.OpenFolderLocationAsync(selectedPath);
-    }
-
-    private async Task OnButtonClick(string path)
-    {
-        selectedPath = path;
-        await SaveStates();
+        await folderHelper.OpenFolderLocationAsync(settingsLibrary.SelectedPath);
     }
 
     private async Task<IEnumerable<string>> FilterSearchVideos(string searchInput)
@@ -146,16 +112,6 @@ public partial class Search
     private void CancelPlaylistSearch()
     {
         tokenHelper.CancelRequest(ref playlistTokenSource);
-    }
-
-    private string GetButtonClass(string path)
-    {
-        if (selectedPath == path)
-        {
-            return "text-success";
-        }
-
-        return "text-danger";
     }
 
     private string GetVideoSearchBarText()

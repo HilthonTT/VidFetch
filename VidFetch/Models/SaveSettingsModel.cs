@@ -15,4 +15,12 @@ public class SaveSettingsModel
     [Display(Name = "Save Videos")]
     [Required(ErrorMessage = "You must set your set your save videos settings.")]
     public bool SaveVideos { get; set; } = false;
+
+    [Display(Name = "Selected Path")]
+    [Required(ErrorMessage = "You must set your selected Path settings.")]
+    public string SelectedPath { get; set; }
+
+    [Display(Name = "Selected Format")]
+    [Required(ErrorMessage = "You must set your selected format settings.")]
+    public string SelectedFormat { get; set; }
 }

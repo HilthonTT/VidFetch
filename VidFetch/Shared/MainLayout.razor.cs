@@ -28,6 +28,8 @@ public partial class MainLayout
             settingsLibrary.IsDarkMode = true;
             settingsLibrary.DownloadSubtitles = false;
             settingsLibrary.SaveVideos = false;
+            settingsLibrary.SelectedFormat = defaultData.GetVideoExtensions().First();
+            settingsLibrary.SelectedPath = defaultData.GetDownloadPaths().First();
         }
     }
 
@@ -37,5 +39,7 @@ public partial class MainLayout
         settingsLibrary.IsDarkMode = settings.IsDarkMode;
         settingsLibrary.DownloadSubtitles = settings.DownloadSubtitles;
         settingsLibrary.SaveVideos = settings.SaveVideos;
+        settingsLibrary.SelectedFormat = settings.SelectedFormat;
+        settingsLibrary.SelectedPath = settings.SelectedPath;
     }
 }

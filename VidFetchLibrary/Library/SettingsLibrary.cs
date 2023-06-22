@@ -8,4 +8,6 @@ public class SettingsLibrary : ISettingsLibrary
     public bool IsDarkMode { get; set; }
     public bool DownloadSubtitles { get; set; }
     public bool SaveVideos { get; set; }
+    public string SelectedPath { get; set; }
+    public string SelectedFormat { get; set; }
 }

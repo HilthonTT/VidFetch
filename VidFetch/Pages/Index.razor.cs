@@ -1,21 +1,13 @@
 using MudBlazor;
 using VidFetchLibrary.Models;
-using YoutubeExplode.Playlists;
-using YoutubeExplode.Videos;
 
 namespace VidFetch.Pages;
 
 public partial class Index
 {
-    private const string DefaultDownloadPath = "Download Folder";
-    private const string DefaultExtension = ".mp4";
     private CancellationTokenSource playlistTokenSource;
     private CancellationTokenSource allVideosTokenSource;
     private CancellationTokenSource videoTokenSource;
-    private List<string> downloadPaths = new();
-    private List<string> videoExtensions = new();
-    private string selectedPath = DefaultDownloadPath;
-    private string selectedExtension = DefaultExtension;
     private string youtubeUrl = "";
     private string errorMessage = "";
     private string videoSearchText = "";
@@ -29,30 +21,6 @@ public partial class Index
     private bool showDialog = false;
     private bool isVideoLoading = false;
     private bool isPlaylistLoading = false;
-
-    protected override async Task OnInitializedAsync()
-    {
-        LoadPathsAndExtensions();
-        await LoadStates();
-    }
-
-    private void LoadPathsAndExtensions()
-    {
-        downloadPaths = defaultData.GetDownloadPaths();
-        videoExtensions = defaultData.GetVideoExtensions();
-    }
-
-    private async Task LoadStates()
-    {
-        selectedPath = await secureStorage.GetAsync(nameof(selectedPath)) ?? DefaultDownloadPath;
-        selectedExtension = await secureStorage.GetAsync(nameof(selectedExtension)) ?? DefaultExtension;
-    }
-
-    private async Task SaveStates()
-    {
-        await secureStorage.SetAsync(nameof(selectedPath), selectedPath);
-        await secureStorage.SetAsync(nameof(selectedExtension), selectedExtension);
-    }
 
     private async Task LoadVideoOrPlaylist()
     {
@@ -152,14 +120,13 @@ public partial class Index
 
             await youtube.DownloadVideoAsync(
                 url,
-                selectedPath,
-                selectedExtension,
+                settingsLibrary.SelectedPath,
+                settingsLibrary.SelectedFormat,
                 progressReport,
                 cancellationToken,
                 settingsLibrary.DownloadSubtitles);
 
             CancelVideoDownload();
-            await SaveStates();
         }
         catch (Exception ex)
         {
@@ -186,8 +153,8 @@ public partial class Index
 
                 await youtube.DownloadVideoAsync(
                     v.Url,
-                    selectedPath,
-                    selectedExtension,
+                    settingsLibrary.SelectedPath,
+                    settingsLibrary.SelectedFormat,
                     progressReport,
                     cancellationToken,
                     settingsLibrary.DownloadSubtitles);
@@ -197,7 +164,6 @@ public partial class Index
 
             currentDownloadingVideo = "";
             CancelVideosDownload();
-            await SaveStates();
         }
         catch (Exception ex)
         {
@@ -224,8 +190,8 @@ public partial class Index
 
                 await youtube.DownloadVideoAsync(
                     v.Url,
-                    selectedPath,
-                    selectedExtension,
+                    settingsLibrary.SelectedPath,
+                    settingsLibrary.SelectedFormat,
                     progressReport,
                     cancellationToken,
                     settingsLibrary.DownloadSubtitles);
@@ -235,7 +201,6 @@ public partial class Index
 
             currentDownloadingPlaylistVideo = "";
             CancelPlaylistDownload();
-            await SaveStates();
         }
         catch (Exception ex)
         {
@@ -321,28 +286,12 @@ public partial class Index
 
     private async Task OpenFileLocation()
     {
-        if (string.IsNullOrWhiteSpace(selectedPath))
+        if (string.IsNullOrWhiteSpace(settingsLibrary.SelectedPath))
         {
             return;
         }
 
-        await folderHelper.OpenFolderLocationAsync(selectedPath);
-    }
-
-    private async Task OnButtonClick(string path)
-    {
-        selectedPath = path;
-        await SaveStates();
-    }
-
-    private string GetButtonClass(string path)
-    {
-        if (selectedPath == path)
-        {
-            return "text-success";
-        }
-
-        return "text-danger";
+        await folderHelper.OpenFolderLocationAsync(settingsLibrary.SelectedPath);
     }
 
     private string GetDownloadVideoText()

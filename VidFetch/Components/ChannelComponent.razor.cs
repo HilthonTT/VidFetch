@@ -14,14 +14,6 @@ public partial class ChannelComponent
 
     [Parameter]
     [EditorRequired]
-    public string SelectedExtension { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public string SelectedPath { get; set; }
-
-    [Parameter]
-    [EditorRequired]
     public EventCallback<ChannelModel> RemoveEvent { get; set; }
 
     private bool isSaved = false;

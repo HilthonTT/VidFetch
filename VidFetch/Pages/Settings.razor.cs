@@ -7,11 +7,14 @@ namespace VidFetch.Pages;
 public partial class Settings
 {
     private SaveSettingsModel model = new();
+    private List<string> paths = new();
+    private List<string> formats = new();
     private string errorMessage = "";
 
     protected override void OnInitialized()
     {
         MapSettings();
+        LoadPathsAndFormats();
     }
 
     private void MapSettings()
@@ -19,6 +22,14 @@ public partial class Settings
         model.IsDarkMode = settingsLibrary.IsDarkMode;
         model.DownloadSubtitles = settingsLibrary.DownloadSubtitles;
         model.SaveVideos = settingsLibrary.SaveVideos;
+        model.SelectedPath = settingsLibrary.SelectedPath;
+        model.SelectedFormat = settingsLibrary.SelectedFormat;
+    }
+
+    private void LoadPathsAndFormats()
+    {
+        paths = defaultData.GetDownloadPaths();
+        formats = defaultData.GetVideoExtensions();
     }
 
     private async Task SaveSettings()
@@ -31,7 +42,10 @@ public partial class Settings
                 IsDarkMode = model.IsDarkMode,
                 DownloadSubtitles = model.DownloadSubtitles,
                 SaveVideos = model.SaveVideos,
+                SelectedPath = model.SelectedPath,
+                SelectedFormat = model.SelectedFormat,
             };
+
             await settingsData.UpdateSettingsAsync(s);
 
             navManager.NavigateTo("/Settings", IsReload());
@@ -39,6 +53,8 @@ public partial class Settings
             settingsLibrary.IsDarkMode = model.IsDarkMode;
             settingsLibrary.DownloadSubtitles = model.DownloadSubtitles;
             settingsLibrary.SaveVideos = model.SaveVideos;
+            settingsLibrary.SelectedPath = model.SelectedPath;
+            settingsLibrary.SelectedFormat = model.SelectedFormat;
 
             snackbar.Add("Successfully saved settings.", Severity.Normal);
         }

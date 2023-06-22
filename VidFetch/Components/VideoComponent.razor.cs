@@ -15,14 +15,6 @@ public partial class VideoComponent
 
     [Parameter]
     [EditorRequired]
-    public string SelectedExtension { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public string SelectedPath { get; set; }
-
-    [Parameter]
-    [EditorRequired]
     public EventCallback<VideoModel> RemoveEvent { get; set; }
 
     [Parameter]
@@ -57,8 +49,8 @@ public partial class VideoComponent
 
         await youtube.DownloadVideoAsync(
             Video.Url,
-            SelectedPath,
-            SelectedExtension,
+            settingsLibrary.SelectedPath,
+            settingsLibrary.SelectedFormat,
             progressReporter,
             cancellationToken);
         
@@ -84,7 +76,7 @@ public partial class VideoComponent
 
     private async Task OpenFolderLocation()
     {
-        await folderHelper.OpenFolderLocationAsync(SelectedPath);
+        await folderHelper.OpenFolderLocationAsync(settingsLibrary.SelectedPath);
     }
 
     private static async Task OpenUrl(string text)

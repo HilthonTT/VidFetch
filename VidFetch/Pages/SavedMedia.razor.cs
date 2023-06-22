@@ -1,19 +1,12 @@
 using MudBlazor;
-using YoutubeExplode.Videos;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Pages;
 
 public partial class SavedMedia
 {
-    private const string DefaultDownloadPath = "Download Folder";
-    private const string DefaultExtension = ".mp4";
     private CancellationTokenSource allVideosTokenSource;
     private List<VideoModel> videos = new();
-    private List<string> downloadPaths = new();
-    private List<string> videoExtensions = new();
-    private string selectedPath = DefaultDownloadPath;
-    private string selectedExtension = DefaultExtension;
     private string searchText = "";
     private string errorMessage = "";
     private string currentDownloadingVideo = "";
@@ -21,33 +14,13 @@ public partial class SavedMedia
     private bool isVideosLoading = true;
     protected override async Task OnInitializedAsync()
     {
-        LoadPathsAndExtensions();
         await LoadVideos();
-        await LoadStates();
-    }
-
-    private void LoadPathsAndExtensions()
-    {
-        downloadPaths = defaultData.GetDownloadPaths();
-        videoExtensions = defaultData.GetVideoExtensions();
     }
 
     private async Task LoadVideos()
     {
         videos = await videoData.GetAllVideosAsync();
         isVideosLoading = false;
-    }
-
-    private async Task LoadStates()
-    {
-        selectedPath = await secureStorage.GetAsync(nameof(selectedPath)) ?? DefaultDownloadPath;
-        selectedExtension = await secureStorage.GetAsync(nameof(selectedExtension)) ?? DefaultExtension;
-    }
-
-    private async Task SaveStates()
-    {
-        await secureStorage.SetAsync(nameof(selectedPath), selectedPath);
-        await secureStorage.SetAsync(nameof(selectedExtension), selectedExtension);
     }
 
     private async Task DownloadAll()
@@ -75,8 +48,8 @@ public partial class SavedMedia
 
                 await youtube.DownloadVideoAsync(
                     v.Url,
-                    selectedPath,
-                    selectedExtension,
+                    settingsLibrary.SelectedPath,
+                    settingsLibrary.SelectedFormat,
                     progressReport,
                     cancellationToken,
                     settingsLibrary.DownloadSubtitles);
@@ -86,7 +59,6 @@ public partial class SavedMedia
 
             currentDownloadingVideo = "";
             CancelDownload();
-            await SaveStates();
         }
         catch (Exception ex)
         {
@@ -107,20 +79,14 @@ public partial class SavedMedia
         return await searchHelper.SearchAsync(videos, searchInput);
     }
 
-    private async Task OnButtonClick(string path)
-    {
-        selectedPath = path;
-        await SaveStates();
-    }
-
     private async Task OpenFileLocation()
     {
-        if (string.IsNullOrWhiteSpace(selectedPath))
+        if (string.IsNullOrWhiteSpace(settingsLibrary.SelectedPath))
         {
             return;
         }
 
-        await folderHelper.OpenFolderLocationAsync(selectedPath);
+        await folderHelper.OpenFolderLocationAsync(settingsLibrary.SelectedPath);
     }
 
     private void FilterVideos()
@@ -144,16 +110,6 @@ public partial class SavedMedia
         tokenHelper.CancelRequest(ref allVideosTokenSource);
         videosProgress = 0;
         currentDownloadingVideo = "";
-    }
-
-    private string GetButtonClass(string path)
-    {
-        if (selectedPath == path)
-        {
-            return "text-success";
-        }
-
-        return "text-danger";
     }
 
     private string GetDownloadVideoText()

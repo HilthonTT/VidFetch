@@ -1,7 +1,5 @@
 ﻿@page "/Download"
 @inject IYoutube youtube
-@inject ISecureStorage secureStorage
-@inject IDefaultData defaultData
 @inject IVideoLibrary videoLibrary
 @inject ISettingsLibrary settingsLibrary
 @inject ISnackbar snackbar
@@ -34,25 +32,6 @@
                       OnAdornmentClick="LoadVideoOrPlaylist"
                       Required="true"
                       Clearable="true" />
-
-        <MudButtonGroup Class="mt-2">
-            @foreach (var p in downloadPaths)
-            {
-                <MudButton Class="@GetButtonClass(p)"
-                           OnClick="(() => OnButtonClick(p))">
-                    @p
-                </MudButton>
-            }
-        </MudButtonGroup>
-        <MudSelect Label="Video Format:"
-        @bind-Value="selectedExtension"
-                   Class="mud-input-root text-start"
-                   HelperText="Pick your preferred format.">
-            @foreach (var e in videoExtensions)
-            {
-                <MudSelectItem Value="@e" OnClick="SaveStates">@e</MudSelectItem>
-            }
-        </MudSelect>
         <MudButton Class="mt-4 w-100"
                    Color="Color.Warning"
                    Variant="Variant.Outlined"
@@ -116,8 +95,6 @@
         <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
             <VideoComponent @key="v.Id"
                             Video="v"
-                            SelectedExtension="@selectedExtension"
-                            SelectedPath="@selectedPath"
                             RemoveEvent="(() => RemoveVideo(v))" />
         </MudVirtualize>
     </MudItem>
@@ -175,8 +152,6 @@
         <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
             <VideoComponent @key="v.Id"
                             Video="v"
-                            SelectedExtension="@selectedExtension"
-                            SelectedPath="@selectedPath"
                             Index="@GetIndex(v)"
                             RemoveEvent="(() => RemovePlaylistVideo(v))" />
         </MudVirtualize>
