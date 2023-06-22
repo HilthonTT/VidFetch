@@ -1,6 +1,5 @@
 ﻿using VidFetchLibrary.Library;
-using YoutubeExplode.Playlists;
-using YoutubeExplode.Videos;
+using VidFetchLibrary.Models;
 
 namespace VidFetch.Helpers;
 public class VideoLibraryHelper : IVideoLibraryHelper
@@ -24,12 +23,12 @@ public class VideoLibraryHelper : IVideoLibraryHelper
         progress = 0;
     }
 
-    public void RemoveVideo(Video video)
+    public void RemoveVideo(VideoModel video)
     {
         _videoLibrary.Videos.Remove(video);
     }
 
-    public void RemovePlaylistVideo(PlaylistVideo playlistVideo)
+    public void RemovePlaylistVideo(VideoModel playlistVideo)
     {
         _videoLibrary.PlaylistVideos.Remove(playlistVideo);
     }

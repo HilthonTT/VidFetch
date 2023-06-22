@@ -82,7 +82,7 @@
                 <MudGrid>
                     <MudVirtualize Items="videoLibrary.VideoResults" Context="v" OverscanCount="10">
                         <VideoComponent @key="v.Id"
-                                        Video="new VideoModel(v)"
+                                        Video="v"
                                         CardSize="6"
                                         SelectedExtension="@selectedExtension"
                                         SelectedPath="@selectedPath"
@@ -129,7 +129,7 @@
                 <MudGrid>
                     <MudVirtualize Items="videoLibrary.ChannelResults" Context="c" OverscanCount="10">
                         <ChannelComponent @key="c.Id"
-                                          Channel="new ChannelModel(c)"
+                                          Channel="c"
                                           CardSize="6"
                                           SelectedExtension="@selectedExtension"
                                           SelectedPath="@selectedPath"
@@ -175,8 +175,8 @@
                 }
                 <MudGrid>
                     <MudVirtualize Items="videoLibrary.PlaylistResults" Context="p" OverscanCount="10">
-                        <PlaylistComponent @key="p.Id"
-                                           Playlist="new PlaylistModel(p)"
+                        <PlaylistComponent @key="p.PlaylistId"
+                                           Playlist="p"
                                            CardSize="6"
                                            SelectedExtension="@selectedExtension"
                                            SelectedPath="@selectedPath"

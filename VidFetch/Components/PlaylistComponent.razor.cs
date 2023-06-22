@@ -53,14 +53,14 @@ public partial class PlaylistComponent
         if (isThumbnailEmpty)
         {
             var playlist = await youtube.GetPlaylistAsync(Playlist.Url);
-            string playlistThumbnail = playlist.Thumbnails?.Count > 0 ? playlist.Thumbnails[0].Url : defaultUrl;
+            string playlistThumbnail = string.IsNullOrWhiteSpace(playlist.ThumbnailUrl) ? defaultUrl : playlist.ThumbnailUrl;
             Playlist.ThumbnailUrl = playlistThumbnail;
         }
 
         if (isAuthorThumbnailEmpty)
         {
             var channel = await youtube.GetChannelAsync(Playlist.AuthorUrl);
-            string channelThumbnail = channel.Thumbnails?.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
+            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
             Playlist.AuthorThumbnailUrl = channelThumbnail;
         }
     }

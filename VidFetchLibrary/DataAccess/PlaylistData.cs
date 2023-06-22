@@ -87,7 +87,7 @@ public class PlaylistData : IPlaylistData
         if (existingPlaylist is null)
         {
             var playlist = await _youtube.GetPlaylistAsync(url);
-            return await CreatePlaylistAsync(new PlaylistModel(playlist));
+            return await CreatePlaylistAsync(playlist);
         }
         else
         {
@@ -145,7 +145,7 @@ public class PlaylistData : IPlaylistData
         string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
 
         var channel = await _youtube.GetChannelAsync(playlist.AuthorUrl);
-        string channelThumbnail = channel.Thumbnails.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
+        string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
 
         playlist.AuthorThumbnailUrl = channelThumbnail;
 

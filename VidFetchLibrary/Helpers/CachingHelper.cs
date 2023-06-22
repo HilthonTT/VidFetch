@@ -1,24 +1,29 @@
 ﻿namespace VidFetchLibrary.Helpers;
 public class CachingHelper : ICachingHelper
 {
-    public string CacheVideoKey(string id)
+    public string CacheVideoList(string url)
     {
-        return $"VideoData-{id}";
+        return $"VideoListData-{url}";
     }
 
-    public string CacheVideoPlaylistKey(string id)
+    public string CacheMainVideoKey(string url)
     {
-        return $"PlaylistVideoData-{id}";
+        return $"MainVideoData-{url}";
     }
 
-    public string CacheChannelKey(string id)
+    public string CacheVideoKey(string url)
     {
-        return $"ChannelData-{id}";
+        return $"VideoData-{url}";
     }
 
-    public string CachePlaylistKey(string id)
+    public string CacheChannelKey(string url)
     {
-        return $"PlaylistData-{id}";
+        return $"ChannelData-{url}";
+    }
+
+    public string CachePlaylistKey(string url)
+    {
+        return $"PlaylistData-{url}";
     }
 
     public string CacheStreamInfoKey(string id)

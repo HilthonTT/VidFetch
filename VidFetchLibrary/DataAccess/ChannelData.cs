@@ -87,7 +87,7 @@ public class ChannelData : IChannelData
         if (existingChannel is null)
         {
             var channel = await _youtube.GetChannelAsync(url);
-            return await CreateChannelAsync(new ChannelModel(channel));
+            return await CreateChannelAsync(channel);
         }
         else
         {

@@ -90,7 +90,7 @@ public partial class Index
 
         foreach (var v in videos)
         {
-            if (IsVideoNotLoaded(v.Id))
+            if (IsVideoNotLoaded(v.VideoId))
             {
                 videoLibrary.PlaylistVideos.Add(v);
             }
@@ -109,7 +109,7 @@ public partial class Index
         isVideoLoading = true;
         var video = await youtube.GetVideoAsync(youtubeUrl);
 
-        if (IsVideoNotLoaded(video.Id))
+        if (IsVideoNotLoaded(video.VideoId))
         {
             videoLibrary.Videos.Add(video);
         }
@@ -126,7 +126,7 @@ public partial class Index
     {
         foreach (var v in videoLibrary.Videos)
         {
-            await videoData.SetVideoAsync(v.Url, v.Id);
+            await videoData.SetVideoAsync(v.Url, v.VideoId);
         }
     }
 
@@ -134,7 +134,7 @@ public partial class Index
     {
         foreach(var v in videoLibrary.PlaylistVideos)
         {
-            await videoData.SetVideoAsync(v.Url, v.Id);
+            await videoData.SetVideoAsync(v.Url, v.VideoId);
         }
     }
 
@@ -297,14 +297,14 @@ public partial class Index
         videoLibraryHelper.ClearPlaylist(ref playlistProgress);
     }
 
-    private void RemoveVideo(Video video)
+    private void RemoveVideo(VideoModel video)
     {
         videoLibraryHelper.RemoveVideo(video);
     }
 
-    private void RemovePlaylistVideo(Video video)
+    private void RemovePlaylistVideo(VideoModel video)
     {
-        var v = videoLibrary.PlaylistVideos.FirstOrDefault(v => v.Id == video.Id || v.Url == video.Url);
+        var v = videoLibrary.PlaylistVideos.FirstOrDefault(v => v.VideoId == video.VideoId || v.Url == video.Url);
         videoLibraryHelper.RemovePlaylistVideo(v);
     }
 
@@ -392,7 +392,7 @@ public partial class Index
 
     private bool IsVideoNotLoaded(string videoId)
     {
-        return videoLibrary.Videos.Any(v => v.Id == videoId) is false;
+        return videoLibrary.Videos.Any(v => v.VideoId == videoId) is false;
     }
 
     private bool IsPlaylistUrl()
@@ -400,7 +400,7 @@ public partial class Index
         return youtubeUrl.Contains("list=");
     }
 
-    private int GetIndex(PlaylistVideo playlistVideo)
+    private int GetIndex(VideoModel playlistVideo)
     {
         int index = videoLibrary.PlaylistVideos.IndexOf(playlistVideo);
         return index + 1;

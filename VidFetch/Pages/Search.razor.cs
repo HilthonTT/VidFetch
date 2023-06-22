@@ -1,3 +1,4 @@
+using VidFetchLibrary.Models;
 using YoutubeExplode.Search;
 
 namespace VidFetch.Pages;
@@ -117,17 +118,17 @@ public partial class Search
         videoLibrary.PlaylistResults = searchHelper.FilterList(videoLibrary.PlaylistResults, playlistSearchText);
     }
 
-    private void RemoveVideo(VideoSearchResult video)
+    private void RemoveVideo(VideoModel video)
     {
         videoLibrary.VideoResults.Remove(video);
     }
 
-    private void RemoveChannel(ChannelSearchResult channel)
+    private void RemoveChannel(ChannelModel channel)
     {
         videoLibrary.ChannelResults.Remove(channel);
     }
 
-    private void RemovePlaylist(PlaylistSearchResult playlist)
+    private void RemovePlaylist(PlaylistModel playlist)
     {
         videoLibrary.PlaylistResults.Remove(playlist);
     }

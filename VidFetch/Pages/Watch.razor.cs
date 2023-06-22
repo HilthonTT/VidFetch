@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using YoutubeExplode.Videos;
 using System.Text.RegularExpressions;
 using YoutubeExplode.Channels;
+using VidFetchLibrary.Models;
 
 namespace VidFetch.Pages;
 
@@ -10,17 +11,17 @@ public partial class Watch
     [Parameter]
     public string Url { get; set; }
     public string SourcePath { get; set; }
-    public Video Video { get; set; }
+    public VideoModel Video { get; set; }
 
-    private Channel channel;
+    private ChannelModel channel;
 
     protected override async Task OnInitializedAsync()
     {
         Video = await youtube.GetVideoAsync(Url);
-        SourcePath = $"https://www.youtube.com/embed/{Video.Id}";
+        SourcePath = $"https://www.youtube.com/embed/{Video.VideoId}";
         if (Video is not null)
         {
-            channel = await youtube.GetChannelAsync(Video.Author.ChannelUrl);
+            channel = await youtube.GetChannelAsync(Video.AuthorUrl);
         }
     }
 

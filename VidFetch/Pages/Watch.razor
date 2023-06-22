@@ -14,12 +14,12 @@
         </MudItem>
         <MudItem>
             <MudAvatar>
-                <MudImage title="@Video?.Author" Src="@channel?.Thumbnails.FirstOrDefault().Url" />
+                <MudImage title="@Video?.AuthorName" Src="@channel?.ThumbnailUrl" />
             </MudAvatar>
         </MudItem>
         <MudItem>
-            <MudLink Color="Color.Warning" Typo="Typo.body1" @onclick="(() => CopyToClipboard(Video.Author.ChannelUrl))">
-                @Video?.Author
+            <MudLink Color="Color.Warning" Typo="Typo.body1" @onclick="(() => CopyToClipboard(Video.AuthorUrl))">
+                @Video?.AuthorName
             </MudLink>
         </MudItem>
         <MudText Typo="Typo.body2">Uploaded: @Video?.UploadDate</MudText>

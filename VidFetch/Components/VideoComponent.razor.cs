@@ -39,7 +39,6 @@ public partial class VideoComponent
     protected override async Task OnInitializedAsync()
     {
         isSaved = await videoData.VideoExistsAsync(Video.Url, Video.VideoId);
-        video = await youtube.GetVideoAsync(Video.Url);
     }
 
     protected override async Task OnParametersSetAsync()
@@ -104,7 +103,7 @@ public partial class VideoComponent
             string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
 
             var channel = await youtube.GetChannelAsync(Video.AuthorUrl);
-            string channelThumbnail = channel.Thumbnails?.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
+            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
             Video.AuthorThumbnailUrl =  channelThumbnail;
         }
     }

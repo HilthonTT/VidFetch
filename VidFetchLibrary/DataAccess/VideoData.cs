@@ -87,7 +87,7 @@ public class VideoData : IVideoData
         if (existingVideo is null)
         {
             var video = await _youtube.GetVideoAsync(url);
-            return await CreateVideoAsync(new VideoModel(video));
+            return await CreateVideoAsync(video);
         }
         else
         {
@@ -145,7 +145,7 @@ public class VideoData : IVideoData
         string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
 
         var channel = await _youtube.GetChannelAsync(video.AuthorUrl);
-        string channelThumbnail = channel.Thumbnails.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
+        string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
 
         video.AuthorThumbnailUrl = channelThumbnail;
 

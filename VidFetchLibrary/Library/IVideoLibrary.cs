@@ -1,14 +1,12 @@
-﻿using YoutubeExplode.Playlists;
-using YoutubeExplode.Search;
-using YoutubeExplode.Videos;
+﻿using VidFetchLibrary.Models;
 
 namespace VidFetchLibrary.Library;
 
 public interface IVideoLibrary
 {
-    List<PlaylistVideo> PlaylistVideos { get; set; }
-    List<Video> Videos { get; set; }
-    List<VideoSearchResult> VideoResults { get; set; }
-    List<ChannelSearchResult> ChannelResults { get; set; }
-    List<PlaylistSearchResult> PlaylistResults { get; set; }
+    List<VideoModel> PlaylistVideos { get; set; }
+    List<VideoModel> Videos { get; set; }
+    List<VideoModel> VideoResults { get; set; }
+    List<ChannelModel> ChannelResults { get; set; }
+    List<PlaylistModel> PlaylistResults { get; set; }
 }

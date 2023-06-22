@@ -52,7 +52,7 @@ public partial class ChannelComponent
         {
             string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
             var channel = await youtube.GetChannelAsync(Channel.Url);
-            string channelThumbnail = channel.Thumbnails?.Count > 0 ? channel.Thumbnails[0].Url : defaultUrl;
+            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
             Channel.ThumbnailUrl = channelThumbnail;
         }
     }
