@@ -16,10 +16,10 @@ public partial class PlaylistComponent
     [EditorRequired]
     public EventCallback<PlaylistModel> RemoveEvent { get; set; }
 
-    private bool isSaved = false;
+    private bool _isSaved = false;
     protected override async Task OnInitializedAsync()
     {
-        isSaved = await playlistData.PlaylistExistsAsync(Playlist.Url, Playlist.PlaylistId);
+        _isSaved = await playlistData.PlaylistExistsAsync(Playlist.Url, Playlist.PlaylistId);
     }
 
     protected override async Task OnParametersSetAsync()
@@ -29,11 +29,11 @@ public partial class PlaylistComponent
 
     private async Task SavePlaylist()
     {
-        if (isSaved is false)
+        if (_isSaved is false)
         {
             await playlistData.SetPlaylistAsync(Playlist.Url, Playlist.PlaylistId);
             snackbar.Add($"Successfully saved {Playlist.Title}");
-            isSaved = true;
+            _isSaved = true;
         }
     }
 

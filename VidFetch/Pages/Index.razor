@@ -14,15 +14,15 @@
     Vid Fetch
     <MudIcon Icon="@Icons.Custom.Brands.YouTube" Title="Vid Fetch"></MudIcon>
 </MudText>
-@if (string.IsNullOrWhiteSpace(errorMessage) is false)
+@if (string.IsNullOrWhiteSpace(_errorMessage) is false)
 {
     <MudAlert Severity="Severity.Error" Class="mb-4">
-        @errorMessage
+        @_errorMessage
     </MudAlert>
 }
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
-        <MudTextField @bind-Value="youtubeUrl"
+        <MudTextField @bind-Value="_youtubeUrl"
                       Class="mb-4"
                       Label="Enter YouTube URL"
                       Variant="Variant.Outlined"
@@ -42,7 +42,7 @@
 </MudGrid>
 <MudGrid Spacing="5">
     <MudItem xs="6">
-        @if (allVideosTokenSource is null)
+        @if (_allVideosTokenSource is null)
         {
             <MudButton Color="Color.Primary"
                        Variant="Variant.Filled"
@@ -74,19 +74,19 @@
                          OnAdornmentClick="FilterVideos"
                          SearchFunc="SearchVideos"
                          ResetValueOnEmptyText="true"
-        @bind-Value="videoSearchText" />
+        @bind-Value="_videoSearchText" />
         <MudProgressLinear Color="Color.Primary"
                            Striped="true"
                            Size="Size.Medium"
                            Max="1"
-                           Value="@videosProgress"
+                           Value="@_videosProgress"
                            Class="my-7"
                            Buffer="true" />
-        @if (string.IsNullOrWhiteSpace(currentDownloadingVideo) is false)
+        @if (string.IsNullOrWhiteSpace(_currentDownloadingVideo) is false)
         {
-            <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingVideo</MudAlert>
+            <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingVideo</MudAlert>
         }
-        @if (isVideoLoading)
+        @if (_isVideoLoading)
         {
             <div class="text-center">
                 <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
@@ -99,7 +99,7 @@
         </MudVirtualize>
     </MudItem>
     <MudItem xs="6">
-        @if (playlistTokenSource is null)
+        @if (_playlistTokenSource is null)
         {
             <MudButton Color="Color.Primary"
                        Variant="Variant.Filled"
@@ -131,19 +131,19 @@
                          OnAdornmentClick="FilterPlaylistVideo"
                          SearchFunc="SearchPlaylistVideos"
                          ResetValueOnEmptyText="true"
-        @bind-Value="playlistVideoSearchText" />
+        @bind-Value="_playlistVideoSearchText" />
         <MudProgressLinear Color="Color.Primary"
                            Striped="true"
                            Size="Size.Medium"
                            Max="1"
-                           Value="@playlistProgress"
+                           Value="@_playlistProgress"
                            Class="my-7"
                            Buffer="true" />
-        @if (string.IsNullOrWhiteSpace(currentDownloadingPlaylistVideo) is false)
+        @if (string.IsNullOrWhiteSpace(_currentDownloadingPlaylistVideo) is false)
         {
-            <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingPlaylistVideo</MudAlert>
+            <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingPlaylistVideo</MudAlert>
         }
-        @if (isPlaylistLoading)
+        @if (_isPlaylistLoading)
         {
             <div class="text-center">
                 <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
@@ -158,7 +158,7 @@
     </MudItem>
 </MudGrid>
 
-<MudDialog IsVisible="showDialog" Class="backdrop-blur">
+<MudDialog IsVisible="_showDialog" Class="backdrop-blur">
     <DialogContent>
         <MudText Typo="Typo.subtitle1">It appears your URL is a playlist.</MudText>
         <MudText Typo="Typo.body1">Would you like to download your video's Url?</MudText>
@@ -167,11 +167,11 @@
                            Size="Size.Medium"
                            Buffer="true"
                            Max="1"
-                           Value="@firstPlaylistProgress"
+                           Value="@_firstPlaylistProgress"
                            Class="my-7" />
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="(() => DownloadVideo(playlistUrl))">Download</MudButton>
+        <MudButton Color="Color.Primary" OnClick="(() => DownloadVideo(_playlistUrl))">Download</MudButton>
         <MudButton OnClick="ToggleDialog">Cancel</MudButton>
     </DialogActions>
 </MudDialog>

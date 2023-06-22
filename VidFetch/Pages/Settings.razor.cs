@@ -6,10 +6,10 @@ namespace VidFetch.Pages;
 
 public partial class Settings
 {
-    private SaveSettingsModel model = new();
-    private List<string> paths = new();
-    private List<string> formats = new();
-    private string errorMessage = "";
+    private readonly SaveSettingsModel _model = new();
+    private List<string> _paths = new();
+    private List<string> _formats = new();
+    private string _errorMessage = "";
 
     protected override void OnInitialized()
     {
@@ -19,54 +19,54 @@ public partial class Settings
 
     private void MapSettings()
     {
-        model.IsDarkMode = settingsLibrary.IsDarkMode;
-        model.DownloadSubtitles = settingsLibrary.DownloadSubtitles;
-        model.SaveVideos = settingsLibrary.SaveVideos;
-        model.SelectedPath = settingsLibrary.SelectedPath;
-        model.SelectedFormat = settingsLibrary.SelectedFormat;
+        _model.IsDarkMode = settingsLibrary.IsDarkMode;
+        _model.DownloadSubtitles = settingsLibrary.DownloadSubtitles;
+        _model.SaveVideos = settingsLibrary.SaveVideos;
+        _model.SelectedPath = settingsLibrary.SelectedPath;
+        _model.SelectedFormat = settingsLibrary.SelectedFormat;
     }
 
     private void LoadPathsAndFormats()
     {
-        paths = defaultData.GetDownloadPaths();
-        formats = defaultData.GetVideoExtensions();
+        _paths = defaultData.GetDownloadPaths();
+        _formats = defaultData.GetVideoExtensions();
     }
 
     private async Task SaveSettings()
     {
         try
         {
-            errorMessage = "";
+            _errorMessage = "";
             var s = new SettingsLibrary
             {
-                IsDarkMode = model.IsDarkMode,
-                DownloadSubtitles = model.DownloadSubtitles,
-                SaveVideos = model.SaveVideos,
-                SelectedPath = model.SelectedPath,
-                SelectedFormat = model.SelectedFormat,
+                IsDarkMode = _model.IsDarkMode,
+                DownloadSubtitles = _model.DownloadSubtitles,
+                SaveVideos = _model.SaveVideos,
+                SelectedPath = _model.SelectedPath,
+                SelectedFormat = _model.SelectedFormat,
             };
 
             await settingsData.UpdateSettingsAsync(s);
 
             navManager.NavigateTo("/Settings", IsReload());
 
-            settingsLibrary.IsDarkMode = model.IsDarkMode;
-            settingsLibrary.DownloadSubtitles = model.DownloadSubtitles;
-            settingsLibrary.SaveVideos = model.SaveVideos;
-            settingsLibrary.SelectedPath = model.SelectedPath;
-            settingsLibrary.SelectedFormat = model.SelectedFormat;
+            settingsLibrary.IsDarkMode = _model.IsDarkMode;
+            settingsLibrary.DownloadSubtitles = _model.DownloadSubtitles;
+            settingsLibrary.SaveVideos = _model.SaveVideos;
+            settingsLibrary.SelectedPath = _model.SelectedPath;
+            settingsLibrary.SelectedFormat = _model.SelectedFormat;
 
             snackbar.Add("Successfully saved settings.", Severity.Normal);
         }
         catch
         {
-            errorMessage = "Failed to save settings.";
+            _errorMessage = "Failed to save settings.";
         }
     }
 
     private bool IsReload()
     {
-        if (settingsLibrary.IsDarkMode == model.IsDarkMode)
+        if (settingsLibrary.IsDarkMode == _model.IsDarkMode)
         {
             return false;
         }

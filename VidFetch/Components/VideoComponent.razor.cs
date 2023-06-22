@@ -20,15 +20,15 @@ public partial class VideoComponent
     [Parameter]
     public int Index { get; set; }
 
-    private CancellationTokenSource tokenSource;
-    private bool isDownloading = false;
-    private bool isDownloadSuccessful = false;
-    private bool isSaved = false;
-    private double progress = 0;
+    private CancellationTokenSource _tokenSource;
+    private bool _isDownloading = false;
+    private bool _isDownloadSuccessful = false;
+    private bool _isSaved = false;
+    private double _progress = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        isSaved = await videoData.VideoExistsAsync(Video.Url, Video.VideoId);
+        _isSaved = await videoData.VideoExistsAsync(Video.Url, Video.VideoId);
     }
 
     protected override async Task OnParametersSetAsync()
@@ -38,12 +38,12 @@ public partial class VideoComponent
 
     private async Task DownloadVideo()
     {
-        isDownloading = true;
-        var cancellationToken = tokenHelper.InitializeToken(ref tokenSource);
+        _isDownloading = true;
+        var cancellationToken = tokenHelper.InitializeToken(ref _tokenSource);
         
         var progressReporter = new Progress<double>(value =>
         {
-            progress = value;
+            _progress = value;
             StateHasChanged();
         });
 
@@ -56,16 +56,16 @@ public partial class VideoComponent
         
         AddSnackbar();
         CancelVideoDownload();
-        isDownloadSuccessful = true;
+        _isDownloadSuccessful = true;
     }
 
     private async Task SaveVideo()
     {
-        if (isSaved is false)
+        if (_isSaved is false)
         {
             await videoData.SetVideoAsync(Video.Url, Video.VideoId);
             snackbar.Add($"Successfully saved {Video.Title}");
-            isSaved = true;
+            _isSaved = true;
         }
     }
 
@@ -100,9 +100,9 @@ public partial class VideoComponent
 
     private void CancelVideoDownload()
     {
-        tokenHelper.CancelRequest(ref tokenSource);
-        isDownloading = false;
-        progress = 0;
+        tokenHelper.CancelRequest(ref _tokenSource);
+        _isDownloading = false;
+        _progress = 0;
     }
 
     private void LoadWatchPage()

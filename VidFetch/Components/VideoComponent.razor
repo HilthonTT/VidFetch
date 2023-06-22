@@ -18,7 +18,7 @@
                 <MudText Typo="Typo.subtitle1" title="@Video.Title">@Video.Title</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
-                @if (isSaved is false)
+                @if (_isSaved is false)
                 {
                     <MudIconButton Icon="@Icons.Material.Filled.Save"
                                    Color="Color.Default"
@@ -51,12 +51,12 @@
                                Striped="true"
                                Size="Size.Medium"
                                Max="1"
-                               Value="@progress"
+                               Value="@_progress"
                                Class="my-7"
                                Buffer="true" />
         </MudCardContent>
         <MudCardActions Class="justify-content-between">
-            @if (isDownloading is false)
+            @if (_isDownloading is false)
             {
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Primary"
@@ -77,7 +77,7 @@
             @onclick="LoadWatchPage">
                 Watch
             </MudButton>
-            @if (isDownloadSuccessful)
+            @if (_isDownloadSuccessful)
             {
                 <MudButton Variant="Variant.Outlined"
                            Color="Color.Warning"

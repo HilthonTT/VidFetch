@@ -11,18 +11,11 @@
     Search
     <MudIcon Icon="@Icons.Custom.Brands.YouTube" Title="Search"></MudIcon>
 </MudText>
-@if (string.IsNullOrWhiteSpace(errorMessage) is false)
-{
-    <MudAlert Severity="Severity.Error" Class="mb-4">
-        @errorMessage
-    </MudAlert>
-}
-
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
     <MudTabPanel Text="Video">
         <MudGrid Spacing="5">
             <MudItem xs="12" Class="text-center">
-                <MudTextField @bind-Value="videoSearchText"
+                <MudTextField @bind-Value="_videoSearchText"
                               Class="mb-4"
                               Label="Input the video's title"
                               HelperText="This is where you input video's title."
@@ -50,7 +43,7 @@
                                  OnAdornmentClick="FilterVideos"
                                  SearchFunc="FilterSearchVideos"
                                  ResetValueOnEmptyText="true" />
-                @if (videoTokenSource is not null)
+                @if (_videoTokenSource is not null)
                 {
                     <MudButton Color="Color.Error"
                                Variant="Variant.Filled"
@@ -73,7 +66,7 @@
     <MudTabPanel Text="Channel">
         <MudGrid Spacing="5">
             <MudItem xs="12" Class="text-center">
-                <MudTextField @bind-Value="channelSearchText"
+                <MudTextField @bind-Value="_channelSearchText"
                               Class="mb-4"
                               Label="Input the channel's title"
                               HelperText="This is where you input the channel's title."
@@ -95,7 +88,7 @@
                                  OnAdornmentClick="FilterChannels"
                                  SearchFunc="FilterSearchChannels"
                                  ResetValueOnEmptyText="true" />
-                @if (channelTokenSource is not null)
+                @if (_channelTokenSource is not null)
                 {
                     <MudButton Color="Color.Error"
                                Variant="Variant.Filled"
@@ -118,7 +111,7 @@
     <MudTabPanel Text="Playlist">
         <MudGrid Spacing="5">
             <MudItem xs="12" Class="text-center">
-                <MudTextField @bind-Value="playlistSearchText"
+                <MudTextField @bind-Value="_playlistSearchText"
                               Class="mb-4"
                               Label="Input the playlist's title"
                               HelperText="This is where you input the playlist's title."
@@ -140,7 +133,7 @@
                                  OnAdornmentClick="FilterPlaylists"
                                  SearchFunc="FilterSearchPlaylists"
                                  ResetValueOnEmptyText="true" />
-                @if (playlistTokenSource is not null)
+                @if (_playlistTokenSource is not null)
                 {
                     <MudButton Color="Color.Error"
                                Variant="Variant.Filled"

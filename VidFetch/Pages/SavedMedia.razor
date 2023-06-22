@@ -12,10 +12,10 @@
     Saved Medias
     <MudIcon Icon="@Icons.Material.Filled.PersonalVideo"></MudIcon>
 </MudText>
-@if (string.IsNullOrWhiteSpace(errorMessage) is false)
+@if (string.IsNullOrWhiteSpace(_errorMessage) is false)
 {
     <MudAlert Severity="Severity.Error" Class="mb-4">
-        @errorMessage
+        @_errorMessage
     </MudAlert>
 }
 <MudGrid Spacing="5">
@@ -30,7 +30,7 @@
 </MudGrid>
 <MudGrid Spacing="5">
     <MudItem xs="12">
-        @if (allVideosTokenSource is null)
+        @if (_allVideosTokenSource is null)
         {
             <MudButton Color="Color.Primary"
                        Variant="Variant.Filled"
@@ -55,26 +55,26 @@
                          OnAdornmentClick="FilterVideos"
                          SearchFunc="SearchVideos"
                          ResetValueOnEmptyText="true"
-        @bind-Value="searchText" />
+        @bind-Value="_searchText" />
         <MudProgressLinear Color="Color.Primary"
                            Striped="true"
                            Size="Size.Medium"
                            Max="1"
-                           Value="@videosProgress"
+                           Value="@_videosProgress"
                            Class="my-7"
                            Buffer="true" />
-        @if (string.IsNullOrWhiteSpace(currentDownloadingVideo) is false)
+        @if (string.IsNullOrWhiteSpace(_currentDownloadingVideo) is false)
         {
-            <MudAlert Class="mb-4" Severity="Severity.Warning">@currentDownloadingVideo</MudAlert>
+            <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingVideo</MudAlert>
         }
-        @if (isVideosLoading)
+        @if (_isVideosLoading)
         {
             <div class="text-center">
                 <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
             </div>
         }
         <MudGrid>
-            <MudVirtualize Items="videos" Context="v" OverscanCount="10">
+            <MudVirtualize Items="_videos" Context="v" OverscanCount="10">
                 <VideoComponent @key="v.Id"
                                 Video="v"
                                 CardSize="6"

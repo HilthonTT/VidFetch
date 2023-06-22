@@ -4,42 +4,39 @@ namespace VidFetch.Pages;
 
 public partial class Search
 {
-    private const string DefaultDownloadPath = "Download Folder";
-    private const string DefaultExtension = ".mp4";
-    private CancellationTokenSource videoTokenSource;
-    private CancellationTokenSource channelTokenSource;
-    private CancellationTokenSource playlistTokenSource;
-    private string errorMessage = "";
-    private string videoSearchText = "";
-    private string playlistSearchText = "";
-    private string channelSearchText = "";
+    private CancellationTokenSource _videoTokenSource;
+    private CancellationTokenSource _channelTokenSource;
+    private CancellationTokenSource _playlistTokenSource;
+    private string _videoSearchText = "";
+    private string _playlistSearchText = "";
+    private string _channelSearchText = "";
 
     private async Task SearchVideos()
     {
-        if (string.IsNullOrWhiteSpace(videoSearchText)is false)
+        if (string.IsNullOrWhiteSpace(_videoSearchText)is false)
         {
-            var token = tokenHelper.InitializeToken(ref videoTokenSource);
-            videoLibrary.VideoResults = await youtube.GetVideosBySearchAsync(videoSearchText, token);
+            var token = tokenHelper.InitializeToken(ref _videoTokenSource);
+            videoLibrary.VideoResults = await youtube.GetVideosBySearchAsync(_videoSearchText, token);
             CancelVideoSearch();
         }
     }
 
     private async Task SearchPlaylists()
     {
-        if (string.IsNullOrWhiteSpace(playlistSearchText)is false)
+        if (string.IsNullOrWhiteSpace(_playlistSearchText)is false)
         {
-            var token = tokenHelper.InitializeToken(ref playlistTokenSource);
-            videoLibrary.PlaylistResults = await youtube.GetPlaylistsBySearchAsync(playlistSearchText, token);
+            var token = tokenHelper.InitializeToken(ref _playlistTokenSource);
+            videoLibrary.PlaylistResults = await youtube.GetPlaylistsBySearchAsync(_playlistSearchText, token);
             CancelPlaylistSearch();
         }
     }
 
     private async Task SearchChannels()
     {
-        if (string.IsNullOrWhiteSpace(channelSearchText)is false)
+        if (string.IsNullOrWhiteSpace(_channelSearchText)is false)
         {
-            var token = tokenHelper.InitializeToken(ref channelTokenSource);
-            videoLibrary.ChannelResults = await youtube.GetChannelBySearchAsync(channelSearchText, token);
+            var token = tokenHelper.InitializeToken(ref _channelTokenSource);
+            videoLibrary.ChannelResults = await youtube.GetChannelBySearchAsync(_channelSearchText, token);
             CancelChannelSearch();
         }
     }
@@ -71,17 +68,17 @@ public partial class Search
 
     private void FilterVideos()
     {
-        videoLibrary.VideoResults = searchHelper.FilterList(videoLibrary.VideoResults, videoSearchText);
+        videoLibrary.VideoResults = searchHelper.FilterList(videoLibrary.VideoResults, _videoSearchText);
     }
 
     private void FilterChannels()
     {
-        videoLibrary.ChannelResults = searchHelper.FilterList(videoLibrary.ChannelResults, channelSearchText);
+        videoLibrary.ChannelResults = searchHelper.FilterList(videoLibrary.ChannelResults, _channelSearchText);
     }
 
     private void FilterPlaylists()
     {
-        videoLibrary.PlaylistResults = searchHelper.FilterList(videoLibrary.PlaylistResults, playlistSearchText);
+        videoLibrary.PlaylistResults = searchHelper.FilterList(videoLibrary.PlaylistResults, _playlistSearchText);
     }
 
     private void RemoveVideo(VideoModel video)
@@ -101,17 +98,17 @@ public partial class Search
 
     private void CancelVideoSearch()
     {
-        tokenHelper.CancelRequest(ref videoTokenSource);
+        tokenHelper.CancelRequest(ref _videoTokenSource);
     }
 
     private void CancelChannelSearch()
     {
-        tokenHelper.CancelRequest(ref channelTokenSource);
+        tokenHelper.CancelRequest(ref _channelTokenSource);
     }
 
     private void CancelPlaylistSearch()
     {
-        tokenHelper.CancelRequest(ref playlistTokenSource);
+        tokenHelper.CancelRequest(ref _playlistTokenSource);
     }
 
     private string GetVideoSearchBarText()

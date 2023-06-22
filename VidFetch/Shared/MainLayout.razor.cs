@@ -4,8 +4,8 @@ namespace VidFetch.Shared;
 
 public partial class MainLayout
 {
-    private SettingsLibrary settings;
-    private bool isDarkMode = true;
+    private SettingsLibrary _settings;
+    private bool _isDarkMode = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -14,16 +14,16 @@ public partial class MainLayout
 
     private async Task LoadSettings()
     {
-        settings = await settingsData.GetSettingsAsync();
+        _settings = await settingsData.GetSettingsAsync();
 
-        if (settings is not null)
+        if (_settings is not null)
         {
-            isDarkMode = settings.IsDarkMode;
+            _isDarkMode = _settings.IsDarkMode;
             MapSettings();
         }
         else
         {
-            isDarkMode = true;
+            _isDarkMode = true;
 
             settingsLibrary.IsDarkMode = true;
             settingsLibrary.DownloadSubtitles = false;
@@ -35,11 +35,11 @@ public partial class MainLayout
 
     private void MapSettings()
     {
-        settingsLibrary.Id = settings.Id;
-        settingsLibrary.IsDarkMode = settings.IsDarkMode;
-        settingsLibrary.DownloadSubtitles = settings.DownloadSubtitles;
-        settingsLibrary.SaveVideos = settings.SaveVideos;
-        settingsLibrary.SelectedFormat = settings.SelectedFormat;
-        settingsLibrary.SelectedPath = settings.SelectedPath;
+        settingsLibrary.Id = _settings.Id;
+        settingsLibrary.IsDarkMode = _settings.IsDarkMode;
+        settingsLibrary.DownloadSubtitles = _settings.DownloadSubtitles;
+        settingsLibrary.SaveVideos = _settings.SaveVideos;
+        settingsLibrary.SelectedFormat = _settings.SelectedFormat;
+        settingsLibrary.SelectedPath = _settings.SelectedPath;
     }
 }

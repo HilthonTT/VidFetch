@@ -40,12 +40,11 @@
     <MudItem xs="12" sm="6" Style="height: 400px">
         <MudGrid Style="height: 100%">
             <MudItem xs="12">
-                @if (savedVideos?.Count > 0)
+                @if (_savedVideos?.Count > 0)
                 {
-                    <MudCarousel @ref="videos"
-                                 Style="height: 100%"
+                    <MudCarousel Style="height: 100%"
                                  Class="mud-width-full"
-                                 ItemsSource="savedVideos"
+                                 ItemsSource="_savedVideos"
                                  Context="v"
                                  ShowArrows="true"
                                  ShowBullets="true"
@@ -83,15 +82,14 @@
             </MudItem>
         </MudGrid>
     </MudItem>
-    <MudItem xs="12" sm="6" Style="height: 400px">   
+    <MudItem xs="12" sm="6" Style="height: 400px">
         <MudGrid Style="height: 100%">
             <MudItem xs="12">
-                @if (savedChannels?.Count > 0)
+                @if (_savedChannels?.Count > 0)
                 {
-                    <MudCarousel @ref="channels"
-                                 Style="height: 100%"
+                    <MudCarousel Style="height: 100%"
                                  Class="mud-width-full"
-                                 ItemsSource="savedChannels"
+                                 ItemsSource="_savedChannels"
                                  Context="c"
                                  ShowArrows="true"
                                  ShowBullets="true"

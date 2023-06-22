@@ -15,7 +15,7 @@
                 <MudText Typo="Typo.subtitle1" title="@Playlist.Title">@Playlist.Title</MudText>
             </CardHeaderContent>
             <CardHeaderActions>
-                @if (isSaved is false)
+                @if (_isSaved is false)
                 {
                     <MudIconButton Icon="@Icons.Material.Filled.Save"
                                    Color="Color.Default"

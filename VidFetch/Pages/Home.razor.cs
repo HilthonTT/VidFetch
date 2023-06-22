@@ -1,18 +1,15 @@
-using MudBlazor;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Pages;
 
 public partial class Home
 {
-    private MudCarousel<VideoModel> videos;
-    private MudCarousel<ChannelModel> channels;
-    private List<VideoModel> savedVideos;
-    private List<ChannelModel> savedChannels;
+    private List<VideoModel> _savedVideos;
+    private List<ChannelModel> _savedChannels;
     protected override async Task OnInitializedAsync()
     {
-        savedVideos = await videoData.GetAllVideosAsync();
-        savedChannels = await channelData.GetAllChannelsAsync();
+        _savedVideos = await videoData.GetAllVideosAsync();
+        _savedChannels = await channelData.GetAllChannelsAsync();
     }
 
     private void LoadDownloadPage()

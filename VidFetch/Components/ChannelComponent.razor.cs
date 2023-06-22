@@ -16,10 +16,10 @@ public partial class ChannelComponent
     [EditorRequired]
     public EventCallback<ChannelModel> RemoveEvent { get; set; }
 
-    private bool isSaved = false;
+    private bool _isSaved = false;
     protected override async Task OnInitializedAsync()
     {
-        isSaved = await channelData.ChannelExistsAsync(Channel.Url, Channel.ChannelId);
+        _isSaved = await channelData.ChannelExistsAsync(Channel.Url, Channel.ChannelId);
     }
 
     protected override async Task OnParametersSetAsync()
@@ -29,11 +29,11 @@ public partial class ChannelComponent
 
     private async Task SaveChannel()
     {
-        if (isSaved is false)
+        if (_isSaved is false)
         {
             await channelData.SetChannelAsync(Channel.Url, Channel.ChannelId);
             snackbar.Add($"Successfully saved {Channel.Title}");
-            isSaved = true;
+            _isSaved = true;
         }
     }
 
