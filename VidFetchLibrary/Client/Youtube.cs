@@ -70,6 +70,25 @@ public class Youtube : IYoutube
         return output;
     }
 
+    public async Task<List<VideoModel>> GetChannelVideosAsync(string url)
+    {
+        string key = _cachingHelper.CacheVideoList(url);
+
+        var output = _cache.Get<List<VideoModel>>(key);
+        if(output is null)
+        {
+            var channelVideos = await _client.Channels.GetUploadsAsync(url);
+
+            output = channelVideos
+                .Select(v => new VideoModel(v))
+                .ToList();
+
+            _cache.Set(key, output, TimeSpan.FromHours(5));
+        }
+
+        return output;
+    }
+
     public async Task<VideoModel> GetVideoAsync(string url)
     {
         string key = _cachingHelper.CacheMainVideoKey(url);

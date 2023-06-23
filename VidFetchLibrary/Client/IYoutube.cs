@@ -7,6 +7,7 @@ public interface IYoutube
     Task DownloadVideoAsync(string url, string downloadPath, string extension, IProgress<double> progress, CancellationToken token, bool downloadSubtitles = false);
     Task<ChannelModel> GetChannelAsync(string url);
     Task<List<ChannelModel>> GetChannelBySearchAsync(string searchInput, CancellationToken token);
+    Task<List<VideoModel>> GetChannelVideosAsync(string url);
     Task<PlaylistModel> GetPlaylistAsync(string url);
     Task<List<PlaylistModel>> GetPlaylistsBySearchAsync(string searchInput, CancellationToken token);
     Task<List<VideoModel>> GetPlayListVideosAsync(string url);
