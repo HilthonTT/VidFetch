@@ -8,32 +8,31 @@ public partial class Watch
 {
     [Parameter]
     public string Url { get; set; }
-    public string SourcePath { get; set; }
-    public VideoModel Video { get; set; }
 
+    private string _sourcePath = "";
+    private VideoModel _video = new();
     private ChannelModel _channel;
 
     protected override async Task OnInitializedAsync()
     {
-        Video = await youtube.GetVideoAsync(Url);
-        SourcePath = $"https://www.youtube.com/embed/{Video.VideoId}";
-        if (Video is not null)
+        _video = await youtube.GetVideoAsync(Url);
+        _sourcePath = $"https://www.youtube.com/embed/{_video.VideoId}";
+        if (_video is not null)
         {
-            _channel = await youtube.GetChannelAsync(Video.AuthorUrl);
+            _channel = await youtube.GetChannelAsync(_video.AuthorUrl);
         }
     }
 
-    private async Task CopyToClipboard(string text)
+    private async Task OpenUrl(string text)
     {
-        await Clipboard.SetTextAsync(text);
-        snackbar.Add($"Copied to clipboard: {text}");
+        await launcher.OpenAsync(text);
     }
 
     private string FormatDescription()
     {
-        if (Video is not null)
+        if (_video is not null)
         {
-            string description = MyRegex().Replace(Video.Description, "<a href=\"$1\">$1</a>");
+            string description = MyRegex().Replace(_video.Description, "<a href=\"$1\">$1</a>");
 
             // Split the description into separate lines
             string[] lines = description.Split('\n');

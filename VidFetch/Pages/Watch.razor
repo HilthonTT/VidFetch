@@ -1,28 +1,28 @@
 ﻿@page "/Watch/{Url}"
 @inject IYoutube youtube
-@inject ISnackbar snackbar
+@inject ILauncher launcher
 
 <MudCard>
     <div class="text-center">
-        <iframe class="w-100" style="height: 600px;" src="@SourcePath" allowfullscreen />
+        <iframe class="w-100" style="height: 600px;" src="@_sourcePath" allowfullscreen />
     </div>
     <MudCardContent>
         <MudItem>
-            <MudLink Typo="Typo.h5" @onclick="(() => CopyToClipboard(Video.Url))">
-                @Video?.Title
+            <MudLink Typo="Typo.h5" @onclick="(() => OpenUrl(_video.Url))">
+                @_video?.Title
             </MudLink>
         </MudItem>
         <MudItem>
             <MudAvatar>
-                <MudImage title="@Video?.AuthorName" Src="@_channel?.ThumbnailUrl" />
+                <MudImage title="@_video?.AuthorName" Src="@_channel?.ThumbnailUrl" />
             </MudAvatar>
         </MudItem>
         <MudItem>
-            <MudLink Color="Color.Warning" Typo="Typo.body1" @onclick="(() => CopyToClipboard(Video.AuthorUrl))">
-                @Video?.AuthorName
+            <MudLink Color="Color.Warning" Typo="Typo.body1" @onclick="(() => OpenUrl(_video.AuthorUrl))">
+                @_video?.AuthorName
             </MudLink>
         </MudItem>
-        <MudText Typo="Typo.body2">Uploaded: @Video?.UploadDate</MudText>
+        <MudText Typo="Typo.body2">Uploaded: @_video?.UploadDate</MudText>
         <MudDivider Class="mt-5 mb-5"/>
         <MudText Typo="Typo.body2">
            @(
