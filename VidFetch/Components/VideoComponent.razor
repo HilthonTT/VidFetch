@@ -1,7 +1,6 @@
 ﻿@inject IYoutube youtube
 @inject IVideoData videoData
 @inject ITokenHelper tokenHelper
-@inject IFolderHelper folderHelper
 @inject ISnackbar snackbar
 @inject ISettingsLibrary settingsLibrary
 @inject NavigationManager navManager
@@ -77,14 +76,6 @@
             @onclick="LoadWatchPage">
                 Watch
             </MudButton>
-            @if (_isDownloadSuccessful)
-            {
-                <MudButton Variant="Variant.Outlined"
-                           Color="Color.Warning"
-                @onclick="OpenFolderLocation">
-                    Open Location
-                </MudButton>
-            }
         </MudCardActions>
     </MudCard>
 </MudItem>

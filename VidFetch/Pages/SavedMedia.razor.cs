@@ -7,20 +7,41 @@ public partial class SavedMedia
 {
     private CancellationTokenSource _allVideosTokenSource;
     private List<VideoModel> _videos = new();
-    private string _searchText = "";
+    private List<ChannelModel> _channels = new();
+    private List<PlaylistModel> _playlists = new();
+    private string _videoSearchText = "";
+    private string _channelSearchText = "";
+    private string _playlistSearchText = "";
     private string _errorMessage = "";
     private string _currentDownloadingVideo = "";
     private double _videosProgress = 0;
     private bool _isVideosLoading = true;
+    private bool _isPlaylistsLoading = true;
+    private bool _isChannelsLoading = true;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadVideos();
+        await LoadChannels();
+        await LoadPlaylists();
     }
 
     private async Task LoadVideos()
     {
         _videos = await videoData.GetAllVideosAsync();
         _isVideosLoading = false;
+    }
+
+    private async Task LoadChannels()
+    {
+        _channels = await channelData.GetAllChannelsAsync();
+        _isChannelsLoading = false;
+    }
+
+    private async Task LoadPlaylists()
+    {
+        _playlists = await playlistData.GetAllPlaylistsAsync();
+        _isPlaylistsLoading = false;
     }
 
     private async Task DownloadAll()
@@ -68,15 +89,50 @@ public partial class SavedMedia
 
     private async Task DeleteVideo(VideoModel video)
     {
-        var v = _videos.FirstOrDefault(v => v.VideoId == video.VideoId || v.Url == video.Url);
+        var v = _videos.First(v => v.VideoId == video.VideoId || v.Url == video.Url);
 
-        _videos.Remove(v);
-        await videoData.DeleteVideoAsync(v);
+        if (v is not null)
+        {
+            _videos.Remove(v);
+            await videoData.DeleteVideoAsync(v);
+        }
+    }
+
+    private async Task DeleteChannel(ChannelModel channel)
+    {
+        var c = _channels.First(c => c.ChannelId == channel.ChannelId || c.Url == channel.Url);
+
+        if (c is not null)
+        {
+            _channels.Remove(c);
+            await channelData.DeleteChannelAsync(c);
+        }
+    }
+
+    private async Task DeletePlaylist(PlaylistModel playlist)
+    {
+        var p = _playlists.First(p => p.PlaylistId == playlist.PlaylistId || p.Url == playlist.Url);
+
+        if (p is not null)
+        {
+            _playlists.Remove(p);
+            await playlistData.DeletePlaylistAsync(p);
+        }
     }
 
     private async Task<IEnumerable<string>> SearchVideos(string searchInput)
     {
         return await searchHelper.SearchAsync(_videos, searchInput);
+    }
+
+    private async Task<IEnumerable<string>> SearchChannels(string searchInput)
+    {
+        return await searchHelper.SearchAsync(_channels, searchInput);
+    }
+    
+    private async Task<IEnumerable<string>> SearchPlaylists(string searchInput)
+    {
+        return await searchHelper.SearchAsync(_playlists, searchInput);
     }
 
     private async Task OpenFileLocation()
@@ -91,7 +147,17 @@ public partial class SavedMedia
 
     private void FilterVideos()
     {
-        _videos = searchHelper.FilterList(_videos, _searchText);
+        _videos = searchHelper.FilterList(_videos, _videoSearchText);
+    }
+
+    private void FilterChannels()
+    {
+        _channels = searchHelper.FilterList(_channels, _channelSearchText);
+    }
+
+    private void FilterPlaylists()
+    {
+        _playlists = searchHelper.FilterList(_playlists, _playlistSearchText);
     }
 
     private void AddSnackbar(string title)
@@ -140,5 +206,35 @@ public partial class SavedMedia
         }
 
         return $"Search {_videos?.Count} Videos";
+    }
+
+    private string GetChannelSearchBarText()
+    {
+        if (_channels?.Count <= 0)
+        {
+            return "Search Channel";
+        }
+
+        if (_channels?.Count == 1)
+        {
+            return "Search 1 Channel";
+        }
+
+        return $"Search {_channels?.Count} Channels";
+    }
+
+    private string GetPlaylistSearchBarText()
+    {
+        if (_playlists?.Count <= 0)
+        {
+            return "Search Playlist";
+        }
+
+        if (_playlists?.Count == 1)
+        {
+            return "Search 1 Playlist";
+        }
+
+        return $"Search {_playlists?.Count} Playlists";
     }
 }

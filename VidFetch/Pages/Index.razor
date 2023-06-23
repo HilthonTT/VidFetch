@@ -32,7 +32,7 @@
                       OnAdornmentClick="LoadVideoOrPlaylist"
                       Required="true"
                       Clearable="true" />
-        <MudButton Class="mt-4 w-100"
+        <MudButton Class="w-100"
                    Color="Color.Warning"
                    Variant="Variant.Outlined"
         @onclick="OpenFileLocation">
@@ -46,7 +46,7 @@
         {
             <MudButton Color="Color.Primary"
                        Variant="Variant.Filled"
-                       Class="w-100 mb-4"
+                       Class="w-100 mb-3"
             @onclick="DownloadAllVideos">
                 @GetDownloadVideoText()
             </MudButton>
@@ -55,14 +55,14 @@
         {
             <MudButton Color="Color.Error"
                        Variant="Variant.Filled"
-                       Class="w-100 mb-4"
+                       Class="w-100 mb-3"
             @onclick="CancelVideosDownload">
                 Cancel
             </MudButton>
         }
         <MudButton Color="Color.Warning"
                    Variant="Variant.Filled"
-                   Class="w-100 mb-4"
+                   Class="w-100 mb-3"
         @onclick="ClearVideos">
             Clear Videos
         </MudButton>
@@ -103,7 +103,7 @@
         {
             <MudButton Color="Color.Primary"
                        Variant="Variant.Filled"
-                       Class="w-100 mb-4"
+                       Class="w-100 mb-3"
             @onclick="DownloadAllPlaylists">
                 Download Playlist
             </MudButton>
@@ -112,20 +112,20 @@
         {
             <MudButton Variant="Variant.Filled"
                        Color="Color.Error"
-                       Class="w-100 mb-4"
+                       Class="w-100 mb-3"
             @onclick="CancelPlaylistDownload">
                 Cancel
             </MudButton>
         }
         <MudButton Color="Color.Warning"
                    Variant="Variant.Filled"
-                   Class="w-100 mb-4"
+                   Class="w-100 mb-3"
         @onclick="ClearPlaylist">
             Clear Playlist
         </MudButton>
         <MudAutocomplete T="string" Label="@GetPlaylistVideoSearchBarText()"
                          Variant="Variant.Outlined"
-                         Class="mb-4"
+                         Class="mb-3"
                          HelperText="Search the loaded playlist videos."
                          AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
                          OnAdornmentClick="FilterPlaylistVideo"

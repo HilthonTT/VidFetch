@@ -22,7 +22,6 @@ public partial class VideoComponent
 
     private CancellationTokenSource _tokenSource;
     private bool _isDownloading = false;
-    private bool _isDownloadSuccessful = false;
     private bool _isSaved = false;
     private double _progress = 0;
 
@@ -56,7 +55,6 @@ public partial class VideoComponent
         
         AddSnackbar();
         CancelVideoDownload();
-        _isDownloadSuccessful = true;
     }
 
     private async Task SaveVideo()
@@ -72,11 +70,6 @@ public partial class VideoComponent
     private async Task Remove()
     {
         await RemoveEvent.InvokeAsync(Video);
-    }
-
-    private async Task OpenFolderLocation()
-    {
-        await folderHelper.OpenFolderLocationAsync(settingsLibrary.SelectedPath);
     }
 
     private static async Task OpenUrl(string text)

@@ -59,8 +59,4 @@
       <ProjectReference Include="..\VidFetchLibrary\VidFetchLibrary.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Components\" />
-    </ItemGroup>
-
 </Project>
