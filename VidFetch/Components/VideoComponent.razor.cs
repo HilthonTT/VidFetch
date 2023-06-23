@@ -72,9 +72,9 @@ public partial class VideoComponent
         await RemoveEvent.InvokeAsync(Video);
     }
 
-    private static async Task OpenUrl(string text)
+    private async Task OpenUrl(string text)
     {
-        await Launcher.OpenAsync(text);
+        await launcher.OpenAsync(text);
     }
 
     private async Task LoadNullData()

@@ -54,9 +54,9 @@ public partial class ChannelComponent
         await RemoveEvent.InvokeAsync(Channel);
     }
 
-    private static async Task OpenUrl(string text)
+    private async Task OpenUrl(string text)
     {
-        await Launcher.OpenAsync(text);
+        await launcher.OpenAsync(text);
     }
 
     private void LoadChannelPage()
