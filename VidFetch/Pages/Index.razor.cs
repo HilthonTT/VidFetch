@@ -369,7 +369,7 @@ public partial class Index
         videoLibraryHelper.ClearVideos(ref _videosProgress);
     }
 
-    private void ClearPlaylist()
+    private void ClearPlaylistVideos()
     {
         videoLibraryHelper.ClearPlaylistVideos(ref _playlistProgress);
     }

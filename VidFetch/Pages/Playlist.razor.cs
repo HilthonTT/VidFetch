@@ -9,7 +9,6 @@ public partial class Playlist
     [Parameter]
     public string Url { get; set; }
 
-    private const int MaxVideoCount = 50;
     private PlaylistModel _playlist;
     private List<VideoModel> _videos = new();
     private bool _isSaved = false;

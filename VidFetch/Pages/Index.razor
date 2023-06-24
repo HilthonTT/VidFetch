@@ -11,8 +11,8 @@
 
 
 <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
-    Vid Fetch
-    <MudIcon Icon="@Icons.Custom.Brands.YouTube" Title="Vid Fetch"></MudIcon>
+    Paste A Link
+    <MudIcon Icon="@Icons.Custom.Brands.YouTube" Title="Paste A Link"></MudIcon>
 </MudText>
 @if (string.IsNullOrWhiteSpace(_errorMessage) is false)
 {
@@ -123,8 +123,8 @@
                 <MudButton Color="Color.Warning"
                            Variant="Variant.Filled"
                            Class="w-100 mb-3"
-                @onclick="ClearPlaylist">
-                    Clear Playlist
+                @onclick="ClearPlaylistVideos">
+                    Clear Playlist Videos
                 </MudButton>
                 <MudAutocomplete T="string" Label="@GetPlaylistVideoSearchBarText()"
                                  Variant="Variant.Outlined"

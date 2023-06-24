@@ -9,7 +9,6 @@ public partial class Channel
     [Parameter]
     public string Url { get; set; }
 
-    private const int MaxVideoCount = 50;
     private ChannelModel _channel;
     private List<VideoModel> _videos = new();
     private bool _isSaved = false;

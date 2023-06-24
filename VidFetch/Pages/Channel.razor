@@ -43,11 +43,11 @@
         <MudItem xs="12">
             <MudDivider />
             <MudText Typo="Typo.h5" Class="mb-4 mt-4">Uploaded Videos</MudText>
-            <MudAlert Severity="Severity.Warning">Warning: Only shows @MaxVideoCount videos for performance.</MudAlert>
+            <MudAlert Severity="Severity.Warning">Warning: Only shows 50 videos for performance.</MudAlert>
             @if (_videos?.Count > 0)
             {
                 <MudGrid>
-                    <MudVirtualize Items="_videos.Take(MaxVideoCount).ToList()" Context="v" OverscanCount="10">
+                    <MudVirtualize Items="_videos" Context="v" OverscanCount="10">
                         <VideoComponent @key="v.VideoId"
                                         Video="v"
                                         CardSize="6"
