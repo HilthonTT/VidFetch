@@ -50,6 +50,7 @@ public static class RegisterServices
         builder.Services.AddSingleton<IPathHelper, PathHelper>();
         builder.Services.AddSingleton<ICachingHelper, CachingHelper>();
 
+        builder.Services.AddSingleton<ILauncher, LauncherWrapper>();
         builder.Services.AddSingleton<ISecureStorage, SecureStorageWrapper>();
     }
 }
