@@ -4,16 +4,86 @@
 @inject ISnackbar snackbar
 @inject ILauncher launcher
 
+@if (_channel is not null)
+{
+    <MudGrid Spacing="5">
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        @_channel.Title
+                    </CardHeaderContent>
+                    <CardHeaderAvatar>
+                        <MudAvatar>
+                            <MudImage Src="@_channel.ThumbnailUrl"></MudImage>
+                        </MudAvatar>
+                    </CardHeaderAvatar>
+                </MudCardHeader>
+                <MudCardMedia Image="@_channel.ThumbnailUrl" />
+                <MudCardContent>
+                    <MudLink Typo="Typo.h5" @onclick="OpenUrl">@_channel.Url</MudLink>
+                    <MudText Typo="Typo.body2">Uploaded @_videos?.Count videos</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    @if (_isSaved)
+                    {
+                        <MudButton Variant="Variant.Text" Color="Color.Error" @onclick="DeleteChannel">
+                            Delete
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" @onclick="SaveChannel">
+                            Save
+                        </MudButton>
+                    }
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12">
+            <MudDivider />
+            <MudText Typo="Typo.h5" Class="mb-4 mt-4">Uploaded Videos</MudText>
+            <MudAlert Severity="Severity.Warning">Warning: Only shows @MaxVideoCount videos for performance.</MudAlert>
+            @if (_videos?.Count > 0)
+            {
+                <MudGrid>
+                    <MudVirtualize Items="_videos.Take(MaxVideoCount).ToList()" Context="v" OverscanCount="10">
+                        <VideoComponent @key="v.VideoId"
+                                        Video="v"
+                                        CardSize="6"
+                                        RemoveEvent="RemoveVideo" />
+                    </MudVirtualize>
+                </MudGrid>
+            }
+            else
+            {
+                <div class="text-center mt-4">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </div>
+            }
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    <div class="align-items-center justify-content-center d-flex text-center mt-4">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </div>
+}
+
 @code {
     [Parameter]
     public string Url { get; set; }
 
-    private ChannelModel _channel = new();
+    private const int MaxVideoCount = 50;
+    private ChannelModel _channel;
     private List<VideoModel> _videos = new();
     private bool _isSaved = false;
+    private string _channelId = "";
 
     protected override async Task OnInitializedAsync()
     {
+        _channelId = Regex.Match(Url, @"(?<=channel\/)([\w-]+)").Value;
         await LoadData();
     }
 
@@ -22,20 +92,9 @@
         await LoadNullData();
     }
 
-    private async Task LoadData()
-    {
-        _channel = await youtube.GetChannelAsync(Url);
-        if (_channel is not null)
-        {
-            _isSaved = await channelData.ChannelExistsAsync(_channel.Url, _channel.ChannelId);
-        }
-
-        _videos = await youtube.GetChannelVideosAsync(Url);
-    }
-
     private async Task LoadNullData()
     {
-        bool isThumbnailEmpty = string.IsNullOrWhiteSpace(_channel.ThumbnailUrl);
+        bool isThumbnailEmpty = _channel is not null && string.IsNullOrWhiteSpace(_channel?.ThumbnailUrl);
         if (isThumbnailEmpty)
         {
             string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
@@ -65,8 +124,30 @@
         }
     }
 
-    private async Task OpenUrl(string text)
+    private async Task OpenUrl()
     {
-        await launcher.OpenAsync(text);
+        await launcher.OpenAsync(_channel.Url);
+    }
+
+    private async Task LoadData()
+    {
+        bool isUrlValid = Uri.IsWellFormedUriString(Url, UriKind.Absolute);
+        if (isUrlValid)
+        {
+            _channel = await channelData.GetChannelAsync(Url, _channelId);
+
+            if (_channel is null)
+            {
+                _channel = await youtube.GetChannelAsync(Url);
+            }
+
+            _videos = await youtube.GetChannelVideosAsync(Url);
+            _isSaved = await channelData.ChannelExistsAsync(Url, _channelId);
+        }
+    }
+
+    private void RemoveVideo(VideoModel video)
+    {
+        _videos.Remove(video);
     }
 }
