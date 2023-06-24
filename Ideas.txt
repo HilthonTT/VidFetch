@@ -2,11 +2,4 @@
 Ideas
 -----
 
-* Implement Search for channels, videos, playlist.
-* Implement page for channel:
-	- Will display the Channel's information and it's videos.
 
-* Implement page for Playlist.
-	-Displays the title and each videos in it.
-
-* Implement different tabs in Saved Media for channels and playlist.
