@@ -10,12 +10,12 @@ public partial class Watch
     public string Url { get; set; }
 
     private string _sourcePath = "";
-    private VideoModel _video = new();
+    private VideoModel _video;
     private ChannelModel _channel;
 
     protected override async Task OnInitializedAsync()
     {
-        _video = await youtube.GetVideoAsync(Url);
+        await LoadVideo();
         _sourcePath = $"https://www.youtube.com/embed/{_video.VideoId}";
         if (_video is not null)
         {
@@ -26,6 +26,18 @@ public partial class Watch
     private async Task OpenUrl(string text)
     {
         await launcher.OpenAsync(text);
+    }
+
+    private async Task LoadVideo()
+    {
+        string channelIdentifier = ChannelIdRegex().Match(Url).Value;
+
+        _video = await videoData.GetVideoAsync(Url, channelIdentifier);
+
+        if (_video is null)
+        {
+            _video = await youtube.GetVideoAsync(Url);
+        }
     }
 
     private string FormatDescription()
@@ -53,4 +65,7 @@ public partial class Watch
 
     [GeneratedRegex("(https?://[^\\s]+)")]
     private static partial Regex MyRegex();
+
+    [GeneratedRegex("(?<=channel\\/)([\\w-]+)")]
+    private static partial Regex ChannelIdRegex();
 }
