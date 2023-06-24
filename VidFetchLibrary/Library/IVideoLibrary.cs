@@ -9,4 +9,6 @@ public interface IVideoLibrary
     List<VideoModel> VideoResults { get; set; }
     List<ChannelModel> ChannelResults { get; set; }
     List<PlaylistModel> PlaylistResults { get; set; }
+    List<ChannelModel> Channels { get; set; }
+    List<PlaylistModel> Playlists { get; set; }
 }

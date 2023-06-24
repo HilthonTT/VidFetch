@@ -7,9 +7,9 @@ public partial class NavMenu
         navManager.NavigateTo("/");
     }
 
-    private void LoadDownloadPage()
+    private void LoadPasteLinkPage()
     {
-        navManager.NavigateTo("/Download");
+        navManager.NavigateTo("/PasteLinkPage");
     }
 
     private void LoadSettingsPage()

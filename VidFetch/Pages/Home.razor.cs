@@ -12,9 +12,9 @@ public partial class Home
         _savedChannels = await channelData.GetAllChannelsAsync();
     }
 
-    private void LoadDownloadPage()
+    private void LoadPasteLinkPage()
     {
-        navManager.NavigateTo("/Download");
+        navManager.NavigateTo("/PasteLinkPage");
     }
 
     private void LoadSavedMediaPage()

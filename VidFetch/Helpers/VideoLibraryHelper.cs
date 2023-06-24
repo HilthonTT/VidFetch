@@ -17,10 +17,20 @@ public class VideoLibraryHelper : IVideoLibraryHelper
         progress = 0;
     }
 
-    public void ClearPlaylist(ref double progress)
+    public void ClearPlaylistVideos(ref double progress)
     {
         _videoLibrary.PlaylistVideos.Clear();
         progress = 0;
+    }
+
+    public void ClearChannels()
+    {
+        _videoLibrary.Channels.Clear();
+    }
+
+    public void ClearPlaylists()
+    {
+        _videoLibrary.Playlists.Clear();
     }
 
     public void RemoveVideo(VideoModel video)
@@ -33,9 +43,19 @@ public class VideoLibraryHelper : IVideoLibraryHelper
         _videoLibrary.PlaylistVideos.Remove(playlistVideo);
     }
 
+    public void RemoveChannel(ChannelModel channel)
+    {
+        _videoLibrary.Channels.Remove(channel);
+    }
+
+    public void RemovePlaylist(PlaylistModel playlist)
+    {
+        _videoLibrary.Playlists.Remove(playlist);
+    }
+
     public void ClearAll(ref double videoProgress, ref double playlistProgress)
     {
         ClearVideos(ref videoProgress);
-        ClearPlaylist(ref playlistProgress);
+        ClearPlaylistVideos(ref playlistProgress);
     }
 }
