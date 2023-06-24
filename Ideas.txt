@@ -3,3 +3,7 @@ Ideas
 -----
 
 
+https://github.com/Tyrrrz/YoutubeExplode/tree/master/YoutubeExplode.Converter
+
+
+* Implement settings for video resolution.
