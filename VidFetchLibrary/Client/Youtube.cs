@@ -8,7 +8,7 @@ using YoutubeExplode.Common;
 namespace VidFetchLibrary.Client;
 public class Youtube : IYoutube
 {
-    private const int MaxDataAmount = 20;
+    private const int MaxDataCount = 50;
 
     private readonly IDownloadHelper _downloaderHelper;
     private readonly IMemoryCache _cache;
@@ -58,7 +58,8 @@ public class Youtube : IYoutube
         if (output is null)
         {
             string playlistId = GetPlaylistId(url) ?? throw new Exception("Invalid playlist URL.");
-            var playlistVideos = await _client.Playlists.GetVideosAsync(playlistId);
+            var playlistVideos = await _client.Playlists.GetVideosAsync(playlistId)
+                .CollectAsync(MaxDataCount);
 
             output = playlistVideos
                 .Select(v => new VideoModel(v))
@@ -77,7 +78,8 @@ public class Youtube : IYoutube
         var output = _cache.Get<List<VideoModel>>(key);
         if(output is null)
         {
-            var channelVideos = await _client.Channels.GetUploadsAsync(url);
+            var channelVideos = await _client.Channels.GetUploadsAsync(url)
+                .CollectAsync(MaxDataCount);
 
             output = channelVideos
                 .Select(v => new VideoModel(v))
@@ -114,8 +116,26 @@ public class Youtube : IYoutube
         var output = _cache.Get<ChannelModel>(key);
         if (output is null)
         {
-            var channel = await _client.Channels.GetAsync(url);
-            output = new ChannelModel(channel);
+            if (url.Contains("https://www.youtube.com/@"))
+            {
+                var channel = await _client.Channels.GetByHandleAsync(url);
+                output = new ChannelModel(channel);
+            }
+            else if (url.Contains("https://youtube.com/user/"))
+            {
+                var channel = await _client.Channels.GetByUserAsync(url);
+                output = new ChannelModel(channel);
+            }
+            else if (url.Contains("https://youtube.com/c/"))
+            {
+                var channel = await _client.Channels.GetBySlugAsync(url);
+                output = new ChannelModel(channel);
+            }
+            else
+            {
+                var channel = await _client.Channels.GetAsync(url);
+                output = new ChannelModel(channel);
+            }
 
             _cache.Set(key, output, TimeSpan.FromHours(5));
         }
@@ -148,9 +168,10 @@ public class Youtube : IYoutube
         var output = _cache.Get<List<VideoModel>>(key);
         if (output is null)
         {
-            var results = await _client.Search.GetVideosAsync(searchInput, token);
+            var results = await _client.Search.GetVideosAsync(searchInput, token)
+                .CollectAsync(MaxDataCount);
+
             output = results.Select(v => new VideoModel(v))
-                .Take(MaxDataAmount)
                 .ToList();
         }
 
@@ -166,9 +187,10 @@ public class Youtube : IYoutube
         var output = _cache.Get<List<ChannelModel>>(key);
         if (output is null)
         {
-            var results = await _client.Search.GetChannelsAsync(searchInput, token);
+            var results = await _client.Search.GetChannelsAsync(searchInput, token)
+                .CollectAsync(MaxDataCount);
+
             output = results.Select(c => new ChannelModel(c))
-                .Take(MaxDataAmount)
                 .ToList();
         }
 
@@ -184,9 +206,10 @@ public class Youtube : IYoutube
         var output = _cache.Get<List<PlaylistModel>>(key);
         if (output is null)
         {
-            var results = await _client.Search.GetPlaylistsAsync(searchInput, token);
+            var results = await _client.Search.GetPlaylistsAsync(searchInput, token)
+                .CollectAsync(MaxDataCount);
+
             output = results.Select(p => new PlaylistModel(p))
-                .Take(MaxDataAmount)
                 .ToList();
         }
 
