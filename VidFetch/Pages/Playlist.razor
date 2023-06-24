@@ -4,77 +4,70 @@
 @inject ISnackbar snackbar
 @inject ILauncher launcher
 
-@code {
-    [Parameter]
-    public string Url { get; set; }
-
-    private PlaylistModel _playlist = new();
-    private List<VideoModel> _videos = new();
-    private bool _isSaved = false;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        await LoadNullData();
-    }
-
-    private async Task LoadData()
-    {
-        _playlist = await youtube.GetPlaylistAsync(Url);
-        if (_playlist is not null)
-        {
-            _isSaved = await playlistData.PlaylistExistsAsync(_playlist.Url, _playlist.PlaylistId);
-        }
-
-        _videos = await youtube.GetPlayListVideosAsync(Url);
-    }
-
-    private async Task LoadNullData()
-    {
-        bool isThumbnailEmpty = string.IsNullOrWhiteSpace(_playlist.ThumbnailUrl);
-        bool isAuthorThumbnailEmpty = string.IsNullOrWhiteSpace(_playlist.AuthorThumbnailUrl);
-        string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
-        if (isThumbnailEmpty)
-        {
-            var p = await youtube.GetPlaylistAsync(_playlist.Url);
-            string playlistThumbnail = string.IsNullOrWhiteSpace(p.ThumbnailUrl) ? defaultUrl : p.ThumbnailUrl;
-            _playlist.ThumbnailUrl = playlistThumbnail;
-        }
-
-        if (isAuthorThumbnailEmpty)
-        {
-            var channel = await youtube.GetChannelAsync(_playlist.AuthorUrl);
-            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
-            _playlist.AuthorThumbnailUrl = channelThumbnail;
-        }
-    }
-
-    private async Task SavePlaylist()
-    {
-        if (_isSaved is false)
-        {
-            await playlistData.SetPlaylistAsync(_playlist.Url, _playlist.PlaylistId);
-            snackbar.Add($"Successfully saved {_playlist.Title}");
-            _isSaved = true;
-        }
-    }
-
-    private async Task DeletePlaylist()
-    {
-        if (_isSaved)
-        {
-            await playlistData.DeletePlaylistAsync(_playlist);
-            snackbar.Add($"Successfully deleted {_playlist.Title}");
-            _isSaved = false;
-        }
-    }
-
-    private async Task OpenUrl(string text)
-    {
-        await launcher.OpenAsync(text);
-    }
+@if (_playlist is not null)
+{
+    <MudGrid Spacing="5">
+        <MudItem xs="12">
+            <MudCard>
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        @_playlist.Title
+                    </CardHeaderContent>
+                    <CardHeaderAvatar>
+                        <MudAvatar>
+                            <MudImage Src="@_playlist.AuthorThumbnailUrl"></MudImage>
+                        </MudAvatar>
+                    </CardHeaderAvatar>
+                </MudCardHeader>
+                <MudCardMedia Image="@_playlist.ThumbnailUrl"/>
+                <MudCardContent>
+                    <MudLink Typo="Typo.h5" @onclick="OpenUrl">@_playlist.Url</MudLink>
+                    <MudText Typo="Typo.body2">Uploaded @_videos?.Count videos</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    @if (_isSaved)
+                    {
+                        <MudButton Variant="Variant.Text" Color="Color.Error" @onclick="DeletePlaylist">
+                            Delete
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="Variant.Text" Color="Color.Primary" @onclick="SavePlaylist">
+                            Save
+                        </MudButton>
+                    }
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12">
+            <MudDivider />
+            <MudText Typo="Typo.h5" Class="mb-4 mt-4">Videos</MudText>
+            <MudAlert Severity="Severity.Warning">Warning: Only shows @MaxVideoCount videos for performance.</MudAlert>
+            @if (_videos?.Count > 0)
+            {
+                <MudGrid>
+                    <MudVirtualize Items="_videos.Take(MaxVideoCount).ToList()" Context="v" OverscanCount="10">
+                        <VideoComponent @key="v.VideoId"
+                                        Video="v"
+                                        CardSize="6"
+                                        RemoveEvent="RemoveVideo" />
+                    </MudVirtualize>
+                </MudGrid>
+            }
+            else
+            {
+                <div class="text-center mt-4">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                </div>
+            }
+        </MudItem>
+    </MudGrid>
 }
+else
+{
+    <div class="align-items-center justify-content-center d-flex text-center mt-4">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </div>
+}
+
