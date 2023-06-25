@@ -39,9 +39,9 @@ public class DownloadHelper : IDownloadHelper
         {
             var video = await LoadVideoAsync(client, videoUrl, token) ?? throw new Exception(VideoNotFoundErrorMessage);
             var streamInfos = await LoadStreamInfosAsync(client, video, token);
-            var requestBuilder = GetRequestBuilder(video);
+            var conversionRequest = GetRequestBuilder(video);
 
-            await client.Videos.DownloadAsync(streamInfos, requestBuilder, progress, token);
+            await client.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
 
             if (_settings.DownloadSubtitles)
             {
@@ -169,6 +169,7 @@ public class DownloadHelper : IDownloadHelper
 
         var requestBuilder = new ConversionRequestBuilder(downloadFolder)
             .SetFFmpegPath(ffmpegPath)
+            .SetPreset(ConversionPreset.UltraFast)
             .Build();
 
         return requestBuilder;
