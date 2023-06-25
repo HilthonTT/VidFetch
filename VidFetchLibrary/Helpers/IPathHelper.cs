@@ -2,5 +2,5 @@
 
 public interface IPathHelper
 {
-    string GetVideoDownloadPath(string title, string extension, string path);
+    string GetVideoDownloadPath(string title);
 }

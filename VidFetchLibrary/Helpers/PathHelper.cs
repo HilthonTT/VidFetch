@@ -1,12 +1,21 @@
-﻿namespace VidFetchLibrary.Helpers;
+﻿using VidFetchLibrary.Library;
+
+namespace VidFetchLibrary.Helpers;
 public class PathHelper : IPathHelper
 {
-    public string GetVideoDownloadPath(string title, string extension, string path)
+    private readonly ISettingsLibrary _settings;
+
+    public PathHelper(ISettingsLibrary settings)
     {
-        return path switch
+        _settings = settings;
+    }
+
+    public string GetVideoDownloadPath(string title)
+    {
+        return _settings.SelectedPath switch
         {
-            "Download Folder" => GetDownloadPath(title, extension),
-            _ => GetSelectedPath(title, extension, path),
+            "Download Folder" => GetDownloadPath(title, _settings.SelectedFormat),
+            _ => GetSelectedPath(title, _settings.SelectedFormat, _settings.SelectedPath),
         };
     }
 

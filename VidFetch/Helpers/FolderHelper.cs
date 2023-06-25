@@ -1,19 +1,31 @@
 ﻿using VidFetchLibrary.Helpers;
+using VidFetchLibrary.Library;
 
 namespace VidFetch.Helpers;
 public class FolderHelper : IFolderHelper
 {
+    private readonly ILauncher _launcher;
     private readonly IPathHelper _pathHelper;
+    private readonly ISettingsLibrary _settings;
 
-    public FolderHelper(IPathHelper pathHelper)
+    public FolderHelper(ILauncher launcher,
+                        IPathHelper pathHelper,
+                        ISettingsLibrary settings)
     {
+        _launcher = launcher;
         _pathHelper = pathHelper;
+        _settings = settings;
     }
 
-    public async Task OpenFolderLocationAsync(string path)
+    public async Task OpenFolderLocationAsync()
     {
-        string folderPath = _pathHelper.GetVideoDownloadPath("", "", path);
+        if (string.IsNullOrWhiteSpace(_settings.SelectedPath))
+        {
+            return;
+        }
 
-        await Launcher.OpenAsync(folderPath);
+        string folderPath = _pathHelper.GetVideoDownloadPath("");
+
+        await _launcher.OpenAsync(folderPath);
     }
 }

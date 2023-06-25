@@ -69,11 +69,8 @@ public partial class SavedMedia
 
                 await youtube.DownloadVideoAsync(
                     v.Url,
-                    settingsLibrary.SelectedPath,
-                    settingsLibrary.SelectedFormat,
                     progressReport,
-                    cancellationToken,
-                    settingsLibrary.DownloadSubtitles);
+                    cancellationToken);
 
                 AddSnackbar(v.Title);
             }
@@ -137,12 +134,7 @@ public partial class SavedMedia
 
     private async Task OpenFileLocation()
     {
-        if (string.IsNullOrWhiteSpace(settingsLibrary.SelectedPath))
-        {
-            return;
-        }
-
-        await folderHelper.OpenFolderLocationAsync(settingsLibrary.SelectedPath);
+        await folderHelper.OpenFolderLocationAsync();
     }
 
     private void FilterVideos()

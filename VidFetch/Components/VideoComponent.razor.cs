@@ -48,8 +48,6 @@ public partial class VideoComponent
 
         await youtube.DownloadVideoAsync(
             Video.Url,
-            settingsLibrary.SelectedPath,
-            settingsLibrary.SelectedFormat,
             progressReporter,
             cancellationToken);
         

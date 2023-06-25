@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using VidFetchLibrary.Library;
 using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Videos;
@@ -13,24 +14,24 @@ public class DownloadHelper : IDownloadHelper
     private readonly IPathHelper _pathHelper;
     private readonly IMemoryCache _cache;
     private readonly ICachingHelper _cachingHelper;
+    private readonly ISettingsLibrary _settings;
 
     public DownloadHelper(IPathHelper pathHelper,
                           IMemoryCache cache,
-                          ICachingHelper cachingHelper)
+                          ICachingHelper cachingHelper, 
+                          ISettingsLibrary settings)
     {
         _pathHelper = pathHelper;
         _cache = cache;
         _cachingHelper = cachingHelper;
+        _settings = settings;
     }
 
     public async Task DownloadVideoAsync(
         YoutubeClient client,
         string videoUrl,
-        string path,
-        string extension,
         IProgress<double> progress,
-        CancellationToken token,
-        bool downloadSubtitles = false)
+        CancellationToken token)
     {
         try
         {
@@ -38,13 +39,13 @@ public class DownloadHelper : IDownloadHelper
             var streamInfo = await LoadStreamInfoAsync(client, video, token);
 
             string sanitizedTitle = GetSanizitedFileName(video.Title);
-            string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle, extension, path);
+            string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle);
 
             await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, token);
 
-            if (downloadSubtitles)
+            if (_settings.DownloadSubtitles)
             {
-                await DownloadSubtitlesAsync(client, video, path, token);
+                await DownloadSubtitlesAsync(client, video, token);
             }
         }
         catch (TaskCanceledException)
@@ -60,7 +61,6 @@ public class DownloadHelper : IDownloadHelper
     private async Task DownloadSubtitlesAsync(
         YoutubeClient client,
         Video video,
-        string path, 
         CancellationToken token)
     {
         var subtitleinfo = await LoadSubtitleInfoAsync(client, video, token);
@@ -70,7 +70,7 @@ public class DownloadHelper : IDownloadHelper
             return;
         }
 
-        string videoFolder = _pathHelper.GetVideoDownloadPath("", "", path);
+        string videoFolder = _pathHelper.GetVideoDownloadPath("");
         string sanitizedVideoTitle = GetSanizitedFileName(video.Title);
         string videoFolderPath = Path.Combine(videoFolder, sanitizedVideoTitle);
 

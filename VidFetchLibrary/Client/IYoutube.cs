@@ -4,7 +4,7 @@ namespace VidFetchLibrary.Client;
 
 public interface IYoutube
 {
-    Task DownloadVideoAsync(string url, string downloadPath, string extension, IProgress<double> progress, CancellationToken token, bool downloadSubtitles = false);
+    Task DownloadVideoAsync(string url, IProgress<double> progress, CancellationToken token);
     Task<ChannelModel> GetChannelAsync(string url);
     Task<List<ChannelModel>> GetChannelBySearchAsync(string searchInput, CancellationToken token);
     Task<List<VideoModel>> GetChannelVideosAsync(string url);

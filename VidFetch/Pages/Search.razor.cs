@@ -43,12 +43,7 @@ public partial class Search
 
     private async Task OpenFileLocation()
     {
-        if (string.IsNullOrWhiteSpace(settingsLibrary.SelectedPath))
-        {
-            return;
-        }
-
-        await folderHelper.OpenFolderLocationAsync(settingsLibrary.SelectedPath);
+        await folderHelper.OpenFolderLocationAsync();
     }
 
     private async Task<IEnumerable<string>> FilterSearchVideos(string searchInput)

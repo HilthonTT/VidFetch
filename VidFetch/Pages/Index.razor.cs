@@ -212,11 +212,8 @@ public partial class Index
 
             await youtube.DownloadVideoAsync(
                 url,
-                settingsLibrary.SelectedPath,
-                settingsLibrary.SelectedFormat,
                 progressReport,
-                cancellationToken,
-                settingsLibrary.DownloadSubtitles);
+                cancellationToken);
 
             CancelVideoDownload();
         }
@@ -245,11 +242,8 @@ public partial class Index
 
                 await youtube.DownloadVideoAsync(
                     v.Url,
-                    settingsLibrary.SelectedPath,
-                    settingsLibrary.SelectedFormat,
                     progressReport,
-                    cancellationToken,
-                    settingsLibrary.DownloadSubtitles);
+                    cancellationToken);
 
                 AddSnackbar(v.Title);
             }
@@ -282,11 +276,8 @@ public partial class Index
 
                 await youtube.DownloadVideoAsync(
                     v.Url,
-                    settingsLibrary.SelectedPath,
-                    settingsLibrary.SelectedFormat,
                     progressReport,
-                    cancellationToken,
-                    settingsLibrary.DownloadSubtitles);
+                    cancellationToken);
 
                 AddSnackbar(v.Title);
             }
@@ -434,7 +425,7 @@ public partial class Index
             return;
         }
 
-        await folderHelper.OpenFolderLocationAsync(settingsLibrary.SelectedPath);
+        await folderHelper.OpenFolderLocationAsync();
     }
 
     private string GetDownloadVideoText()

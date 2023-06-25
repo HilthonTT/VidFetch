@@ -2,5 +2,5 @@
 
 public interface IFolderHelper
 {
-    Task OpenFolderLocationAsync(string path);
+    Task OpenFolderLocationAsync();
 }
