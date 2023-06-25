@@ -1,4 +1,5 @@
-﻿using VidFetchLibrary.Library;
+﻿using System.Reflection;
+using VidFetchLibrary.Library;
 
 namespace VidFetchLibrary.Helpers;
 public class PathHelper : IPathHelper
@@ -17,6 +18,15 @@ public class PathHelper : IPathHelper
             "Download Folder" => GetDownloadPath(title, _settings.SelectedFormat),
             _ => GetSelectedPath(title, _settings.SelectedFormat, _settings.SelectedPath),
         };
+    }
+
+    public string GetFfmpegPath()
+    {
+        string appFolder = Path.Combine(
+            Path.GetDirectoryName(
+                Assembly.GetExecutingAssembly().Location), "Resources\\ffmpeg.exe");
+
+        return appFolder;
     }
 
     private static string GetDownloadPath(string title, string extension)

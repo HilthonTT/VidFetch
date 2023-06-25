@@ -5,6 +5,7 @@ using YoutubeExplode.Common;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
+using YoutubeExplode.Converter;
 
 namespace VidFetchLibrary.Helpers;
 public class DownloadHelper : IDownloadHelper
@@ -36,12 +37,15 @@ public class DownloadHelper : IDownloadHelper
         try
         {
             var video = await LoadVideoAsync(client, videoUrl, token) ?? throw new Exception(VideoNotFoundErrorMessage);
-            var streamInfo = await LoadStreamInfoAsync(client, video, token);
+            var streamInfos = await LoadStreamInfosAsync(client, video, token);
 
             string sanitizedTitle = GetSanizitedFileName(video.Title);
             string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle);
 
-            await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, token);
+            string ffmpegPath = _pathHelper.GetFfmpegPath();
+
+            var requestBuilder = new ConversionRequestBuilder(downloadFolder).SetFFmpegPath(ffmpegPath).Build();
+            await client.Videos.DownloadAsync(streamInfos, requestBuilder, progress, token);
 
             if (_settings.DownloadSubtitles)
             {
@@ -104,21 +108,29 @@ public class DownloadHelper : IDownloadHelper
         return output;
     }
 
-    private async Task<IStreamInfo> LoadStreamInfoAsync(
+    private async Task<IStreamInfo[]> LoadStreamInfosAsync(
         YoutubeClient client,
         Video video,
         CancellationToken token)
     {
         string key = _cachingHelper.CacheStreamInfoKey(video.Url);
 
-        var output = _cache.Get<IStreamInfo>(key);
+        var output = _cache.Get<IStreamInfo[]>(key);
         if (output is null)
         {
             var streamManifest = await client.Videos.Streams.GetManifestAsync(video.Id, token);
-            output = streamManifest
-                .GetMuxedStreams()
-                .TryGetWithHighestVideoQuality()
-                ?? throw new Exception(NoSuitableVideoStreamErrorMessage);    
+
+            var audioStreamInfo = streamManifest
+                .GetAudioStreams()
+                .Where(s => s.Container == Container.Mp4)
+                .GetWithHighestBitrate();
+
+            var videoStreamInfo = streamManifest
+                .GetVideoStreams()
+                .Where(s => s.Container == Container.Mp4)
+                .GetWithHighestVideoQuality();
+
+            output = new IStreamInfo[] { audioStreamInfo,  videoStreamInfo };
 
             _cache.Set(key, output, TimeSpan.FromHours(5));
         }
