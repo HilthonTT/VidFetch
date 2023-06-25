@@ -29,6 +29,15 @@ public class PathHelper : IPathHelper
         return appFolder;
     }
 
+    public string OpenFolderLocation() 
+    {
+        return _settings.SelectedPath switch
+        {
+            "Download Folder" => GetDownloadPath("", ""),
+            _ => GetSelectedPath("", "", _settings.SelectedPath),
+        };
+    }
+
     private static string GetDownloadPath(string title, string extension)
     {
         string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);

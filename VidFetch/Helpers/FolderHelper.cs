@@ -24,7 +24,7 @@ public class FolderHelper : IFolderHelper
             return;
         }
 
-        string folderPath = _pathHelper.GetVideoDownloadPath("");
+        string folderPath = _pathHelper.OpenFolderLocation();
 
         await _launcher.OpenAsync(folderPath);
     }
