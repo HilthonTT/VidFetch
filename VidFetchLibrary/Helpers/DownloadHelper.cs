@@ -6,6 +6,7 @@ using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
 using YoutubeExplode.Converter;
+using Microsoft.Maui.Controls;
 
 namespace VidFetchLibrary.Helpers;
 public class DownloadHelper : IDownloadHelper
@@ -38,13 +39,8 @@ public class DownloadHelper : IDownloadHelper
         {
             var video = await LoadVideoAsync(client, videoUrl, token) ?? throw new Exception(VideoNotFoundErrorMessage);
             var streamInfos = await LoadStreamInfosAsync(client, video, token);
+            var requestBuilder = GetRequestBuilder(video);
 
-            string sanitizedTitle = GetSanizitedFileName(video.Title);
-            string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle);
-
-            string ffmpegPath = _pathHelper.GetFfmpegPath();
-
-            var requestBuilder = new ConversionRequestBuilder(downloadFolder).SetFFmpegPath(ffmpegPath).Build();
             await client.Videos.DownloadAsync(streamInfos, requestBuilder, progress, token);
 
             if (_settings.DownloadSubtitles)
@@ -162,5 +158,19 @@ public class DownloadHelper : IDownloadHelper
     {
         char[] invalidChars = Path.GetInvalidFileNameChars();
         return string.Concat(fileName.Select(c => invalidChars.Contains(c) ? '_' : c));
+    }
+         
+    private ConversionRequest GetRequestBuilder(Video video)
+    {
+        string sanitizedTitle = GetSanizitedFileName(video.Title);
+        string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle);
+
+        string ffmpegPath = _pathHelper.GetFfmpegPath();
+
+        var requestBuilder = new ConversionRequestBuilder(downloadFolder)
+            .SetFFmpegPath(ffmpegPath)
+            .Build();
+
+        return requestBuilder;
     }
 }
