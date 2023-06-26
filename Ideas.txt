@@ -7,3 +7,9 @@ https://github.com/Tyrrrz/YoutubeExplode/tree/master/YoutubeExplode.Converter
 
 
 * Implement settings for video resolution.
+
+* Instead of having ffmpeg.exe embedded into the app.
+	- Make the user install and it put the path, 
+	  if the path exists set it to use ffmpeg conversion 
+	  otherwise 
+	  use default muxed-streams from YoutubeExplode.
