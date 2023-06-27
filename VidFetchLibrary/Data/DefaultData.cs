@@ -7,15 +7,9 @@ public class DefaultData : IDefaultData
         return new List<string>()
         {
             ".mp4",
-            ".avi",
-            ".mov",
-            ".wmv",
-            ".mkv",
-            ".flv",
+            ".mp3",
+            ".tgpp",
             ".webm",
-            ".mpg",
-            ".m4v",
-            ".3gp",
         };
     }
 

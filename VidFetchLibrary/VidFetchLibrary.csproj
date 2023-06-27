@@ -25,15 +25,4 @@
 	  <PackageReference Include="YoutubeExplode.Converter" Version="6.2.15" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Resources\" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Include="Resources\ffmpeg.exe">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-		</Content>
-	</ItemGroup>
-
 </Project>

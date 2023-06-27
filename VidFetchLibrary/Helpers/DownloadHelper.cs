@@ -6,13 +6,11 @@ using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
 using YoutubeExplode.Converter;
-using Microsoft.Maui.Controls;
 
 namespace VidFetchLibrary.Helpers;
 public class DownloadHelper : IDownloadHelper
 {
     private const string VideoNotFoundErrorMessage = "Video not found.";
-    private const string NoSuitableVideoStreamErrorMessage = "No suitable video stream found";
     private const int CacheTime = 5;
     private readonly IPathHelper _pathHelper;
     private readonly IMemoryCache _cache;
@@ -42,7 +40,24 @@ public class DownloadHelper : IDownloadHelper
             var streamInfos = await LoadStreamInfosAsync(client, video, token);
             var conversionRequest = GetRequestBuilder(video);
 
-            await client.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
+            if (File.Exists(_settings.FfmpegPath))
+            {
+                await client.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
+            }
+            else
+            {
+                var streamManifest = await client.Videos.Streams
+                    .GetManifestAsync(videoUrl, token);
+
+                var streamInfo = streamManifest
+                    .GetMuxedStreams()
+                    .GetWithHighestVideoQuality();
+
+                string sanitizedTitle = GetSanizitedFileName(video.Title);
+                string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle);
+
+                await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, token);
+            }
 
             if (_settings.DownloadSubtitles)
             {
@@ -71,7 +86,7 @@ public class DownloadHelper : IDownloadHelper
             return;
         }
 
-        string videoFolder = _pathHelper.GetVideoDownloadPath("");
+        string videoFolder = _pathHelper.OpenFolderLocation();
         string sanitizedVideoTitle = GetSanizitedFileName(video.Title);
         string videoFolderPath = Path.Combine(videoFolder, sanitizedVideoTitle);
 
@@ -111,22 +126,19 @@ public class DownloadHelper : IDownloadHelper
     {
         string key = _cachingHelper.CacheStreamInfoKey(video.Url);
 
-
         var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
             var streamManifest = await client.Videos.Streams.GetManifestAsync(video.Id, token);
+            IVideoStreamInfo videoStreamInfo;
 
             var audioStreamInfo = streamManifest
                 .GetAudioStreams()
-                .Where(s => s.Container == Container.Mp4)
+                .Where(s => s.Container == GetContainer())
                 .GetWithHighestBitrate();
 
-            var videoStreamInfo = streamManifest
-                .GetVideoStreams()
-                .Where(s => s.Container == Container.Mp4)
-                .GetWithHighestVideoQuality();
+            videoStreamInfo = GetVideoStream(streamManifest);
 
             return new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
         });
@@ -165,13 +177,50 @@ public class DownloadHelper : IDownloadHelper
         string sanitizedTitle = GetSanizitedFileName(video.Title);
         string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle);
 
-        string ffmpegPath = _pathHelper.GetFfmpegPath();
-
         var requestBuilder = new ConversionRequestBuilder(downloadFolder)
-            .SetFFmpegPath(ffmpegPath)
+            .SetFFmpegPath(_settings.FfmpegPath)
             .SetPreset(ConversionPreset.UltraFast)
             .Build();
 
         return requestBuilder;
     }
+
+    private IVideoStreamInfo GetVideoStream(StreamManifest streamManifest)
+    {
+        try
+        {
+            IVideoStreamInfo videoStreamInfo = null;
+
+            videoStreamInfo = _settings.SelectedResolution switch
+            {
+                "Highest Resolution" => streamManifest.GetVideoStreams()
+                    .Where(s => s.Container == GetContainer())
+                    .GetWithHighestVideoQuality(),
+
+                _ => streamManifest.GetVideoStreams()
+                    .Where(s => s.Container == GetContainer())
+                    .First(s => s.VideoQuality.Label == _settings.SelectedResolution),
+            };
+
+            return videoStreamInfo;
+        }
+        catch
+        {
+            return streamManifest.GetVideoStreams()
+                .Where(s => s.Container == GetContainer())
+                .GetWithHighestVideoQuality();
+        }
+    }
+
+    private Container GetContainer()
+    {
+        return _settings.SelectedFormat switch
+        {
+            ".mp4" => Container.Mp4,
+            ".mp3" => Container.Mp3,
+            ".tgpp" => Container.Tgpp,
+            ".webm" => Container.WebM,
+            _ => Container.Mp4,
+        };
+    } 
 }

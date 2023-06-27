@@ -20,15 +20,6 @@ public class PathHelper : IPathHelper
         };
     }
 
-    public string GetFfmpegPath()
-    {
-        string appFolder = Path.Combine(
-            Path.GetDirectoryName(
-                Assembly.GetExecutingAssembly().Location), "Resources\\ffmpeg.exe");
-
-        return appFolder;
-    }
-
     public string OpenFolderLocation() 
     {
         return _settings.SelectedPath switch
