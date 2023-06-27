@@ -8,6 +8,7 @@ public class PlaylistData : IPlaylistData
 {
     private const string DbName = "Playlist.db3";
     private const string CacheName = "PlaylistData";
+    private const int CacheTime = 5;
     private readonly IMemoryCache _cache;
     private readonly IYoutube _youtube;
     private SQLiteAsyncConnection _db;
@@ -37,12 +38,11 @@ public class PlaylistData : IPlaylistData
     {
         await SetUpDb();
 
-        var output = _cache.Get<List<PlaylistModel>>(CacheName);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(CacheName, async entry =>
         {
-            output = await _db.Table<PlaylistModel>().ToListAsync();
-            _cache.Set(CacheName, output, TimeSpan.FromHours(5));
-        }
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+            return await _db.Table<PlaylistModel>().ToListAsync();
+        });
 
         return output;
     }
@@ -52,12 +52,11 @@ public class PlaylistData : IPlaylistData
         await SetUpDb();
         string key = GetCache(playlistId);
 
-        var output = _cache.Get<PlaylistModel>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
-            output = await _db.Table<PlaylistModel>().FirstOrDefaultAsync(v => v.PlaylistId == playlistId || v.Url == url);
-            _cache.Set(key, output, TimeSpan.FromHours(5));
-        }
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+            return await _db.Table<PlaylistModel>().FirstOrDefaultAsync(v => v.PlaylistId == playlistId || v.Url == url);
+        });
 
         return output;
     }

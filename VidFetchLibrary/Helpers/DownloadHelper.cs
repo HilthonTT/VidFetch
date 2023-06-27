@@ -13,6 +13,7 @@ public class DownloadHelper : IDownloadHelper
 {
     private const string VideoNotFoundErrorMessage = "Video not found.";
     private const string NoSuitableVideoStreamErrorMessage = "No suitable video stream found";
+    private const int CacheTime = 5;
     private readonly IPathHelper _pathHelper;
     private readonly IMemoryCache _cache;
     private readonly ICachingHelper _cachingHelper;
@@ -94,12 +95,11 @@ public class DownloadHelper : IDownloadHelper
     {
         string key = _cachingHelper.CacheVideoKey(url);
 
-        var output = _cache.Get<Video>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
-            output = await client.Videos.GetAsync(url, token);
-            _cache.Set(key, output, TimeSpan.FromHours(5));
-        }
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+            return await client.Videos.GetAsync(url, token);
+        });
 
         return output;
     }
@@ -111,9 +111,11 @@ public class DownloadHelper : IDownloadHelper
     {
         string key = _cachingHelper.CacheStreamInfoKey(video.Url);
 
-        var output = _cache.Get<IStreamInfo[]>(key);
-        if (output is null)
+
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+
             var streamManifest = await client.Videos.Streams.GetManifestAsync(video.Id, token);
 
             var audioStreamInfo = streamManifest
@@ -126,10 +128,8 @@ public class DownloadHelper : IDownloadHelper
                 .Where(s => s.Container == Container.Mp4)
                 .GetWithHighestVideoQuality();
 
-            output = new IStreamInfo[] { audioStreamInfo,  videoStreamInfo };
-
-            _cache.Set(key, output, TimeSpan.FromHours(5));
-        }
+            return new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
+        });
 
         return output;
     }
@@ -141,15 +141,15 @@ public class DownloadHelper : IDownloadHelper
     {
         string key = _cachingHelper.CacheSubtitlesInfoKey(video.Url);
 
-        var output = _cache.Get<List<ClosedCaptionTrackInfo>>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+
             var subtitleManifest = await client.Videos.ClosedCaptions.GetManifestAsync(video.Id, token);
             var subtitleinfo = subtitleManifest.Tracks;
-            output = subtitleinfo.ToList();
 
-            _cache.Set(key, output, TimeSpan.FromHours(5));
-        }
+            return subtitleinfo.ToList();
+        });
 
         return output;
     }

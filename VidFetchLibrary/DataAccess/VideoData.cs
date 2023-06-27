@@ -8,6 +8,7 @@ public class VideoData : IVideoData
 {
     private const string DbName = "Video.db3";
     private const string CacheName = "VideoData";
+    private const int CacheTime = 5;
     private readonly IMemoryCache _cache;
     private readonly IYoutube _youtube;
     private SQLiteAsyncConnection _db;
@@ -37,12 +38,11 @@ public class VideoData : IVideoData
     {
         await SetUpDb();
 
-        var output = _cache.Get<List<VideoModel>>(CacheName);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(CacheName, async entry =>
         {
-            output = await _db.Table<VideoModel>().ToListAsync();
-            _cache.Set(CacheName, output, TimeSpan.FromHours(5));
-        }
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+            return await _db.Table<VideoModel>().ToListAsync();
+        });
 
         return output;
     }
@@ -52,12 +52,11 @@ public class VideoData : IVideoData
         await SetUpDb();
         string key = GetCache(videoId);
 
-        var output = _cache.Get<VideoModel>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
-            output = await _db.Table<VideoModel>().FirstOrDefaultAsync(v => v.VideoId == videoId || v.Url == url);
-            _cache.Set(key, output, TimeSpan.FromHours(5));
-        }
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+            return await _db.Table<VideoModel>().FirstOrDefaultAsync(v => v.VideoId == videoId || v.Url == url);
+        });
 
         return output;
     }

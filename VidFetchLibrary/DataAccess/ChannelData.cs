@@ -8,6 +8,7 @@ public class ChannelData : IChannelData
 {
     private const string DbName = "Channel.db3";
     private const string CacheName = "ChannelData";
+    private const int CacheTime = 5;
     private readonly IMemoryCache _cache;
     private readonly IYoutube _youtube;
     private SQLiteAsyncConnection _db;
@@ -37,13 +38,12 @@ public class ChannelData : IChannelData
     {
         await SetUpDb();
 
-        var output = _cache.Get<List<ChannelModel>>(CacheName);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(CacheName, async entry =>
         {
-            output = await _db.Table<ChannelModel>().ToListAsync();
-            _cache.Set(CacheName, output, TimeSpan.FromHours(5));
-        }
-
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+            return await _db.Table<ChannelModel>().ToListAsync();
+        });
+        
         return output;
     }
 
@@ -52,12 +52,11 @@ public class ChannelData : IChannelData
         await SetUpDb();
         string key = GetCache(channelId);
 
-        var output = _cache.Get<ChannelModel>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
-            output = await _db.Table<ChannelModel>().FirstOrDefaultAsync(c => c.Url == url || c.ChannelId == channelId);
-            _cache.Set(key, output, TimeSpan.FromHours(5));
-        }
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+            return await _db.Table<ChannelModel>().FirstOrDefaultAsync(c => c.Url == url || c.ChannelId == channelId);
+        });
 
         return output;
     }

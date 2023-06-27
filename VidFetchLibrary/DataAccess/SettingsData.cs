@@ -7,6 +7,7 @@ public class SettingsData : ISettingsData
 {
     private const string DbName = "Settings.db3";
     private const string CacheName = "SettingsData";
+    private const int CacheTime = 5;
     private readonly IMemoryCache _cache;
     private SQLiteAsyncConnection _db;
 
@@ -33,12 +34,11 @@ public class SettingsData : ISettingsData
     {
         await SetUpDb();
 
-        var output = _cache.Get<SettingsLibrary>(CacheName);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(CacheName, async entry =>
         {
-            output = await _db.Table<SettingsLibrary>().FirstOrDefaultAsync();
-            _cache.Set(CacheName, output, TimeSpan.FromHours(1));
-        }
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+            return await _db.Table<SettingsLibrary>().FirstOrDefaultAsync();
+        });
 
         return output;
     }
@@ -48,7 +48,7 @@ public class SettingsData : ISettingsData
         await SetUpDb();
 
         RemoveCache();
-        var existingSettings = await _db.Table<SettingsLibrary>().FirstOrDefaultAsync();
+        var existingSettings = await GetSettingsAsync();
         if (existingSettings is not null)
         {
             settings.Id = existingSettings.Id;

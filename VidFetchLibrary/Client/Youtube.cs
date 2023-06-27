@@ -9,6 +9,7 @@ namespace VidFetchLibrary.Client;
 public class Youtube : IYoutube
 {
     private const int MaxDataCount = 50;
+    private const int CacheTime = 5;
 
     private readonly IDownloadHelper _downloaderHelper;
     private readonly IMemoryCache _cache;
@@ -48,19 +49,18 @@ public class Youtube : IYoutube
     {
         string key = _cachingHelper.CacheVideoList(url);
 
-        var output = _cache.Get<List<VideoModel>>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+
             string playlistId = GetPlaylistId(url) ?? throw new Exception("Invalid playlist URL.");
             var playlistVideos = await _client.Playlists.GetVideosAsync(playlistId)
                 .CollectAsync(MaxDataCount);
 
-            output = playlistVideos
+            return playlistVideos
                 .Select(v => new VideoModel(v))
                 .ToList();
-
-            _cache.Set(key, output, TimeSpan.FromHours(5));
-        }
+        });
 
         return output;
     }
@@ -69,18 +69,17 @@ public class Youtube : IYoutube
     {
         string key = _cachingHelper.CacheVideoList(url);
 
-        var output = _cache.Get<List<VideoModel>>(key);
-        if(output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+
             var channelVideos = await _client.Channels.GetUploadsAsync(url)
                 .CollectAsync(MaxDataCount);
 
-            output = channelVideos
+            return channelVideos
                 .Select(v => new VideoModel(v))
                 .ToList();
-
-            _cache.Set(key, output, TimeSpan.FromHours(5));
-        }
+        });
 
         return output;
     }
@@ -90,15 +89,15 @@ public class Youtube : IYoutube
         string key = _cachingHelper.CacheMainVideoKey(url);
         string secondaryKey = _cachingHelper.CacheVideoKey(url); // Used in DownloadHelper
 
-        var output = _cache.Get<VideoModel>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
-            var video = await _client.Videos.GetAsync(url);
-            output = new VideoModel(video);
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            _cache.Set(key, output, TimeSpan.FromHours(5));
+            var video = await _client.Videos.GetAsync(url);
+
             _cache.Set(secondaryKey, video, TimeSpan.FromHours(5));
-        }
+            return new VideoModel(video);
+        });
 
         return output;
     }
@@ -107,32 +106,31 @@ public class Youtube : IYoutube
     {
         string key = _cachingHelper.CacheChannelKey(url);
 
-        var output = _cache.Get<ChannelModel>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+
             if (url.Contains("https://www.youtube.com/@"))
             {
                 var channel = await _client.Channels.GetByHandleAsync(url);
-                output = new ChannelModel(channel);
+                return new ChannelModel(channel);
             }
             else if (url.Contains("https://youtube.com/user/"))
             {
                 var channel = await _client.Channels.GetByUserAsync(url);
-                output = new ChannelModel(channel);
+                return new ChannelModel(channel);
             }
             else if (url.Contains("https://youtube.com/c/"))
             {
                 var channel = await _client.Channels.GetBySlugAsync(url);
-                output = new ChannelModel(channel);
+                return new ChannelModel(channel);
             }
             else
             {
                 var channel = await _client.Channels.GetAsync(url);
-                output = new ChannelModel(channel);
+                return new ChannelModel(channel);
             }
-
-            _cache.Set(key, output, TimeSpan.FromHours(5));
-        }
+        });
 
         return output;
     }
@@ -141,15 +139,14 @@ public class Youtube : IYoutube
     {
         string key = _cachingHelper.CachePlaylistKey(url);
 
-        var output = _cache.Get<PlaylistModel>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+
             var playlist = await _client.Playlists.GetAsync(url);
-            output = new PlaylistModel(playlist);
-
-            _cache.Set(key, output, TimeSpan.FromHours(5));
-        }
-
+            return new PlaylistModel(playlist);
+        });
+        
         return output;
     }
 
@@ -159,15 +156,16 @@ public class Youtube : IYoutube
     {
         string key = $"VideoSearch-{searchInput}";
 
-        var output = _cache.Get<List<VideoModel>>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
-            var results = await _client.Search.GetVideosAsync(searchInput, token)
-                .CollectAsync(MaxDataCount);
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            output = results.Select(v => new VideoModel(v))
+            var results = await _client.Search.GetVideosAsync(searchInput, token)
+               .CollectAsync(MaxDataCount);
+
+            return results.Select(v => new VideoModel(v))
                 .ToList();
-        }
+        });
 
         return output;
     }
@@ -178,15 +176,16 @@ public class Youtube : IYoutube
     {
         string key = $"ChannelSearch-{searchInput}";
 
-        var output = _cache.Get<List<ChannelModel>>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
-            var results = await _client.Search.GetChannelsAsync(searchInput, token)
-                .CollectAsync(MaxDataCount);
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            output = results.Select(c => new ChannelModel(c))
+            var results = await _client.Search.GetChannelsAsync(searchInput, token)
+               .CollectAsync(MaxDataCount);
+
+            return results.Select(v => new ChannelModel(v))
                 .ToList();
-        }
+        });
 
         return output;
     }
@@ -197,15 +196,16 @@ public class Youtube : IYoutube
     {
         string key = $"PlaylistSearch-{searchInput}";
 
-        var output = _cache.Get<List<PlaylistModel>>(key);
-        if (output is null)
+        var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
-            var results = await _client.Search.GetPlaylistsAsync(searchInput, token)
-                .CollectAsync(MaxDataCount);
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            output = results.Select(p => new PlaylistModel(p))
+            var results = await _client.Search.GetPlaylistsAsync(searchInput, token)
+               .CollectAsync(MaxDataCount);
+
+            return results.Select(v => new PlaylistModel(v))
                 .ToList();
-        }
+        });
 
         return output;
     }
