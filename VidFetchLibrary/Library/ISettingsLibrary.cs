@@ -8,4 +8,6 @@ public interface ISettingsLibrary
     bool SaveVideos { get; set; }
     string SelectedPath { get; set; }
     string SelectedFormat { get; set; }
+    string SelectedResolution { get; set; }
+    string FfmpegPath { get; set; }
 }

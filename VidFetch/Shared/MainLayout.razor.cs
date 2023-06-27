@@ -30,6 +30,8 @@ public partial class MainLayout
             settingsLibrary.SaveVideos = false;
             settingsLibrary.SelectedFormat = defaultData.GetVideoExtensions().First();
             settingsLibrary.SelectedPath = defaultData.GetDownloadPaths().First();
+            settingsLibrary.SelectedResolution = defaultData.GetVideoResolutions().First();
+            settingsLibrary.FfmpegPath = "";
         }
     }
 
@@ -41,5 +43,7 @@ public partial class MainLayout
         settingsLibrary.SaveVideos = _settings.SaveVideos;
         settingsLibrary.SelectedFormat = _settings.SelectedFormat;
         settingsLibrary.SelectedPath = _settings.SelectedPath;
+        settingsLibrary.SelectedResolution = _settings.SelectedResolution;
+        settingsLibrary.FfmpegPath = _settings.FfmpegPath;
     }
 }

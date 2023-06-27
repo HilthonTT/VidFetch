@@ -10,4 +10,6 @@ public class SettingsLibrary : ISettingsLibrary
     public bool SaveVideos { get; set; }
     public string SelectedPath { get; set; }
     public string SelectedFormat { get; set; }
+    public string SelectedResolution { get; set; }
+    public string FfmpegPath { get; set; }
 }
