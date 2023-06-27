@@ -20,6 +20,7 @@ public partial class VideoComponent
     [Parameter]
     public int Index { get; set; }
 
+    private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
     private CancellationTokenSource _tokenSource;
     private bool _isDownloading = false;
     private bool _isSaved = false;
@@ -38,6 +39,12 @@ public partial class VideoComponent
     private async Task DownloadVideo()
     {
         _isDownloading = true;
+
+        if (File.Exists(settingsLibrary.FfmpegPath) is false)
+        {
+            snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+        }
+
         var cancellationToken = tokenHelper.InitializeToken(ref _tokenSource);
         
         var progressReporter = new Progress<double>(value =>
