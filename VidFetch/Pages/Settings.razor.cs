@@ -68,7 +68,6 @@ public partial class Settings
 
             if (exitCode == 1)
             {
-                bool a = settingsLibrary.IsDarkMode;
                 navManager.NavigateTo("/Settings", isReload);
             }
         }
