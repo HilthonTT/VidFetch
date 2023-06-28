@@ -36,12 +36,14 @@ public class DownloadHelper : IDownloadHelper
     {
         try
         {
-            var video = await LoadVideoAsync(client, videoUrl, token) ?? throw new Exception(VideoNotFoundErrorMessage);
-            var streamInfos = await LoadStreamInfosAsync(client, video, token);
-            var conversionRequest = GetRequestBuilder(video);
-
+            var video = await LoadVideoAsync(client, videoUrl, token) 
+                ?? throw new NullReferenceException(VideoNotFoundErrorMessage);
+            
             if (File.Exists(_settings.FfmpegPath))
             {
+                var streamInfos = await LoadStreamInfosAsync(client, video, token);
+                var conversionRequest = GetRequestBuilder(video);
+
                 await client.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
             }
             else
@@ -125,25 +127,22 @@ public class DownloadHelper : IDownloadHelper
         CancellationToken token)
     {
         string key = _cachingHelper.CacheStreamInfoKey(video.Url);
+        IVideoStreamInfo videoStreamInfo;
 
-        var output = await _cache.GetOrCreateAsync(key, async entry =>
+        var streamManifest = await _cache.GetOrCreateAsync(key, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
-
-            var streamManifest = await client.Videos.Streams.GetManifestAsync(video.Id, token);
-            IVideoStreamInfo videoStreamInfo;
-
-            var audioStreamInfo = streamManifest
-                .GetAudioStreams()
-                .Where(s => s.Container == GetContainer())
-                .GetWithHighestBitrate();
-
-            videoStreamInfo = GetVideoStream(streamManifest);
-
-            return new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
+            return await client.Videos.Streams.GetManifestAsync(video.Id, token);
         });
 
-        return output;
+        var audioStreamInfo = streamManifest
+            .GetAudioStreams()
+            .Where(s => s.Container == Container.Mp4)
+            .GetWithHighestBitrate();
+
+        videoStreamInfo = GetVideoStream(streamManifest);
+
+        return new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
     }
 
     private async Task<List<ClosedCaptionTrackInfo>> LoadSubtitleInfoAsync(
@@ -190,15 +189,16 @@ public class DownloadHelper : IDownloadHelper
         try
         {
             IVideoStreamInfo videoStreamInfo = null;
+            string a = _settings.SelectedResolution;
 
             videoStreamInfo = _settings.SelectedResolution switch
             {
                 "Highest Resolution" => streamManifest.GetVideoStreams()
-                    .Where(s => s.Container == GetContainer())
+                    .Where(s => s.Container == Container.Mp4)
                     .GetWithHighestVideoQuality(),
 
                 _ => streamManifest.GetVideoStreams()
-                    .Where(s => s.Container == GetContainer())
+                    .Where(s => s.Container == Container.Mp4)
                     .First(s => s.VideoQuality.Label == _settings.SelectedResolution),
             };
 
@@ -207,20 +207,8 @@ public class DownloadHelper : IDownloadHelper
         catch
         {
             return streamManifest.GetVideoStreams()
-                .Where(s => s.Container == GetContainer())
+                .Where(s => s.Container == Container.Mp4)
                 .GetWithHighestVideoQuality();
         }
     }
-
-    private Container GetContainer()
-    {
-        return _settings.SelectedFormat switch
-        {
-            ".mp4" => Container.Mp4,
-            ".mp3" => Container.Mp3,
-            ".tgpp" => Container.Tgpp,
-            ".webm" => Container.WebM,
-            _ => Container.Mp4,
-        };
-    } 
 }

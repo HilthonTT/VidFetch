@@ -8,8 +8,16 @@ public class DefaultData : IDefaultData
         {
             ".mp4",
             ".mp3",
+            ".avi",
+            ".mov",
+            ".wmv",
+            ".mkv",
+            ".flv",
             ".tgpp",
             ".webm",
+            ".mpg",
+            ".m4v",
+            ".3gp",
         };
     }
 
