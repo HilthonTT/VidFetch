@@ -8,26 +8,41 @@ public partial class Settings
 {
     private readonly SaveSettingsModel _settingsModel = new();
     private readonly SaveFfmpegSettingsModel _ffmpegSettingsModel = new();
+    private SettingsLibrary _settings;
     private List<string> _paths = new();
     private List<string> _formats = new();
     private List<string> _resolutions = new();
     private string _errorMessage = "";
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        MapSettings();
         LoadDefaultData();
+        await LoadSettings();
     }
 
-    private void MapSettings()
+    private async Task LoadSettings()
     {
-        _settingsModel.IsDarkMode = settingsLibrary.IsDarkMode;
-        _settingsModel.DownloadSubtitles = settingsLibrary.DownloadSubtitles;
-        _settingsModel.SaveVideos = settingsLibrary.SaveVideos;
-        _settingsModel.SelectedPath = settingsLibrary.SelectedPath;
-        _settingsModel.SelectedFormat = settingsLibrary.SelectedFormat;
-        _ffmpegSettingsModel.SelectedResolution = settingsLibrary.SelectedResolution;
-        _ffmpegSettingsModel.FfmpegPath = settingsLibrary.FfmpegPath;
+        _settings = await settingsData.GetSettingsAsync();
+        if (_settings is not null)
+        {
+            _settingsModel.IsDarkMode = _settings.IsDarkMode;
+            _settingsModel.DownloadSubtitles = _settings.DownloadSubtitles;
+            _settingsModel.SaveVideos = _settings.SaveVideos;
+            _settingsModel.SelectedPath = _settings.SelectedPath;
+            _settingsModel.SelectedFormat = _settings.SelectedFormat;
+            _ffmpegSettingsModel.SelectedResolution = _settings.SelectedResolution;
+            _ffmpegSettingsModel.FfmpegPath = _settings.FfmpegPath;
+        }
+        else
+        {
+            _settingsModel.IsDarkMode = true;
+            _settingsModel.DownloadSubtitles = false;
+            _settingsModel.SaveVideos = false;
+            _settingsModel.SelectedFormat = defaultData.GetVideoExtensions().First();
+            _settingsModel.SelectedPath = defaultData.GetDownloadPaths().First();
+            _ffmpegSettingsModel.SelectedResolution = defaultData.GetVideoResolutions().First();
+            _ffmpegSettingsModel.FfmpegPath = "";
+        }
     }
 
     private void LoadDefaultData()
@@ -41,36 +56,28 @@ public partial class Settings
     {
         try
         {
-            _errorMessage = "";
-            var s = new SettingsLibrary
+            bool isReload = _settingsModel.IsDarkMode == settingsLibrary.IsDarkMode ? false : true;
+
+            _settings.IsDarkMode = _settingsModel.IsDarkMode;
+            _settings.DownloadSubtitles = _settingsModel.DownloadSubtitles;
+            _settings.SaveVideos = _settingsModel.SaveVideos;
+            _settings.SelectedPath = _settingsModel.SelectedPath;
+            _settings.SelectedFormat = _settingsModel.SelectedFormat;
+
+            int exitCode = await settingsData.UpdateSettingsAsync(_settings);
+
+            if (exitCode == 1)
             {
-                Id = settingsLibrary.Id,
-                IsDarkMode = _settingsModel.IsDarkMode,
-                DownloadSubtitles = _settingsModel.DownloadSubtitles,
-                SaveVideos = _settingsModel.SaveVideos,
-                SelectedPath = _settingsModel.SelectedPath,
-                SelectedFormat = _settingsModel.SelectedFormat,
-                SelectedResolution = settingsLibrary.SelectedResolution,
-                FfmpegPath = settingsLibrary.FfmpegPath,
-            };
-
-            await settingsData.UpdateSettingsAsync(s);
-
-            navManager.NavigateTo("/Settings", IsReload());
-
-            settingsLibrary.IsDarkMode = _settingsModel.IsDarkMode;
-            settingsLibrary.DownloadSubtitles = _settingsModel.DownloadSubtitles;
-            settingsLibrary.SaveVideos = _settingsModel.SaveVideos;
-            settingsLibrary.SelectedPath = _settingsModel.SelectedPath;
-            settingsLibrary.SelectedFormat = _settingsModel.SelectedFormat;
-
-            snackbar.Add("Successfully saved settings.", Severity.Normal);
+                bool a = settingsLibrary.IsDarkMode;
+                navManager.NavigateTo("/Settings", isReload);
+            }
         }
         catch
         {
             _errorMessage = "Failed to save settings.";
         }
     }
+
 
     private async Task SaveFfmpegSettings()
     {
@@ -99,8 +106,8 @@ public partial class Settings
 
             await settingsData.UpdateSettingsAsync(s);
 
-            settingsLibrary.FfmpegPath = _ffmpegSettingsModel.FfmpegPath;
-            settingsLibrary.SelectedResolution = _ffmpegSettingsModel.SelectedResolution;
+            settingsLibrary.SelectedResolution = s.SelectedResolution;
+            settingsLibrary.FfmpegPath = s.FfmpegPath;
 
             snackbar.Add("Successfully saved settings.", Severity.Normal);
         }
@@ -108,16 +115,6 @@ public partial class Settings
         {
             _errorMessage = "Failed to save settings.";
         }
-    }
-
-    private bool IsReload()
-    {
-        if (settingsLibrary.IsDarkMode == _settingsModel.IsDarkMode)
-        {
-            return false;
-        }
-
-        return true;
     }
 
     private bool IsValidPath()

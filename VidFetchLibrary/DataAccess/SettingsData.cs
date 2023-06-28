@@ -9,11 +9,14 @@ public class SettingsData : ISettingsData
     private const string CacheName = "SettingsData";
     private const int CacheTime = 5;
     private readonly IMemoryCache _cache;
+    private readonly ISettingsLibrary _settings;
     private SQLiteAsyncConnection _db;
 
-    public SettingsData(IMemoryCache cache)
+    public SettingsData(IMemoryCache cache,
+                        ISettingsLibrary settings)
     {
         _cache = cache;
+        _settings = settings;
     }
 
     private async Task SetUpDb()
@@ -30,15 +33,20 @@ public class SettingsData : ISettingsData
         }
     }
 
+    /// <summary>
+    /// Kept the old way because of it being an issue with reloading the page.
+    /// </summary>
+    /// <returns>Returns SettingsLibrary</returns>
     public async Task<SettingsLibrary> GetSettingsAsync()
     {
         await SetUpDb();
 
-        var output = await _cache.GetOrCreateAsync(CacheName, async entry =>
+        var output = _cache.Get<SettingsLibrary>(CacheName);
+        if (output is null)
         {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
-            return await _db.Table<SettingsLibrary>().FirstOrDefaultAsync();
-        });
+            output = await _db.Table<SettingsLibrary>().FirstOrDefaultAsync();
+            _cache.Set(CacheName, output, TimeSpan.FromHours(CacheTime));
+        }
 
         return output;
     }
@@ -47,21 +55,31 @@ public class SettingsData : ISettingsData
     {
         await SetUpDb();
 
-        RemoveCache();
+        _cache.Remove(CacheName);
+        
         var existingSettings = await GetSettingsAsync();
         if (existingSettings is not null)
         {
             settings.Id = existingSettings.Id;
+            MapSettingsLibrary(settings);
             return await _db.UpdateAsync(settings);
         }
         else
         {
+            MapSettingsLibrary(settings);
             return await _db.InsertAsync(settings);
         }
     }
 
-    private void RemoveCache()
+    private void MapSettingsLibrary(SettingsLibrary settings)
     {
-        _cache.Remove(CacheName);
+        _settings.Id = settings.Id;
+        _settings.IsDarkMode = settings.IsDarkMode;
+        _settings.DownloadSubtitles = settings.DownloadSubtitles;
+        _settings.SaveVideos = settings.SaveVideos;
+        _settings.SelectedPath = settings.SelectedPath;
+        _settings.SelectedFormat = settings.SelectedFormat;
+        _settings.SelectedResolution = settings.SelectedResolution;
+        _settings.FfmpegPath = settings.FfmpegPath;
     }
 }
