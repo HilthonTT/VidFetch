@@ -1,42 +1,30 @@
 using MudBlazor;
 using VidFetchLibrary.Models;
 
-namespace VidFetch.Pages;
+namespace VidFetch.Page_Components;
 
-public partial class Index
+public partial class IndexVideo
 {
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
     private CancellationTokenSource _playlistTokenSource;
     private CancellationTokenSource _allVideosTokenSource;
     private CancellationTokenSource _videoTokenSource;
-    private string _errorMessage = "";
     private string _videoUrl = "";
-    private string _channelUrl = "";
-    private string _playlistUrl = "";
-    private string _firstVideoInPlaylistUrl = "";
-
     private string _videoSearchText = "";
-    private string _channelSearchText = "";
-    private string _playlistSearchText = "";
     private string _playlistVideoSearchText = "";
-
     private string _currentDownloadingVideo = "";
     private string _currentDownloadingPlaylistVideo = "";
-    
-    private double _videosProgress = 0;
-    private double _playlistProgress = 0;
-    private double _firstPlaylistProgress = 0;
-
+    private string _firstVideoInPlaylistUrl = "";
     private bool _showDialog = false;
     private bool _isVideoLoading = false;
     private bool _isPlaylistLoading = false;
-    private bool _isChannelLoading = false;
-
+    private double _videosProgress = 0;
+    private double _playlistProgress = 0;
+    private double _firstPlaylistProgress = 0;
     private async Task LoadVideoOrPlaylistVideos()
     {
         try
         {
-            _errorMessage = "";
             if (string.IsNullOrWhiteSpace(_videoUrl))
             {
                 return;
@@ -57,90 +45,14 @@ public partial class Index
             }
             else
             {
-                _errorMessage = "Not a valid Url.";
+                snackbar.Add($"Invalid Url", Severity.Warning);
             }
 
             _videoUrl = "";
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
-        }
-    }
-
-    private async Task LoadChannel()
-    {
-        try
-        {
-            _errorMessage = "";
-
-            if (string.IsNullOrWhiteSpace(_channelUrl))
-            {
-                return;
-            }
-
-            if (Uri.IsWellFormedUriString(_channelUrl, UriKind.Absolute))
-            {
-                _isChannelLoading = true;
-
-                var channel = await youtube.GetChannelAsync(_channelUrl);
-                bool channelIsNull = videoLibrary.Channels.FirstOrDefault(c => c.ChannelId == channel.ChannelId) is null;
-
-                if (channelIsNull)
-                {
-                    videoLibrary.Channels.Add(channel);
-                }
-                _isChannelLoading = false;
-            }
-            else
-            {
-                _errorMessage = "Not a valid Url.";
-            }
-
-            _channelUrl = "";
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = ex.Message;
-            _isChannelLoading = false;
-        }
-    }
-
-    private async Task LoadPlaylist()
-    {
-        try
-        {
-            _errorMessage = "";
-
-            if (string.IsNullOrWhiteSpace(_playlistUrl))
-            {
-                return;
-            }
-
-            if (Uri.IsWellFormedUriString(_playlistUrl, UriKind.Absolute))
-            {
-                _isPlaylistLoading = true;
-
-                var playlist = await youtube.GetPlaylistAsync(_playlistUrl);
-                bool playlistIsNull = videoLibrary.Playlists.FirstOrDefault(p => p.PlaylistId == playlist.PlaylistId) is null;
-
-                if (playlistIsNull)
-                {
-                    videoLibrary.Playlists.Add(playlist);
-                }
-                _isPlaylistLoading = false;
-            }
-            else
-            {
-                _errorMessage = "Not a valid Url.";
-            }
-
-            _playlistUrl = "";
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = ex.Message;
-            _isPlaylistLoading = false;
+            snackbar.Add($"Error: {ex.Message}", Severity.Error);
         }
     }
 
@@ -148,7 +60,6 @@ public partial class Index
     {
         _isPlaylistLoading = true;
         var videos = await youtube.GetPlayListVideosAsync(_videoUrl);
-
         foreach (var v in videos)
         {
             if (IsVideoNotLoaded(v.VideoId))
@@ -169,7 +80,6 @@ public partial class Index
     {
         _isVideoLoading = true;
         var video = await youtube.GetVideoAsync(_videoUrl);
-
         if (IsVideoNotLoaded(video.VideoId))
         {
             videoLibrary.Videos.Add(video);
@@ -193,40 +103,9 @@ public partial class Index
 
     private async Task SavePlaylistVideos()
     {
-        foreach(var v in videoLibrary.PlaylistVideos)
+        foreach (var v in videoLibrary.PlaylistVideos)
         {
             await videoData.SetVideoAsync(v.Url, v.VideoId);
-        }
-    }
-
-    private async Task DownloadVideo(string url)
-    {
-        try
-        {
-            _errorMessage = "";
-
-            if (File.Exists(settingsLibrary.FfmpegPath) is false)
-            {
-                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
-            }
-
-            var cancellationToken = tokenHelper.InitializeToken(ref _videoTokenSource);
-
-            var progressReport = new Progress<double>(value =>
-            {
-                UpdateProgress(ref _firstPlaylistProgress, value);
-            });
-
-            await youtube.DownloadVideoAsync(
-                url,
-                progressReport,
-                cancellationToken);
-
-            CancelVideoDownload();
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = ex.Message;
         }
     }
 
@@ -234,30 +113,21 @@ public partial class Index
     {
         try
         {
-            _errorMessage = "";
-
             if (File.Exists(settingsLibrary.FfmpegPath) is false)
             {
                 snackbar.Add(FfmpegErrorMessage, Severity.Warning);
             }
 
             var cancellationToken = tokenHelper.InitializeToken(ref _allVideosTokenSource);
-
             var progressReport = new Progress<double>(value =>
             {
                 UpdateProgress(ref _videosProgress, value);
             });
-
             foreach (var v in videoLibrary.Videos)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 _currentDownloadingVideo = v.Title;
-
-                await youtube.DownloadVideoAsync(
-                    v.Url,
-                    progressReport,
-                    cancellationToken);
-
+                await youtube.DownloadVideoAsync(v.Url, progressReport, cancellationToken);
                 AddSnackbar(v.Title);
             }
 
@@ -266,7 +136,30 @@ public partial class Index
         }
         catch (Exception ex)
         {
-            _errorMessage = $"There was an issue while downloading your videos: {ex.Message}";
+            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task DownloadVideo(string url)
+    {
+        try
+        {
+            if (File.Exists(settingsLibrary.FfmpegPath)is false)
+            {
+                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+            }
+
+            var cancellationToken = tokenHelper.InitializeToken(ref _videoTokenSource);
+            var progressReport = new Progress<double>(value =>
+            {
+                UpdateProgress(ref _firstPlaylistProgress, value);
+            });
+            await youtube.DownloadVideoAsync(url, progressReport, cancellationToken);
+            CancelVideoDownload();
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error: {ex.Message}", Severity.Error);
         }
     }
 
@@ -274,30 +167,21 @@ public partial class Index
     {
         try
         {
-            _errorMessage = "";
-
-            if (File.Exists(settingsLibrary.FfmpegPath) is false)
+            if (File.Exists(settingsLibrary.FfmpegPath)is false)
             {
                 snackbar.Add(FfmpegErrorMessage, Severity.Warning);
             }
 
             var cancellationToken = tokenHelper.InitializeToken(ref _playlistTokenSource);
-
             var progressReport = new Progress<double>(value =>
             {
                 UpdateProgress(ref _playlistProgress, value);
             });
-
             foreach (var v in videoLibrary.PlaylistVideos)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 _currentDownloadingPlaylistVideo = v.Title;
-
-                await youtube.DownloadVideoAsync(
-                    v.Url,
-                    progressReport,
-                    cancellationToken);
-
+                await youtube.DownloadVideoAsync(v.Url, progressReport, cancellationToken);
                 AddSnackbar(v.Title);
             }
 
@@ -306,7 +190,7 @@ public partial class Index
         }
         catch (Exception ex)
         {
-            _errorMessage = $"There was an issue while downloading your playlist: {ex.Message}";
+            snackbar.Add($"Error: {ex.Message}", Severity.Error);
         }
     }
 
@@ -320,29 +204,9 @@ public partial class Index
         return await searchHelper.SearchAsync(videoLibrary.PlaylistVideos, searchInput);
     }
 
-    private async Task<IEnumerable<string>> SearchChannels(string searchInput)
-    {
-        return await searchHelper.SearchAsync(videoLibrary.Channels, searchInput);
-    }
-
-    private async Task<IEnumerable<string>> SearchPlaylists(string searchInput)
-    {
-        return await searchHelper.SearchAsync(videoLibrary.Playlists, searchInput);
-    }
-
     private void FilterVideos()
     {
         videoLibrary.Videos = searchHelper.FilterList(videoLibrary.Videos, _videoSearchText);
-    }
-
-    private void FilterChannels()
-    {
-        videoLibrary.Channels = searchHelper.FilterList(videoLibrary.Channels, _channelSearchText);
-    }
-
-    private void FilterPlaylists()
-    {
-        videoLibrary.Playlists = searchHelper.FilterList(videoLibrary.Playlists, _playlistSearchText);
     }
 
     private void FilterPlaylistVideo()
@@ -362,16 +226,16 @@ public partial class Index
         _currentDownloadingVideo = "";
     }
 
-    private void CancelVideoDownload()
-    {
-        tokenHelper.CancelRequest(ref _videoTokenSource);
-    }
-
     private void CancelPlaylistDownload()
     {
         tokenHelper.CancelRequest(ref _playlistTokenSource);
         _playlistProgress = 0;
         _currentDownloadingPlaylistVideo = "";
+    }
+
+    private void CancelVideoDownload()
+    {
+        tokenHelper.CancelRequest(ref _videoTokenSource);
     }
 
     private void ClearVideos()
@@ -384,16 +248,6 @@ public partial class Index
         videoLibraryHelper.ClearPlaylistVideos(ref _playlistProgress);
     }
 
-    private void ClearChannels()
-    {
-        videoLibraryHelper.ClearChannels();
-    }
-
-    private void ClearPlaylists()
-    {
-        videoLibraryHelper.ClearPlaylists();
-    }
-
     private void RemoveVideo(VideoModel video)
     {
         videoLibraryHelper.RemoveVideo(video);
@@ -401,29 +255,8 @@ public partial class Index
 
     private void RemovePlaylistVideo(VideoModel video)
     {
-        var v = videoLibrary.PlaylistVideos.FirstOrDefault(
-            v => v.VideoId == video.VideoId || v.Url == video.Url
-        );
-
+        var v = videoLibrary.PlaylistVideos.FirstOrDefault(v => v.VideoId == video.VideoId || v.Url == video.Url);
         videoLibraryHelper.RemovePlaylistVideo(v);
-    }
-
-    private void RemoveChannel(ChannelModel channel)
-    {
-        var c = videoLibrary.Channels.FirstOrDefault(
-            c => c.ChannelId == channel.ChannelId || c.Url == channel.Url
-        );
-
-        videoLibraryHelper.RemoveChannel(c);
-    }
-
-    private void RemovePlaylist(PlaylistModel playlist)
-    {
-        var p = videoLibrary.Playlists.FirstOrDefault(
-            p => p.PlaylistId == playlist.PlaylistId || p.Url == playlist.Url
-        );
-
-        videoLibraryHelper.RemovePlaylist(p);
     }
 
     private void ToggleDialog()
@@ -477,36 +310,6 @@ public partial class Index
         return $"Search {videoLibrary.Videos?.Count} Videos";
     }
 
-    private string GetChannelSearchBarText()
-    {
-        if (videoLibrary?.Channels.Count <= 0)
-        {
-            return "Search Channel";
-        }
-
-        if (videoLibrary.Channels?.Count == 1)
-        {
-            return "Search 1 Channel";
-        }
-
-        return $"Search {videoLibrary.Channels?.Count} Channels";
-    }
-
-    private string GetPlaylistSearchBarText()
-    {
-        if (videoLibrary?.Playlists.Count <= 0)
-        {
-            return "Search Playlist";
-        }
-
-        if (videoLibrary.Playlists?.Count == 1)
-        {
-            return "Search 1 Playlist";
-        }
-
-        return $"Search {videoLibrary.Playlists?.Count} Playlists";
-    }
-
     private string GetPlaylistVideoSearchBarText()
     {
         if (videoLibrary?.PlaylistVideos.Count <= 0)
@@ -524,7 +327,7 @@ public partial class Index
 
     private bool IsVideoNotLoaded(string videoId)
     {
-        return videoLibrary.Videos.Any(v => v.VideoId == videoId) is false;
+        return videoLibrary.Videos.Any(v => v.VideoId == videoId)is false;
     }
 
     private bool IsPlaylistUrl()

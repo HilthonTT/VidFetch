@@ -1,0 +1,44 @@
+﻿@inject IVideoLibrary videoLibrary
+@inject IVideoLibraryHelper videoLibraryHelper
+@inject ISearchHelper searchHelper
+@inject IYoutube youtube
+@inject ISnackbar snackbar
+
+<MudTextField @bind-Value="_playlistUrl"
+                Class="mb-4"
+                Label="Enter Playlist URL"
+                Variant="Variant.Outlined"
+                Adornment="Adornment.End"
+                AdornmentIcon="@Icons.Material.Filled.Download"
+                OnAdornmentClick="LoadPlaylist"
+                Required="true"
+                Clearable="true" />
+
+<MudAutocomplete T="string" Label="@GetPlaylistSearchBarText()"
+                    Variant="Variant.Outlined"
+                    Class="mb-4"
+                    HelperText="Search the loaded playlists."
+                    AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                    OnAdornmentClick="FilterPlaylists"
+                    SearchFunc="SearchPlaylists"
+                    ResetValueOnEmptyText="true"
+@bind-Value="_playlistSearchText" />
+<MudButton Color="Color.Warning"
+            Variant="Variant.Filled"
+            Class="w-100 mb-3"
+@onclick="ClearPlaylists">
+    Clear Playlists
+</MudButton>
+@if (_isPlaylistLoading)
+{
+    <div class="text-center">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </div>
+}
+<MudVirtualize Items="videoLibrary.Playlists" Context="p" OverscanCount="10">
+    <PlaylistComponent @key="p.PlaylistId"
+                        Playlist="p"
+                        RemoveEvent="(() => RemovePlaylist(p))" />
+</MudVirtualize>
+
+
