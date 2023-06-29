@@ -13,7 +13,10 @@
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
-                <MudText Typo="Typo.subtitle1" title="@Channel.Title">@Channel.Title</MudText>
+                <MudText Typo="Typo.subtitle1"
+                         Class="text-break" title="@Channel.Title">
+                    @Channel.Title
+                </MudText>
             </CardHeaderContent>
             <CardHeaderActions>
                 @if (_isSaved is false)

@@ -15,7 +15,9 @@
                 </MudAvatar>
             </CardHeaderAvatar>
             <CardHeaderContent>
-                <MudText Typo="Typo.subtitle1" title="@Video.Title">@Video.Title</MudText>
+                <MudText Typo="Typo.subtitle1" Class="text-break" title="@Video.Title">
+                    @Video.Title
+                </MudText>
             </CardHeaderContent>
             <CardHeaderActions>
                 @if (_isSaved is false)
@@ -33,13 +35,17 @@
         </MudCardHeader>
         <MudCardMedia Image="@Video.ThumbnailUrl" Height="200"></MudCardMedia>
         <MudCardContent Class="text-start">
-            <MudLink Color="Color.Default" title="@Video.AuthorName" @onclick="(() => OpenUrl(Video.AuthorUrl))">
+            <MudLink @onclick="(() => OpenUrl(Video.AuthorUrl))"
+                     Color="Color.Default"
+                     Class="text-break"
+                     title="@Video.AuthorName">
                 @Video.AuthorName
             </MudLink>
             <MudText title="@Video.Duration">
                 @Video.Duration
             </MudText>
-            <MudLink title="@Video.Url"
+            <MudLink Class="text-break"
+                     title="@Video.Url"
             @onclick="(() => OpenUrl(Video.Url))">
                 @Video.Url
             </MudLink>
