@@ -21,8 +21,8 @@
 	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	  <PackageReference Include="sqlite-net-pcl" Version="1.8.116" />
-	  <PackageReference Include="YoutubeExplode" Version="6.2.15" />
-	  <PackageReference Include="YoutubeExplode.Converter" Version="6.2.15" />
+	  <PackageReference Include="YoutubeExplode" Version="6.2.16" />
+	  <PackageReference Include="YoutubeExplode.Converter" Version="6.2.16" />
 	</ItemGroup>
 
 </Project>

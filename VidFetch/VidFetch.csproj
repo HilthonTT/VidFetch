@@ -53,7 +53,6 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
 		<PackageReference Include="MudBlazor" Version="6.5.0" />
-        <PackageReference Include="YoutubeExplode" Version="6.2.15" />
     </ItemGroup>
 
     <ItemGroup>
