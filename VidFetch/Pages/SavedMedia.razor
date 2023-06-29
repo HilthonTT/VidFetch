@@ -77,7 +77,7 @@
                     <MudVirtualize Items="_videos" Context="v" OverscanCount="10">
                         <VideoComponent @key="v.VideoId"
                                         Video="v"
-                                        CardSize="6"
+                                        CardSize="4"
                                         RemoveEvent="(() => DeleteVideo(v))" />
                     </MudVirtualize>
                 </MudGrid>
@@ -105,7 +105,7 @@
                     <MudVirtualize Items="_channels" Context="c" OverscanCount="10">
                         <ChannelComponent @key="c.ChannelId"
                                           Channel="c"
-                                          CardSize="6"
+                                          CardSize="4"
                                           RemoveEvent="(() => DeleteChannel(c))" />
                     </MudVirtualize>
                 </MudGrid>
@@ -133,7 +133,7 @@
                     <MudVirtualize Items="_playlists" Context="p" OverscanCount="10">
                         <PlaylistComponent @key="p.PlaylistId"
                                            Playlist="p"
-                                           CardSize="6"
+                                           CardSize="4"
                                            RemoveEvent="(() => DeletePlaylist(p))" />
                     </MudVirtualize>
                 </MudGrid>
