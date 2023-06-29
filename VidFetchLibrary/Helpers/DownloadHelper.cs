@@ -177,6 +177,7 @@ public class DownloadHelper : IDownloadHelper
         var requestBuilder = new ConversionRequestBuilder(downloadFolder)
             .SetFFmpegPath(_settings.FfmpegPath)
             .SetPreset(ConversionPreset.UltraFast)
+            .SetContainer(Container.Mp4)
             .Build();
 
         return requestBuilder;
