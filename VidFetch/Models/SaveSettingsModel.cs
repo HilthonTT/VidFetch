@@ -23,4 +23,8 @@ public class SaveSettingsModel
     [Display(Name = "Selected Format")]
     [Required(ErrorMessage = "You must set your selected format settings.")]
     public string SelectedFormat { get; set; }
+
+    [Display(Name = "Selected Resolution")]
+    [Required(ErrorMessage = "You must set your selected resolution settings")]
+    public string SelectedResolution { get; set; }
 }

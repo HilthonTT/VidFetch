@@ -51,9 +51,7 @@ public class DownloadHelper : IDownloadHelper
                 var streamManifest = await client.Videos.Streams
                     .GetManifestAsync(videoUrl, token);
 
-                var streamInfo = streamManifest
-                    .GetMuxedStreams()
-                    .GetWithHighestVideoQuality();
+                var streamInfo = GetVideoStream(streamManifest);
 
                 string sanitizedTitle = GetSanizitedFileName(video.Title);
                 string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle);
@@ -140,7 +138,7 @@ public class DownloadHelper : IDownloadHelper
             .Where(s => s.Container == Container.Mp4)
             .GetWithHighestBitrate();
 
-        videoStreamInfo = GetVideoStream(streamManifest);
+        videoStreamInfo = GetFfmpegVideoStream(streamManifest);
 
         return new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
     }
@@ -184,18 +182,18 @@ public class DownloadHelper : IDownloadHelper
         return requestBuilder;
     }
 
-    private IVideoStreamInfo GetVideoStream(StreamManifest streamManifest)
+    private IVideoStreamInfo GetFfmpegVideoStream(StreamManifest streamManifest)
     {
+        var highestVideoResolutionStream = streamManifest.GetVideoStreams()
+                    .Where(s => s.Container == Container.Mp4)
+                    .GetWithHighestVideoQuality();
         try
         {
             IVideoStreamInfo videoStreamInfo = null;
-            string a = _settings.SelectedResolution;
 
             videoStreamInfo = _settings.SelectedResolution switch
             {
-                "Highest Resolution" => streamManifest.GetVideoStreams()
-                    .Where(s => s.Container == Container.Mp4)
-                    .GetWithHighestVideoQuality(),
+                "Highest Resolution" => highestVideoResolutionStream,
 
                 _ => streamManifest.GetVideoStreams()
                     .Where(s => s.Container == Container.Mp4)
@@ -206,9 +204,34 @@ public class DownloadHelper : IDownloadHelper
         }
         catch
         {
-            return streamManifest.GetVideoStreams()
+            return highestVideoResolutionStream;
+        }
+    }
+
+    private IVideoStreamInfo GetVideoStream(StreamManifest streamManifest)
+    {
+        var highestResolutionStream = streamManifest.GetMuxedStreams()
                 .Where(s => s.Container == Container.Mp4)
                 .GetWithHighestVideoQuality();
+        try
+        {
+            IVideoStreamInfo videoStreamInfo = null;
+
+
+            videoStreamInfo = _settings.SelectedResolution switch
+            {
+                "Highest Resolution" => highestResolutionStream,
+
+                _ => streamManifest.GetMuxedStreams()
+                    .Where(s => s.Container == Container.Mp4)
+                    .First(s => s.VideoQuality.Label == _settings.SelectedResolution),
+            };
+
+            return videoStreamInfo;
+        }
+        catch
+        {
+            return highestResolutionStream;
         }
     }
 }

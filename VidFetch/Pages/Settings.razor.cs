@@ -29,6 +29,7 @@ public partial class Settings
             _settingsModel.SaveVideos = _settings.SaveVideos;
             _settingsModel.SelectedPath = _settings.SelectedPath;
             _settingsModel.SelectedFormat = _settings.SelectedFormat;
+            _settingsModel.SelectedResolution = _settings.SelectedResolution;
             _ffmpegSettingsModel.SelectedResolution = _settings.SelectedResolution;
             _ffmpegSettingsModel.FfmpegPath = _settings.FfmpegPath;
         }
@@ -62,6 +63,9 @@ public partial class Settings
             _settings.SaveVideos = _settingsModel.SaveVideos;
             _settings.SelectedPath = _settingsModel.SelectedPath;
             _settings.SelectedFormat = _settingsModel.SelectedFormat;
+            _settings.SelectedResolution = _settingsModel.SelectedResolution;
+
+            _ffmpegSettingsModel.SelectedResolution = _settings.SelectedResolution;
 
             int exitCode = await settingsData.UpdateSettingsAsync(_settings);
 
@@ -69,6 +73,8 @@ public partial class Settings
             {
                 navManager.NavigateTo("/Settings", isReload);
             }
+
+            snackbar.Add("Successfully saved settings.");
         }
         catch
         {
@@ -102,10 +108,12 @@ public partial class Settings
 
             await settingsData.UpdateSettingsAsync(s);
 
+            _settingsModel.SelectedResolution = _ffmpegSettingsModel.SelectedResolution;
+
             settingsLibrary.SelectedResolution = s.SelectedResolution;
             settingsLibrary.FfmpegPath = s.FfmpegPath;
 
-            snackbar.Add("Successfully saved settings.", Severity.Normal);
+            snackbar.Add("Successfully saved settings.");
         }
         catch
         {
