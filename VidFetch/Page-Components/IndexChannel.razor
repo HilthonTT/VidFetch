@@ -5,42 +5,39 @@
 @inject ISnackbar snackbar
 
 <MudTextField @bind-Value="_channelUrl"
-                      Class="mb-4"
-                      Label="Enter Channel URL"
-                      Variant="Variant.Outlined"
-                      Adornment="Adornment.End"
-                      AdornmentIcon="@Icons.Material.Filled.Download"
-                      OnAdornmentClick="LoadChannel"
-                      Required="true"
-                      Clearable="true" />
+              Class="mb-4"
+              Label="Enter Channel URL"
+              Variant="Variant.Outlined"
+              Adornment="Adornment.End"
+              AdornmentIcon="@Icons.Material.Filled.Download"
+              OnAdornmentClick="LoadChannel"
+              Required="true"
+              Clearable="true" />
 
-        <MudAutocomplete T="string" Label="@GetChannelSearchBarText()"
-                         Variant="Variant.Outlined"
-                         Class="mb-4"
-                         HelperText="Search the loaded channels."
-                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                         OnAdornmentClick="FilterChannels"
-                         SearchFunc="SearchChannels"
-                         ResetValueOnEmptyText="true"
-        @bind-Value="_channelSearchText" />
-        @if (_isChannelLoading)
-        {
-            <div class="text-center">
-                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-            </div>
-        }
-        <MudButton Color="Color.Warning"
-                   Variant="Variant.Filled"
-                   Class="w-100 mb-3"
-        @onclick="ClearChannels">
-            Clear Channels
-        </MudButton>
-        <MudVirtualize Items="videoLibrary.Channels" Context="c" OverscanCount="10">
-            <ChannelComponent @key="c.ChannelId"
-                              Channel="c"
-                              RemoveEvent="(() => RemoveChannel(c))" />
-        </MudVirtualize>
+<MudAutocomplete T="string" Label="@GetChannelSearchBarText()"
+                 Variant="Variant.Outlined"
+                 Class="mb-4"
+                 HelperText="Search the loaded channels."
+                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                 OnAdornmentClick="FilterChannels"
+                 SearchFunc="SearchChannels"
+                 ResetValueOnEmptyText="true"
+@bind-Value="_channelSearchText" />
+<MudButton Color="Color.Warning"
+           Variant="Variant.Filled"
+           Class="w-100 mb-3"
+@onclick="ClearChannels">
+    Clear Channels
+</MudButton>
+<MudGrid>
+    <MudVirtualize Items="videoLibrary.Channels" Context="c" OverscanCount="10">
+        <ChannelComponent @key="c.ChannelId"
+                          Channel="c"
+                          CardSize="4"
+                          RemoveEvent="(() => RemoveChannel(c))" />
+    </MudVirtualize>
+</MudGrid>
 
-    
+
 
 

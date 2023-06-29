@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using VidFetchLibrary.Models;
 
@@ -5,9 +6,13 @@ namespace VidFetch.Page_Components;
 
 public partial class IndexChannel
 {
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<bool> OpenLoading { get; set; }
+
     private string _channelUrl = "";
     private string _channelSearchText = "";
-    private bool _isChannelLoading = false;
+
     private async Task LoadChannel()
     {
         try
@@ -19,7 +24,7 @@ public partial class IndexChannel
 
             if (Uri.IsWellFormedUriString(_channelUrl, UriKind.Absolute))
             {
-                _isChannelLoading = true;
+                await OpenLoading.InvokeAsync(true);
                 var channel = await youtube.GetChannelAsync(_channelUrl);
                 bool channelIsNull = videoLibrary.Channels.FirstOrDefault(c => c.ChannelId == channel.ChannelId)is null;
                 if (channelIsNull)
@@ -27,7 +32,7 @@ public partial class IndexChannel
                     videoLibrary.Channels.Add(channel);
                 }
 
-                _isChannelLoading = false;
+                await OpenLoading.InvokeAsync(false);
             }
             else
             {
@@ -39,7 +44,7 @@ public partial class IndexChannel
         catch (Exception ex)
         {
             snackbar.Add($"Error: {ex.Message}", Severity.Error);
-            _isChannelLoading = false;
+            await OpenLoading.InvokeAsync(false);
         }
     }
 

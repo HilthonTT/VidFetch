@@ -12,6 +12,10 @@ public partial class IndexVideo
 
     [Parameter]
     [EditorRequired]
+    public EventCallback<bool> OpenLoading { get; set; }
+
+    [Parameter]
+    [EditorRequired]
     public EventCallback<string> AddVideos { get; set; }
 
 
@@ -20,7 +24,6 @@ public partial class IndexVideo
     private string _videoUrl = "";
     private string _videoSearchText = "";
     private string _currentDownloadingVideo = "";
-    private bool _isVideoLoading = false;
     private double _videosProgress = 0;
 
     private async Task LoadVideoOrPlaylistVideos()
@@ -47,12 +50,13 @@ public partial class IndexVideo
         catch (Exception ex)
         {
             snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            await OpenLoading.InvokeAsync(false);
         }
     }
 
     private async Task LoadSingleVideo()
     {
-        _isVideoLoading = true;
+        await OpenLoading.InvokeAsync(true);
         var video = await youtube.GetVideoAsync(_videoUrl);
         if (IsVideoNotLoaded(video.VideoId))
         {
@@ -64,7 +68,7 @@ public partial class IndexVideo
             await SaveVideos();
         }
 
-        _isVideoLoading = false;
+        await OpenLoading.InvokeAsync(false);
     }
 
     private async Task SaveVideos()

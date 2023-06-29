@@ -29,16 +29,13 @@
 @onclick="ClearPlaylists">
     Clear Playlists
 </MudButton>
-@if (_isPlaylistLoading)
-{
-    <div class="text-center">
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-    </div>
-}
-<MudVirtualize Items="videoLibrary.Playlists" Context="p" OverscanCount="10">
-    <PlaylistComponent @key="p.PlaylistId"
-                        Playlist="p"
-                        RemoveEvent="(() => RemovePlaylist(p))" />
-</MudVirtualize>
+<MudGrid>
+    <MudVirtualize Items="videoLibrary.Playlists" Context="p" OverscanCount="10">
+        <PlaylistComponent @key="p.PlaylistId"
+                           Playlist="p"
+                           RemoveEvent="(() => RemovePlaylist(p))"
+                           CardSize="4"/>
+    </MudVirtualize>
+</MudGrid>
 
 

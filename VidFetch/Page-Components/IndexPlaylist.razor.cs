@@ -6,8 +6,11 @@ namespace VidFetch.Page_Components;
 
 public partial class IndexPlaylist
 {
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<bool> OpenLoading { get; set; }
+
     private string _playlistSearchText = "";
-    private bool _isPlaylistLoading = false;
     private string _playlistUrl = "";
     private async Task LoadPlaylist()
     {
@@ -20,7 +23,7 @@ public partial class IndexPlaylist
 
             if (Uri.IsWellFormedUriString(_playlistUrl, UriKind.Absolute))
             {
-                _isPlaylistLoading = true;
+                await OpenLoading.InvokeAsync(true);
                 var playlist = await youtube.GetPlaylistAsync(_playlistUrl);
                 bool playlistIsNull = videoLibrary.Playlists.FirstOrDefault(p => p.PlaylistId == playlist.PlaylistId)is null;
                 if (playlistIsNull)
@@ -28,7 +31,7 @@ public partial class IndexPlaylist
                     videoLibrary.Playlists.Add(playlist);
                 }
 
-                _isPlaylistLoading = false;
+                await OpenLoading.InvokeAsync(false);
             }
             else
             {
@@ -40,7 +43,7 @@ public partial class IndexPlaylist
         catch (Exception ex)
         {
             snackbar.Add($"Error: {ex.Message}", Severity.Error);
-            _isPlaylistLoading = false;
+            await OpenLoading.InvokeAsync(false);
         }
     }
 

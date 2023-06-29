@@ -63,12 +63,6 @@
         {
             <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingVideo</MudAlert>
         }
-        @if (_isPlaylistLoading)
-        {
-            <div class="text-center">
-                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-            </div>
-        }
        <MudGrid>
             <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
                 <VideoComponent @key="v.VideoId"
@@ -100,6 +94,10 @@
 </MudDialog>
 
 @code {
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<bool> OpenLoading { get; set; }
+
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
 
     private CancellationTokenSource _playlistTokenSource;
@@ -109,7 +107,6 @@
     private string _currentDownloadingVideo = "";
     private string _firstVideoInPlaylistUrl = "";
     private bool _showDialog = false;
-    private bool _isPlaylistLoading = false;
     private double _playlistProgress = 0;
     private double _videoProgress = 0;
 
@@ -143,7 +140,7 @@
 
     private async Task LoadPlaylistVideos()
     {
-        _isPlaylistLoading = true;
+        await OpenLoading.InvokeAsync(true);
         var videos = await youtube.GetPlayListVideosAsync(_playlistUrl);
         foreach (var v in videos)
         {
@@ -158,7 +155,7 @@
             await SavePlaylistVideos();
         }
 
-        _isPlaylistLoading = false;
+        await OpenLoading.InvokeAsync(false);
     }
 
     private async Task SavePlaylistVideos()
@@ -196,6 +193,7 @@
         catch (Exception ex)
         {
             snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            await OpenLoading.InvokeAsync(false);
         }
     }
 

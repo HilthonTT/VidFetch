@@ -73,12 +73,6 @@
         {
             <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingVideo</MudAlert>
         }
-        @if (_isVideoLoading)
-        {
-            <div class="text-center">
-                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-            </div>
-        }
        <MudGrid>
             <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
                 <VideoComponent @key="v.VideoId"
