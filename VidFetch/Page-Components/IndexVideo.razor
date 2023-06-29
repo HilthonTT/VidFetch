@@ -28,14 +28,14 @@
     </MudItem>
 </MudGrid>
 <MudGrid Spacing="5">
-    <MudItem xs="6">
+    <MudItem xs="12">
         @if (_allVideosTokenSource is null)
         {
             <MudButton Color="Color.Primary"
                        Variant="Variant.Filled"
                        Class="w-100 mb-3"
             @onclick="DownloadAllVideos">
-                @GetDownloadVideoText()
+                @GetDownloadText()
             </MudButton>
         }
         else
@@ -53,7 +53,7 @@
         @onclick="ClearVideos">
             Clear Videos
         </MudButton>
-        <MudAutocomplete T="string" Label="@GetVideoSearchBarText()"
+        <MudAutocomplete T="string" Label="@GetSearchBarText()"
                          Variant="Variant.Outlined"
                          Class="mb-4"
                          HelperText="Search the loaded videos."
@@ -79,88 +79,15 @@
                 <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
             </div>
         }
-        <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
-            <VideoComponent @key="v.VideoId"
-                            Video="v"
-                            RemoveEvent="(() => RemoveVideo(v))" />
-        </MudVirtualize>
-    </MudItem>
-    <MudItem xs="6">
-        @if (_playlistTokenSource is null)
-        {
-            <MudButton Color="Color.Primary"
-                       Variant="Variant.Filled"
-                       Class="w-100 mb-3"
-            @onclick="DownloadAllPlaylists">
-                Download Playlist
-            </MudButton>
-        }
-        else
-        {
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Error"
-                       Class="w-100 mb-3"
-            @onclick="CancelPlaylistDownload">
-                Cancel
-            </MudButton>
-        }
-        <MudButton Color="Color.Warning"
-                   Variant="Variant.Filled"
-                   Class="w-100 mb-3"
-        @onclick="ClearPlaylistVideos">
-            Clear Playlist Videos
-        </MudButton>
-        <MudAutocomplete T="string" Label="@GetPlaylistVideoSearchBarText()"
-                         Variant="Variant.Outlined"
-                         Class="mb-3"
-                         HelperText="Search the loaded playlist videos."
-                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                         OnAdornmentClick="FilterPlaylistVideo"
-                         SearchFunc="SearchPlaylistVideos"
-                         ResetValueOnEmptyText="true"
-        @bind-Value="_playlistVideoSearchText" />
-        <MudProgressLinear Color="Color.Primary"
-                           Striped="true"
-                           Size="Size.Medium"
-                           Max="1"
-                           Value="@_playlistProgress"
-                           Class="my-7"
-                           Buffer="true" />
-        @if (string.IsNullOrWhiteSpace(_currentDownloadingPlaylistVideo) is false)
-        {
-            <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingPlaylistVideo</MudAlert>
-        }
-        @if (_isPlaylistLoading)
-        {
-            <div class="text-center">
-                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-            </div>
-        }
-        <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
-            <VideoComponent @key="v.Id"
-                            Video="v"
-                            Index="@GetIndex(v)"
-                            RemoveEvent="(() => RemovePlaylistVideo(v))" />
-        </MudVirtualize>
+       <MudGrid>
+            <MudVirtualize Items="videoLibrary.Videos" Context="v" OverscanCount="10">
+                <VideoComponent @key="v.VideoId"
+                                CardSize="4"
+                                Video="v"
+                                RemoveEvent="(() => RemoveVideo(v))" />
+            </MudVirtualize>
+       </MudGrid>
     </MudItem>
 </MudGrid>
-
-<MudDialog IsVisible="_showDialog" Class="backdrop-blur">
-    <DialogContent>
-        <MudText Typo="Typo.subtitle1">It appears your URL is a playlist.</MudText>
-        <MudText Typo="Typo.body1">Would you like to download your video's Url?</MudText>
-        <MudProgressLinear Color="Color.Primary"
-                           Striped="true"
-                           Size="Size.Medium"
-                           Buffer="true"
-                           Max="1"
-                           Value="@_firstPlaylistProgress"
-                           Class="my-7" />
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="(() => DownloadVideo(_firstVideoInPlaylistUrl))">Download</MudButton>
-        <MudButton OnClick="ToggleDialog">Cancel</MudButton>
-    </DialogActions>
-</MudDialog>
 
 

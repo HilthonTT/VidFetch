@@ -1,18 +1,87 @@
 ﻿@page "/PasteLinkPage"
+@inject IYoutube youtube
+@inject IVideoLibrary videoLibrary
 
 <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
     Paste A Link
     <MudIcon Icon="@Icons.Custom.Brands.YouTube" Title="Paste A Link"></MudIcon>
 </MudText>
 
-<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
-    <MudTabPanel Text="Videos">
-        <IndexVideo />
+<MudDialog @ref="_loadingDialog"
+           Options="((new DialogOptions() { NoHeader = true }))"
+           IsVisible="_isVisible"
+           Class="backdrop-blur">
+    <DialogContent>
+        <MudProgressCircular @ref="_progressCircular" Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    </DialogContent>
+</MudDialog>
+
+
+<MudTabs @ref="_tabs"
+         Elevation="2"
+         Rounded="true"
+         ApplyEffectsToContainer="true"
+         PanelClass="pa-6"
+         Centered="true">
+    <MudTabPanel @ref="_videoPanel" Text="Videos" ID=@VideoId>
+        <IndexVideo SwitchEvent="(() => Activate(PlaylistVideoId))"
+                    AddVideos="LoadPlaylistVideos" />
     </MudTabPanel>
-    <MudTabPanel Text="Channels">
+    <MudTabPanel @ref="_playlistVideoPanel" Text="Playlist Videos" ID=@PlaylistVideoId>
+        <IndexPlaylistVideo />
+    </MudTabPanel>
+    <MudTabPanel @ref="_channelPanel" Text="Channels" ID=@ChannelId>
         <IndexChannel />
     </MudTabPanel>
-    <MudTabPanel Text="Playlists">
+    <MudTabPanel @ref="_playlistPanel" Text="Playlists" ID=@PlaylistId>
         <IndexPlaylist />
     </MudTabPanel>
 </MudTabs>
+
+
+@code {
+    private const string VideoId = "Videos";
+    private const string PlaylistVideoId = "Playlists-Videos";
+    private const string ChannelId = "Channels";
+    private const string PlaylistId = "Playlists";
+
+    private bool _isVisible = false;
+
+    private MudTabs _tabs;
+    private MudTabPanel _videoPanel;
+    private MudTabPanel _playlistVideoPanel;
+    private MudTabPanel _channelPanel;
+    private MudTabPanel _playlistPanel;
+
+    private MudDialog _loadingDialog;
+    private MudProgressCircular _progressCircular;
+
+    private async Task LoadPlaylistVideos(string url)
+    {
+        ShowLoadingOverlay();
+        var videos = await youtube.GetPlayListVideosAsync(url);
+
+        foreach (var v in videos)
+        {
+            videoLibrary.PlaylistVideos.Add(v);
+        }
+
+        HideLoadingOverlay();
+        StateHasChanged();
+    }
+
+    private void Activate(object id)
+    {
+        _tabs.ActivatePanel(id);
+    }
+
+    private void ShowLoadingOverlay()
+    {
+        _isVisible = true;
+    }
+
+    private void HideLoadingOverlay()
+    {
+        _isVisible = false;
+    }
+}

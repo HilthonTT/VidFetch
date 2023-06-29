@@ -1,0 +1,314 @@
+﻿@inject IVideoLibrary videoLibrary
+@inject ISettingsLibrary settingsLibrary
+@inject IYoutube youtube
+@inject IVideoData videoData
+@inject ISnackbar snackbar
+@inject ITokenHelper tokenHelper
+@inject ISearchHelper searchHelper
+@inject IVideoLibraryHelper videoLibraryHelper
+
+<MudGrid Spacing="5">
+    <MudItem xs="12" Class="text-center">
+        <MudTextField @bind-Value="_playlistUrl"
+                      Class="mb-4"
+                      Label="Enter Playlist Url"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Download"
+                      OnAdornmentClick="LoadPlaylist"
+                      Required="true"
+                      Clearable="true"/>
+    </MudItem>
+    <MudItem xs="12">
+        @if (_playlistTokenSource is null)
+        {
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       Class="w-100 mb-3"
+            @onclick="DownloadAllPlaylists">
+                @GetDownloadText()
+            </MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Error"
+                       Variant="Variant.Filled"
+                       Class="w-100 mb-3"
+            @onclick="CancelPlaylistDownload">
+                Cancel
+            </MudButton>
+        }
+        <MudButton Color="Color.Warning"
+                   Variant="Variant.Filled"
+                   Class="w-100 mb-3"
+        @onclick="ClearPlaylistVideos">
+            Clear Videos
+        </MudButton>
+        <MudAutocomplete T="string" Label="@GetSearchBarText()"
+                         Variant="Variant.Outlined"
+                         Class="mb-4"
+                         HelperText="Search the loaded videos."
+                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                         OnAdornmentClick="FilterPlaylistVideo"
+                         SearchFunc="SearchPlaylistVideos"
+                         ResetValueOnEmptyText="true"
+        @bind-Value="_searchText" />
+        <MudProgressLinear Color="Color.Primary"
+                           Striped="true"
+                           Size="Size.Medium"
+                           Max="1"
+                           Value="@_playlistProgress"
+                           Class="my-7"
+                           Buffer="true" />
+        @if (string.IsNullOrWhiteSpace(_currentDownloadingVideo) is false)
+        {
+            <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingVideo</MudAlert>
+        }
+        @if (_isPlaylistLoading)
+        {
+            <div class="text-center">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            </div>
+        }
+       <MudGrid>
+            <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
+                <VideoComponent @key="v.VideoId"
+                                CardSize="4"
+                                Video="v"
+                                Index="GetIndex(v)"
+                                RemoveEvent="(() => RemovePlaylistVideo(v))" />
+            </MudVirtualize>
+       </MudGrid>
+    </MudItem>
+</MudGrid>
+
+<MudDialog IsVisible="_showDialog" Class="backdrop-blur">
+    <DialogContent>
+        <MudText Typo="Typo.subtitle1">It appears your URL is a playlist.</MudText>
+        <MudText Typo="Typo.body1">Would you like to download your video's Url?</MudText>
+        <MudProgressLinear Color="Color.Primary"
+                           Striped="true"
+                           Size="Size.Medium"
+                           Buffer="true"
+                           Max="1"
+                           Value="@_videoProgress"
+                           Class="my-7" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="(() => DownloadVideo(_firstVideoInPlaylistUrl))">Download</MudButton>
+        <MudButton OnClick="(() => _showDialog = !_showDialog)">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
+
+    private CancellationTokenSource _playlistTokenSource;
+    private CancellationTokenSource _videoTokenSource;
+    private string _playlistUrl = "";
+    private string _searchText = "";
+    private string _currentDownloadingVideo = "";
+    private string _firstVideoInPlaylistUrl = "";
+    private bool _showDialog = false;
+    private bool _isPlaylistLoading = false;
+    private double _playlistProgress = 0;
+    private double _videoProgress = 0;
+
+    private async Task LoadPlaylist()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_playlistUrl))
+            {
+                return;
+            }
+
+            if (IsUrlPlaylist())
+            {
+                await LoadPlaylistVideos();
+                _showDialog = true;
+                _firstVideoInPlaylistUrl = _playlistUrl;
+            }
+            else
+            {
+                snackbar.Add("Please enter a playlist url.");
+            }
+
+            _playlistUrl = "";
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task LoadPlaylistVideos()
+    {
+        _isPlaylistLoading = true;
+        var videos = await youtube.GetPlayListVideosAsync(_playlistUrl);
+        foreach (var v in videos)
+        {
+            if (IsVideoNotLoaded(v.VideoId))
+            {
+                videoLibrary.PlaylistVideos.Add(v);
+            }
+        }
+
+        if (settingsLibrary.SaveVideos)
+        {
+            await SavePlaylistVideos();
+        }
+
+        _isPlaylistLoading = false;
+    }
+
+    private async Task SavePlaylistVideos()
+    {
+        foreach (var v in videoLibrary.PlaylistVideos)
+        {
+            await videoData.SetVideoAsync(v.Url, v.VideoId);
+        }
+    }
+
+    private async Task DownloadAllPlaylists()
+    {
+        try
+        {
+            if (File.Exists(settingsLibrary.FfmpegPath) is false)
+            {
+                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+            }
+
+            var cancellationToken = tokenHelper.InitializeToken(ref _playlistTokenSource);
+            var progressReport = new Progress<double>(value =>
+            {
+                UpdateProgress(ref _playlistProgress, value);
+            });
+            foreach (var v in videoLibrary.PlaylistVideos)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                _currentDownloadingVideo = v.Title;
+                await youtube.DownloadVideoAsync(v.Url, progressReport, cancellationToken);
+                AddSnackbar(v.Title);
+            }
+
+            CancelPlaylistDownload();
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task DownloadVideo(string url)
+    {
+        try
+        {
+            if (File.Exists(settingsLibrary.FfmpegPath) is false)
+            {
+                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+            }
+
+            var cancellationToken = tokenHelper.InitializeToken(ref _videoTokenSource);
+            var progressReport = new Progress<double>(value =>
+            {
+                UpdateProgress(ref _videoProgress, value);
+            });
+            await youtube.DownloadVideoAsync(url, progressReport, cancellationToken);
+            CancelVideoDownload();
+        }
+        catch (Exception ex)
+        {
+            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task<IEnumerable<string>> SearchPlaylistVideos(string searchInput)
+    {
+        return await searchHelper.SearchAsync(videoLibrary.PlaylistVideos, searchInput);
+    }
+
+    private void FilterPlaylistVideo()
+    {
+        videoLibrary.PlaylistVideos = searchHelper.FilterList(videoLibrary.PlaylistVideos, _searchText);
+    }
+
+    private void UpdateProgress(ref double progressVariable, double value)
+    {
+        progressVariable = value;
+        StateHasChanged();
+    }
+
+    private void CancelPlaylistDownload()
+    {
+        tokenHelper.CancelRequest(ref _playlistTokenSource);
+        _playlistProgress = 0;
+        _currentDownloadingVideo = "";
+    }
+
+    private void CancelVideoDownload()
+    {
+        tokenHelper.CancelRequest(ref _videoTokenSource);
+    }
+
+    private void AddSnackbar(string title)
+    {
+        snackbar.Add($"Successfully downloaded {title}", Severity.Normal);
+    }
+
+    private void ClearPlaylistVideos()
+    {
+        videoLibraryHelper.ClearPlaylistVideos(ref _playlistProgress);
+    }
+
+    private void RemovePlaylistVideo(VideoModel video)
+    {
+        var v = videoLibrary.PlaylistVideos.FirstOrDefault(v => v.VideoId == video.VideoId || v.Url == video.Url);
+        videoLibraryHelper.RemovePlaylistVideo(v);
+    }
+
+    private bool IsUrlPlaylist()
+    {
+        return Uri.IsWellFormedUriString(_playlistUrl, UriKind.Absolute) && _playlistUrl.Contains("list=");
+    }
+
+    private bool IsVideoNotLoaded(string videoId)
+    {
+        return videoLibrary.Videos.Any(v => v.VideoId == videoId) is false;
+    }
+
+    private int GetIndex(VideoModel playlistVideo)
+    {
+        int index = videoLibrary.PlaylistVideos.IndexOf(playlistVideo);
+        return index + 1;
+    }
+
+    private string GetDownloadText()
+    {
+        if (videoLibrary.PlaylistVideos?.Count <= 0)
+        {
+            return "Download Video";
+        }
+
+        if (videoLibrary.PlaylistVideos?.Count == 1)
+        {
+            return "Download 1 Video";
+        }
+
+        return $"Download {videoLibrary.PlaylistVideos?.Count} Videos";
+    }
+
+    private string GetSearchBarText()
+    {
+        if (videoLibrary?.PlaylistVideos.Count <= 0)
+        {
+            return "Search Video";
+        }
+
+        if (videoLibrary.PlaylistVideos?.Count == 1)
+        {
+            return "Search 1 Video";
+        }
+
+        return $"Search {videoLibrary.PlaylistVideos?.Count} Videos";
+    }
+}
