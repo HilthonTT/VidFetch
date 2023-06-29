@@ -35,7 +35,7 @@ public partial class IndexPlaylist
             }
             else
             {
-                snackbar.Add("Invalid Url", Severity.Warning);
+                snackbar.Add("Invalid Url", Severity.Error);
             }
 
             _playlistUrl = "";

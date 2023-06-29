@@ -12,7 +12,6 @@ public partial class SavedMedia
     private string _videoSearchText = "";
     private string _channelSearchText = "";
     private string _playlistSearchText = "";
-    private string _errorMessage = "";
     private string _currentDownloadingVideo = "";
     private double _videosProgress = 0;
     private bool _isVideosLoading = true;
@@ -48,13 +47,12 @@ public partial class SavedMedia
     {
         if (_videos?.Count <= 0)
         {
-            _errorMessage = "No videos are available.";
+            snackbar.Add("No videos are available.");
             return;
         }
 
         try
         {
-            _errorMessage = "";
             var cancellationToken = tokenHelper.InitializeToken(ref _allVideosTokenSource);
 
             var progressReport = new Progress<double>(value =>
@@ -72,7 +70,7 @@ public partial class SavedMedia
                     progressReport,
                     cancellationToken);
 
-                AddSnackbar(v.Title);
+                snackbar.Add($"Successfully downloaded {v.Title}");
             }
 
             _currentDownloadingVideo = "";
@@ -80,7 +78,7 @@ public partial class SavedMedia
         }
         catch (Exception ex)
         {
-            _errorMessage = $"There was an issue downloading your videos: {ex.Message}";
+            snackbar.Add($"There was an issue downloading your videos: {ex.Message}", Severity.Error);
         }
     }
 
@@ -150,11 +148,6 @@ public partial class SavedMedia
     private void FilterPlaylists()
     {
         _playlists = searchHelper.FilterList(_playlists, _playlistSearchText);
-    }
-
-    private void AddSnackbar(string title)
-    {
-        snackbar.Add($"Successfully downloaded {title}", Severity.Normal);
     }
 
     private void UpdateProgress(ref double progressVariable, double value)

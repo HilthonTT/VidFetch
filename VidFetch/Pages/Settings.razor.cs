@@ -12,7 +12,6 @@ public partial class Settings
     private List<string> _paths = new();
     private List<string> _formats = new();
     private List<string> _resolutions = new();
-    private string _errorMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -56,7 +55,7 @@ public partial class Settings
     {
         try
         {
-            bool isReload = _settingsModel.IsDarkMode == settingsLibrary.IsDarkMode ? false : true;
+            bool isReload = _settingsModel.IsDarkMode != settingsLibrary.IsDarkMode;
 
             _settings.IsDarkMode = _settingsModel.IsDarkMode;
             _settings.DownloadSubtitles = _settingsModel.DownloadSubtitles;
@@ -73,7 +72,7 @@ public partial class Settings
         }
         catch
         {
-            _errorMessage = "Failed to save settings.";
+            snackbar.Add("Failed to save settings.", Severity.Error);
         }
     }
 
@@ -82,11 +81,9 @@ public partial class Settings
     {
         try
         {
-            _errorMessage = "";
-
             if (IsValidPath() is false)
             {
-                _errorMessage = "Your ffmpeg path doesn't exist.";
+                snackbar.Add("Your ffmpeg path doesn't exist.", Severity.Error);
                 _ffmpegSettingsModel.FfmpegPath = "";
                 return;
             }
@@ -112,7 +109,7 @@ public partial class Settings
         }
         catch
         {
-            _errorMessage = "Failed to save settings.";
+            snackbar.Add("Failed to save settings.", Severity.Error);
         }
     }
 

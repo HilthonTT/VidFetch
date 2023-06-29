@@ -5,12 +5,6 @@
 @inject ISnackbar snackbar
 @inject NavigationManager navManager
 
-
-@if (string.IsNullOrWhiteSpace(_errorMessage) is false)
-{
-    <MudAlert Severity="Severity.Error" Class="mb-6">@_errorMessage</MudAlert>
-}
-
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
     <MudTabPanel Text="App Settings">
         <MudCard>

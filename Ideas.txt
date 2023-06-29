@@ -13,7 +13,3 @@ https://github.com/Tyrrrz/YoutubeExplode/tree/master/YoutubeExplode.Converter
 	  if the path exists set it to use ffmpeg conversion 
 	  otherwise 
 	  use default muxed-streams from YoutubeExplode.
-
-* Move Index Html and code into different page component
-
-* Move code for settings in MainLayout to Home Page to find the code easier.
