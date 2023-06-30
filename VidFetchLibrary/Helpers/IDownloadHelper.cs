@@ -3,5 +3,5 @@
 namespace VidFetchLibrary.Helpers;
 public interface IDownloadHelper
 {
-    Task DownloadVideoAsync(YoutubeClient client, string videoUrl, IProgress<double> progress, CancellationToken token);
+    Task DownloadVideoAsync(YoutubeClient client, string videoUrl, IProgress<double> progress, CancellationToken token, bool isPlaylist = false, string playlistTitle = "");
 }

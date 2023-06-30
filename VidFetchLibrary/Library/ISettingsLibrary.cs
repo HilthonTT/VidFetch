@@ -10,4 +10,5 @@ public interface ISettingsLibrary
     string SelectedFormat { get; set; }
     string SelectedResolution { get; set; }
     string FfmpegPath { get; set; }
+    bool CreateSubDirectoryPlaylist { get; set; }
 }

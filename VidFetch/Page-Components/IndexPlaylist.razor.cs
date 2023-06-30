@@ -12,6 +12,7 @@ public partial class IndexPlaylist
 
     private string _playlistSearchText = "";
     private string _playlistUrl = "";
+
     private async Task LoadPlaylist()
     {
         try
@@ -24,9 +25,10 @@ public partial class IndexPlaylist
             if (Uri.IsWellFormedUriString(_playlistUrl, UriKind.Absolute))
             {
                 await OpenLoading.InvokeAsync(true);
+
                 var playlist = await youtube.GetPlaylistAsync(_playlistUrl);
-                bool playlistIsNull = videoLibrary.Playlists.FirstOrDefault(p => p.PlaylistId == playlist.PlaylistId)is null;
-                if (playlistIsNull)
+
+                if (IsPlaylistNull(playlist))
                 {
                     videoLibrary.Playlists.Add(playlist);
                 }
@@ -81,5 +83,10 @@ public partial class IndexPlaylist
         }
 
         return $"Search {videoLibrary.Playlists?.Count} Playlists";
+    }
+
+    private bool IsPlaylistNull(PlaylistModel playlist)
+    {
+        return videoLibrary.Playlists.FirstOrDefault(p => p.PlaylistId == playlist.PlaylistId) is null;
     }
 }

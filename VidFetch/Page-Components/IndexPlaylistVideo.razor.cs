@@ -8,11 +8,16 @@ public partial class IndexPlaylistVideo
 {
     [Parameter]
     [EditorRequired]
+    public string PlaylistUrl { get; set; }
+
+    [Parameter]
+    [EditorRequired]
     public EventCallback<bool> OpenLoading { get; set; }
 
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
     private CancellationTokenSource _playlistTokenSource;
     private CancellationTokenSource _videoTokenSource;
+    private PlaylistModel _playlist = new();
     private string _playlistUrl = "";
     private string _searchText = "";
     private string _currentDownloadingVideo = "";
@@ -20,7 +25,15 @@ public partial class IndexPlaylistVideo
     private bool _showDialog = false;
     private double _playlistProgress = 0;
     private double _videoProgress = 0;
-    
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(PlaylistUrl) is false)
+        {
+            _playlist = await youtube.GetPlaylistAsync(PlaylistUrl);
+        }
+    }
+
     private async Task LoadPlaylist()
     {
         try
@@ -81,21 +94,31 @@ public partial class IndexPlaylistVideo
     {
         try
         {
-            if (File.Exists(settingsLibrary.FfmpegPath)is false)
+            if (File.Exists(settingsLibrary.FfmpegPath) is false)
             {
                 snackbar.Add(FfmpegErrorMessage, Severity.Warning);
             }
 
             var cancellationToken = tokenHelper.InitializeToken(ref _playlistTokenSource);
+
             var progressReport = new Progress<double>(value =>
             {
                 UpdateProgress(ref _playlistProgress, value);
             });
+
             foreach (var v in videoLibrary.PlaylistVideos)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 _currentDownloadingVideo = v.Title;
-                await youtube.DownloadVideoAsync(v.Url, progressReport, cancellationToken);
+
+
+                await youtube.DownloadVideoAsync(
+                    v.Url,
+                    progressReport,
+                    cancellationToken,
+                    true,
+                    _playlist.Title);
+
                 AddSnackbar(v.Title);
             }
 

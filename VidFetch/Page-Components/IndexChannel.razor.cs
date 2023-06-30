@@ -16,7 +16,7 @@ public partial class IndexChannel
     private async Task LoadChannel()
     {
         try
-        {;
+        {
             if (string.IsNullOrWhiteSpace(_channelUrl))
             {
                 return;
@@ -25,9 +25,10 @@ public partial class IndexChannel
             if (Uri.IsWellFormedUriString(_channelUrl, UriKind.Absolute))
             {
                 await OpenLoading.InvokeAsync(true);
+
                 var channel = await youtube.GetChannelAsync(_channelUrl);
-                bool channelIsNull = videoLibrary.Channels.FirstOrDefault(c => c.ChannelId == channel.ChannelId)is null;
-                if (channelIsNull)
+
+                if (IsChannelNull(channel))
                 {
                     videoLibrary.Channels.Add(channel);
                 }
@@ -82,5 +83,10 @@ public partial class IndexChannel
         }
 
         return $"Search {videoLibrary.Channels?.Count} Channels";
+    }
+
+    private bool IsChannelNull(ChannelModel channel)
+    {
+        return videoLibrary.Channels.FirstOrDefault(c => c.ChannelId == channel.ChannelId) is null;
     }
 }

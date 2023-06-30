@@ -2,6 +2,7 @@
 
 public interface IPathHelper
 {
-    string GetVideoDownloadPath(string title);
+    string GetSanizitedFileName(string fileName);
+    string GetVideoDownloadPath(string title, bool isPlaylist = false, string playlistTitle = "");
     string OpenFolderLocation();
 }

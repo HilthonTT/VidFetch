@@ -26,10 +26,13 @@
     <MudTabPanel @ref="_videoPanel" Text="Videos" ID=@VideoId>
         <IndexVideo SwitchEvent="(() => Activate(PlaylistVideoId))"
                     AddVideos="LoadPlaylistVideos"
-                    OpenLoading="ToggleLoadingOverlay" />
+                    OpenLoading="ToggleLoadingOverlay"
+                    GetPlaylistUrl="GetPlaylistUrl"/>
     </MudTabPanel>
     <MudTabPanel @ref="_playlistVideoPanel" Text="Playlist Videos" ID=@PlaylistVideoId>
-        <IndexPlaylistVideo OpenLoading="ToggleLoadingOverlay" />
+        <IndexPlaylistVideo 
+            PlaylistUrl="@_playlistUrl" 
+            OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
     <MudTabPanel @ref="_channelPanel" Text="Channels" ID=@ChannelId>
         <IndexChannel OpenLoading="ToggleLoadingOverlay" />

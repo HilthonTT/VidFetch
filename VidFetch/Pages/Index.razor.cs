@@ -8,6 +8,7 @@ public partial class Index
     private const string PlaylistVideoId = "Playlists-Videos";
     private const string ChannelId = "Channels";
     private const string PlaylistId = "Playlists";
+    private string _playlistUrl = "";
     private bool _isVisible = false;
     private MudTabs _tabs;
     private MudTabPanel _videoPanel;
@@ -38,5 +39,10 @@ public partial class Index
     private void ToggleLoadingOverlay(bool show)
     {
         _isVisible = show;
+    }
+
+    private void GetPlaylistUrl(string url)
+    {
+        _playlistUrl = url;
     }
 }

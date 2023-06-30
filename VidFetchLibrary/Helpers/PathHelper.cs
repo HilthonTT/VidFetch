@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using VidFetchLibrary.Library;
+﻿using VidFetchLibrary.Library;
 
 namespace VidFetchLibrary.Helpers;
 public class PathHelper : IPathHelper
@@ -11,13 +10,19 @@ public class PathHelper : IPathHelper
         _settings = settings;
     }
 
-    public string GetVideoDownloadPath(string title)
+    public string GetVideoDownloadPath(string title, bool isPlaylist = false, string playlistTitle = "")
     {
         return _settings.SelectedPath switch
         {
-            "Download Folder" => GetDownloadPath(title, _settings.SelectedFormat),
-            _ => GetSelectedPath(title, _settings.SelectedFormat, _settings.SelectedPath),
+            "Download Folder" => GetDownloadPath(title, _settings.SelectedFormat, isPlaylist, playlistTitle),
+            _ => GetSelectedPath(title, _settings.SelectedFormat, _settings.SelectedPath, isPlaylist, playlistTitle),
         };
+    }
+
+    public string GetSanizitedFileName(string fileName)
+    {
+        char[] invalidChars = Path.GetInvalidFileNameChars();
+        return string.Concat(fileName.Select(c => invalidChars.Contains(c) ? '_' : c));
     }
 
     public string OpenFolderLocation() 
@@ -29,17 +34,60 @@ public class PathHelper : IPathHelper
         };
     }
 
-    private static string GetDownloadPath(string title, string extension)
+    private string GetDownloadPath(
+        string title,
+        string extension,
+        bool isPlaylist = false,
+        string playlistTitle = "")
     {
+        title = GetSanizitedFileName(title);
+
         string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         string fileName = title + extension;
+
+        if (isPlaylist)
+        {
+            playlistTitle = GetSanizitedFileName(playlistTitle);
+            string videoFolder = OpenFolderLocation();
+            string videoFolderPath = Path.Combine(videoFolder, playlistTitle);
+
+            if (Directory.Exists(videoFolderPath) is false)
+            {
+                Directory.CreateDirectory(videoFolderPath);
+            }
+
+            return Path.Combine(videoFolderPath, fileName);
+        }
+
         return Path.Combine(userFolder, "Downloads", fileName);
     }
 
-    private static string GetSelectedPath(string title, string extension, string path)
+    private string GetSelectedPath(
+        string title,
+        string extension,
+        string path,
+        bool isPlaylist = false,
+        string playlistTitle = "")
     {
+        title = GetSanizitedFileName(title);
+
         string downloadsFolder = Environment.GetFolderPath(GetFolder(path));
         string fileName = title + extension;
+
+        if (isPlaylist)
+        {
+            playlistTitle = GetSanizitedFileName(playlistTitle);
+            string videoFolder = OpenFolderLocation();
+            string videoFolderPath = Path.Combine(videoFolder, playlistTitle);
+
+            if (Directory.Exists(videoFolderPath) is false)
+            {
+                Directory.CreateDirectory(videoFolderPath);
+            }
+
+            return Path.Combine(videoFolderPath, fileName);
+        }
+
         return Path.Combine(downloadsFolder, fileName);
     }
 

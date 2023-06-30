@@ -34,7 +34,9 @@ public class Youtube : IYoutube
     public async Task DownloadVideoAsync(
         string url,
         IProgress<double> progress,
-        CancellationToken token)
+        CancellationToken token,
+        bool isPlaylist = false,
+        string playlistTitle = "")
     { 
         var youtube = new YoutubeClient();
 
@@ -42,7 +44,9 @@ public class Youtube : IYoutube
             youtube,
             url,
             progress,
-            token);
+            token,
+            isPlaylist,
+            playlistTitle);
     }
 
     public async Task<List<VideoModel>> GetPlayListVideosAsync(string url)

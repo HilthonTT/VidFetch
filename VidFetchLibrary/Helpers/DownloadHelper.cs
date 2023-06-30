@@ -32,7 +32,9 @@ public class DownloadHelper : IDownloadHelper
         YoutubeClient client,
         string videoUrl,
         IProgress<double> progress,
-        CancellationToken token)
+        CancellationToken token,
+        bool isPlaylist = false,
+        string playlistTitle = "")
     {
         try
         {
@@ -42,7 +44,7 @@ public class DownloadHelper : IDownloadHelper
             if (File.Exists(_settings.FfmpegPath))
             {
                 var streamInfos = await LoadStreamInfosAsync(client, video, token);
-                var conversionRequest = GetRequestBuilder(video);
+                var conversionRequest = GetRequestBuilder(video, isPlaylist, playlistTitle);
 
                 await client.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
             }
@@ -53,8 +55,7 @@ public class DownloadHelper : IDownloadHelper
 
                 var streamInfo = GetVideoStream(streamManifest);
 
-                string sanitizedTitle = GetSanizitedFileName(video.Title);
-                string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle);
+                string downloadFolder = _pathHelper.GetVideoDownloadPath(video.Title, isPlaylist, playlistTitle);
 
                 await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, token);
             }
@@ -87,7 +88,7 @@ public class DownloadHelper : IDownloadHelper
         }
 
         string videoFolder = _pathHelper.OpenFolderLocation();
-        string sanitizedVideoTitle = GetSanizitedFileName(video.Title);
+        string sanitizedVideoTitle = _pathHelper.GetSanizitedFileName(video.Title);
         string videoFolderPath = Path.Combine(videoFolder, sanitizedVideoTitle);
 
         if (Directory.Exists(videoFolderPath) is false)
@@ -97,7 +98,7 @@ public class DownloadHelper : IDownloadHelper
 
         foreach (var s in subtitleinfo)
         {
-            string sanitizedSubtitle = GetSanizitedFileName($"{s.Language}");
+            string sanitizedSubtitle = _pathHelper.GetSanizitedFileName($"{s.Language}");
             string subtitleDownloadFolder = Path.Combine(videoFolderPath, $"{sanitizedSubtitle}.vtt");
             await client.Videos.ClosedCaptions.DownloadAsync(s, subtitleDownloadFolder, cancellationToken: token);
         }
@@ -162,17 +163,10 @@ public class DownloadHelper : IDownloadHelper
 
         return output;
     }
-
-    private static string GetSanizitedFileName(string fileName)
-    {
-        char[] invalidChars = Path.GetInvalidFileNameChars();
-        return string.Concat(fileName.Select(c => invalidChars.Contains(c) ? '_' : c));
-    }
          
-    private ConversionRequest GetRequestBuilder(Video video)
+    private ConversionRequest GetRequestBuilder(Video video, bool isPlaylist, string playlistTitle)
     {
-        string sanitizedTitle = GetSanizitedFileName(video.Title);
-        string downloadFolder = _pathHelper.GetVideoDownloadPath(sanitizedTitle);
+        string downloadFolder = _pathHelper.GetVideoDownloadPath(video.Title, isPlaylist, playlistTitle);
 
         var requestBuilder = new ConversionRequestBuilder(downloadFolder)
             .SetFFmpegPath(_settings.FfmpegPath)

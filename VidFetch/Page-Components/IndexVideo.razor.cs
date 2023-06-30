@@ -12,6 +12,10 @@ public partial class IndexVideo
 
     [Parameter]
     [EditorRequired]
+    public EventCallback<string> GetPlaylistUrl { get; set; }
+
+    [Parameter]
+    [EditorRequired]
     public EventCallback<bool> OpenLoading { get; set; }
 
     [Parameter]
@@ -37,7 +41,9 @@ public partial class IndexVideo
 
             if (IsPlaylistUrl())
             {
+                await GetPlaylistUrl.InvokeAsync(_videoUrl);
                 await AddVideos.InvokeAsync(_videoUrl);
+
                 await SwitchEvent.InvokeAsync();
             }
             else
@@ -58,6 +64,7 @@ public partial class IndexVideo
     {
         await OpenLoading.InvokeAsync(true);
         var video = await youtube.GetVideoAsync(_videoUrl);
+
         if (IsVideoNotLoaded(video.VideoId))
         {
             videoLibrary.Videos.Add(video);
@@ -89,15 +96,22 @@ public partial class IndexVideo
             }
 
             var cancellationToken = tokenHelper.InitializeToken(ref _allVideosTokenSource);
+
             var progressReport = new Progress<double>(value =>
             {
                 UpdateProgress(ref _videosProgress, value);
             });
+
             foreach (var v in videoLibrary.Videos)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 _currentDownloadingVideo = v.Title;
-                await youtube.DownloadVideoAsync(v.Url, progressReport, cancellationToken);
+
+                await youtube.DownloadVideoAsync(
+                    v.Url,
+                    progressReport,
+                    cancellationToken);
+
                 AddSnackbar(v.Title);
             }
 
