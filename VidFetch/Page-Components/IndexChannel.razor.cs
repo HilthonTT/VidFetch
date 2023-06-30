@@ -80,18 +80,25 @@ public partial class IndexChannel
 
     private void FilterChannels()
     {
-        videoLibrary.Channels = searchHelper.FilterList(videoLibrary.Channels, _channelSearchText);
+        videoLibrary.Channels = searchHelper
+            .FilterList(videoLibrary.Channels, _channelSearchText);
+
+        _visibleChannels = searchHelper
+            .FilterList(videoLibrary.Channels, _channelSearchText)
+            .Take(_loadedItems)
+            .ToList();
     }
 
     private void ClearChannels()
     {
         videoLibraryHelper.ClearChannels();
+        _visibleChannels.Clear();
     }
 
     private void RemoveChannel(ChannelModel channel)
     {
-        var c = videoLibrary.Channels.FirstOrDefault(c => c.ChannelId == channel.ChannelId || c.Url == channel.Url);
-        videoLibraryHelper.RemoveChannel(c);
+        videoLibraryHelper.RemoveChannel(channel);
+        _visibleChannels.Remove(channel);
     }
 
     private string GetChannelSearchBarText()

@@ -184,7 +184,12 @@ public partial class IndexPlaylistVideo
 
     private void FilterPlaylistVideo()
     {
-        videoLibrary.PlaylistVideos = searchHelper.FilterList(videoLibrary.PlaylistVideos, _searchText);
+        videoLibrary.PlaylistVideos = searchHelper
+            .FilterList(videoLibrary.PlaylistVideos, _searchText);
+
+        _visibleVideos = searchHelper.FilterList(videoLibrary.PlaylistVideos, _searchText)
+            .Take(_loadedItems)
+            .ToList();
     }
 
     private void UpdateProgress(ref double progressVariable, double value)
@@ -213,12 +218,13 @@ public partial class IndexPlaylistVideo
     private void ClearPlaylistVideos()
     {
         videoLibraryHelper.ClearPlaylistVideos(ref _playlistProgress);
+        _visibleVideos.Clear();
     }
 
     private void RemovePlaylistVideo(VideoModel video)
     {
-        var v = videoLibrary.PlaylistVideos.FirstOrDefault(v => v.VideoId == video.VideoId || v.Url == video.Url);
-        videoLibraryHelper.RemovePlaylistVideo(v);
+        videoLibraryHelper.RemovePlaylistVideo(video);
+        _visibleVideos.Remove(video);
     }
 
     private bool IsUrlPlaylist()

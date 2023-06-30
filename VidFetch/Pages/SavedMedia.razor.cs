@@ -148,35 +148,23 @@ public partial class SavedMedia
 
     private async Task DeleteVideo(VideoModel video)
     {
-        var v = _videos.First(v => v.VideoId == video.VideoId || v.Url == video.Url);
-
-        if (v is not null)
-        {
-            _videos.Remove(v);
-            await videoData.DeleteVideoAsync(v);
-        }
+        _videos.Remove(video);
+        _visibleVideos.Remove(video);
+        await videoData.DeleteVideoAsync(video);
     }
 
     private async Task DeleteChannel(ChannelModel channel)
     {
-        var c = _channels.First(c => c.ChannelId == channel.ChannelId || c.Url == channel.Url);
-
-        if (c is not null)
-        {
-            _channels.Remove(c);
-            await channelData.DeleteChannelAsync(c);
-        }
+        _channels.Remove(channel);
+        _visibleChannels.Remove(channel);
+        await channelData.DeleteChannelAsync(channel);
     }
 
     private async Task DeletePlaylist(PlaylistModel playlist)
     {
-        var p = _playlists.First(p => p.PlaylistId == playlist.PlaylistId || p.Url == playlist.Url);
-
-        if (p is not null)
-        {
-            _playlists.Remove(p);
-            await playlistData.DeletePlaylistAsync(p);
-        }
+        _playlists.Remove(playlist);
+        _visiblePlaylists.Remove(playlist);
+        await playlistData.DeletePlaylistAsync(playlist);
     }
 
     private async Task<IEnumerable<string>> SearchVideos(string searchInput)
@@ -201,17 +189,35 @@ public partial class SavedMedia
 
     private void FilterVideos()
     {
-        _videos = searchHelper.FilterList(_videos, _videoSearchText);
+        _videos = searchHelper
+            .FilterList(_videos, _videoSearchText);
+
+        _visibleVideos = searchHelper
+            .FilterList(_videos, _videoSearchText)
+            .Take(_loadedVideos)
+            .ToList();
     }
 
     private void FilterChannels()
     {
-        _channels = searchHelper.FilterList(_channels, _channelSearchText);
+        _channels = searchHelper
+            .FilterList(_channels, _channelSearchText);
+
+        _visibleChannels = searchHelper
+            .FilterList(_channels, _channelSearchText)
+            .Take(_loadedChannels)
+            .ToList();
     }
 
     private void FilterPlaylists()
     {
-        _playlists = searchHelper.FilterList(_playlists, _playlistSearchText);
+        _playlists = searchHelper
+            .FilterList(_playlists, _playlistSearchText);
+
+        _visiblePlaylists = searchHelper
+            .FilterList(_playlists, _playlistSearchText)
+            .Take(_loadedPlaylists)
+            .ToList();
     }
 
     private void UpdateProgress(ref double progressVariable, double value)

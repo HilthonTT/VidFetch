@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using System.Text.RegularExpressions;
-using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Pages;
@@ -114,6 +113,7 @@ public partial class Playlist
     private void RemoveVideo(VideoModel video)
     {
         _videos.Remove(video);
+        _visibleVideos.Remove(video);
     }
 
     [GeneratedRegex("list=([A-Za-z0-9_-]+)")]

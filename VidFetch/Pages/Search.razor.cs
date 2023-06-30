@@ -21,9 +21,17 @@ public partial class Search
 
     protected override void OnInitialized()
     {
-        _visibleVideos = videoLibrary.VideoResults.Take(_loadedVideos).ToList();
-        _visibleChannels = videoLibrary.ChannelResults.Take(_loadedChannels).ToList();
-        _visiblePlaylists = videoLibrary.PlaylistResults.Take(_loadedPlaylists).ToList();
+        _visibleVideos = videoLibrary.VideoResults
+            .Take(_loadedVideos)
+            .ToList();
+
+        _visibleChannels = videoLibrary.ChannelResults
+            .Take(_loadedChannels)
+            .ToList();
+
+        _visiblePlaylists = videoLibrary.PlaylistResults
+            .Take(_loadedPlaylists)
+            .ToList();
     }
 
     private void LoadMoreVideos()
@@ -73,7 +81,7 @@ public partial class Search
 
     private async Task SearchVideos()
     {
-        if (string.IsNullOrWhiteSpace(_videoSearchText)is false)
+        if (string.IsNullOrWhiteSpace(_videoSearchText) is false)
         {
             var token = tokenHelper.InitializeToken(ref _videoTokenSource);
             videoLibrary.VideoResults = await youtube.GetVideosBySearchAsync(_videoSearchText, token);
@@ -85,7 +93,7 @@ public partial class Search
 
     private async Task SearchPlaylists()
     {
-        if (string.IsNullOrWhiteSpace(_playlistSearchText)is false)
+        if (string.IsNullOrWhiteSpace(_playlistSearchText) is false)
         {
             var token = tokenHelper.InitializeToken(ref _playlistTokenSource);
             videoLibrary.PlaylistResults = await youtube.GetPlaylistsBySearchAsync(_playlistSearchText, token);
@@ -97,7 +105,7 @@ public partial class Search
 
     private async Task SearchChannels()
     {
-        if (string.IsNullOrWhiteSpace(_channelSearchText)is false)
+        if (string.IsNullOrWhiteSpace(_channelSearchText) is false)
         {
             var token = tokenHelper.InitializeToken(ref _channelTokenSource);
             videoLibrary.ChannelResults = await youtube.GetChannelBySearchAsync(_channelSearchText, token);
@@ -129,32 +137,53 @@ public partial class Search
 
     private void FilterVideos()
     {
-        videoLibrary.VideoResults = searchHelper.FilterList(videoLibrary.VideoResults, _videoSearchText);
+        videoLibrary.VideoResults = searchHelper
+            .FilterList(videoLibrary.VideoResults, _videoSearchText);
+
+        _visibleVideos = searchHelper
+            .FilterList(videoLibrary.VideoResults, _videoSearchText)
+            .Take(_loadedVideos)
+            .ToList();
     }
 
     private void FilterChannels()
     {
-        videoLibrary.ChannelResults = searchHelper.FilterList(videoLibrary.ChannelResults, _channelSearchText);
+        videoLibrary.ChannelResults = searchHelper
+            .FilterList(videoLibrary.ChannelResults, _channelSearchText);
+
+        _visibleChannels = searchHelper
+            .FilterList(videoLibrary.ChannelResults, _channelSearchText)
+            .Take(_loadedChannels)
+            .ToList();
     }
 
     private void FilterPlaylists()
     {
-        videoLibrary.PlaylistResults = searchHelper.FilterList(videoLibrary.PlaylistResults, _playlistSearchText);
+        videoLibrary.PlaylistResults = searchHelper
+            .FilterList(videoLibrary.PlaylistResults, _playlistSearchText);
+
+        _visiblePlaylists = searchHelper
+            .FilterList(videoLibrary.PlaylistResults, _playlistSearchText)
+            .Take(_loadedPlaylists)
+            .ToList();
     }
 
     private void RemoveVideo(VideoModel video)
     {
         videoLibrary.VideoResults.Remove(video);
+        _visibleVideos.Remove(video);
     }
 
     private void RemoveChannel(ChannelModel channel)
     {
         videoLibrary.ChannelResults.Remove(channel);
+        _visibleChannels.Remove(channel);
     }
 
     private void RemovePlaylist(PlaylistModel playlist)
     {
         videoLibrary.PlaylistResults.Remove(playlist);
+        _visiblePlaylists.Remove(playlist);
     }
 
     private void CancelVideoSearch()

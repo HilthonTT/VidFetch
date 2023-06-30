@@ -80,18 +80,25 @@ public partial class IndexPlaylist
 
     private void FilterPlaylists()
     {
-        videoLibrary.Playlists = searchHelper.FilterList(videoLibrary.Playlists, _playlistSearchText);
+        videoLibrary.Playlists = searchHelper
+            .FilterList(videoLibrary.Playlists, _playlistSearchText);
+
+        _visiblePlaylists = searchHelper
+            .FilterList(videoLibrary.Playlists, _playlistSearchText)
+            .Take(_loadedItems)
+            .ToList();
     }
 
     private void ClearPlaylists()
     {
         videoLibraryHelper.ClearPlaylists();
+        _visiblePlaylists.Clear();
     }
 
     private void RemovePlaylist(PlaylistModel playlist)
     {
-        var p = videoLibrary.Playlists.FirstOrDefault(p => p.PlaylistId == playlist.PlaylistId || p.Url == playlist.Url);
-        videoLibraryHelper.RemovePlaylist(p);
+        videoLibraryHelper.RemovePlaylist(playlist);
+        _visiblePlaylists.Remove(playlist);
     }
 
     private string GetPlaylistSearchBarText()

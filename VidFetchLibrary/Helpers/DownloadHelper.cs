@@ -272,7 +272,7 @@ public class DownloadHelper : IDownloadHelper
 
         if (resolutionString.StartsWith("P") && resolutionString.Length > 1)
         {
-            resolutionString = resolutionString.Substring(1) + resolutionString[0];
+            resolutionString = resolutionString[1..] + resolutionString[0];
             return resolutionString;
         }
         else

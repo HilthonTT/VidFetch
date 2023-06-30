@@ -155,7 +155,13 @@ public partial class IndexVideo
 
     private void FilterVideos()
     {
-        videoLibrary.Videos = searchHelper.FilterList(videoLibrary.Videos, _videoSearchText);
+        videoLibrary.Videos = searchHelper
+            .FilterList(videoLibrary.Videos, _videoSearchText);
+
+        _visibleVideos = searchHelper
+            .FilterList(videoLibrary.Videos, _videoSearchText)
+            .Take(_loadedItems)
+            .ToList();
     }
 
     private void AddSnackbar(string title)
@@ -173,11 +179,13 @@ public partial class IndexVideo
     private void ClearVideos()
     {
         videoLibraryHelper.ClearVideos(ref _videosProgress);
+        _visibleVideos.Clear();
     }
 
     private void RemoveVideo(VideoModel video)
     {
         videoLibraryHelper.RemoveVideo(video);
+        _visibleVideos.Remove(video);
     }
 
     private void UpdateProgress(ref double progressVariable, double value)
