@@ -9,3 +9,10 @@ https://github.com/Tyrrrz/YoutubeExplode/tree/master/YoutubeExplode.Converter
 Implement settings: 
 	* Create subdirectory for playlists.
 	* Remove downloaded items from list.
+
+Code refactoring:
+	* Avoid magic strings: 
+		There are a few occurrences of string literals that could be replaced with constants or variables with meaningful names. 
+		For example, the string "Highest Resolution" 
+		could be replaced with a constant 
+		or enum to improve readability and maintainability.
