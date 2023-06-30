@@ -30,6 +30,7 @@ public partial class Settings
             _settingsModel.SelectedPath = _settings.SelectedPath;
             _settingsModel.SelectedFormat = _settings.SelectedFormat;
             _settingsModel.SelectedResolution = _settings.SelectedResolution;
+            _settingsModel.CreateSubDirectoryPlaylist = _settings.CreateSubDirectoryPlaylist;
             _ffmpegSettingsModel.SelectedResolution = _settings.SelectedResolution;
             _ffmpegSettingsModel.FfmpegPath = _settings.FfmpegPath;
         }
@@ -38,6 +39,7 @@ public partial class Settings
             _settingsModel.IsDarkMode = true;
             _settingsModel.DownloadSubtitles = false;
             _settingsModel.SaveVideos = false;
+            _settingsModel.CreateSubDirectoryPlaylist = false;
             _settingsModel.SelectedFormat = defaultData.GetVideoExtensions().First();
             _settingsModel.SelectedPath = defaultData.GetDownloadPaths().First();
             _ffmpegSettingsModel.SelectedResolution = defaultData.GetVideoResolutions().First();
@@ -58,16 +60,20 @@ public partial class Settings
         {
             bool isReload = _settingsModel.IsDarkMode != settingsLibrary.IsDarkMode;
 
-            _settings.IsDarkMode = _settingsModel.IsDarkMode;
-            _settings.DownloadSubtitles = _settingsModel.DownloadSubtitles;
-            _settings.SaveVideos = _settingsModel.SaveVideos;
-            _settings.SelectedPath = _settingsModel.SelectedPath;
-            _settings.SelectedFormat = _settingsModel.SelectedFormat;
-            _settings.SelectedResolution = _settingsModel.SelectedResolution;
+            var s = new SettingsLibrary
+            {
+                IsDarkMode = _settingsModel.IsDarkMode,
+                DownloadSubtitles = _settingsModel.DownloadSubtitles,
+                SaveVideos = _settingsModel.SaveVideos,
+                SelectedPath = _settingsModel.SelectedPath,
+                SelectedFormat = _settingsModel.SelectedFormat,
+                SelectedResolution = _settingsModel.SelectedResolution,
+                CreateSubDirectoryPlaylist = _settingsModel.CreateSubDirectoryPlaylist,
+            };
 
-            _ffmpegSettingsModel.SelectedResolution = _settings.SelectedResolution;
+            _ffmpegSettingsModel.SelectedResolution = s.SelectedResolution;
 
-            int exitCode = await settingsData.UpdateSettingsAsync(_settings);
+            int exitCode = await settingsData.UpdateSettingsAsync(s);
 
             if (exitCode == 1)
             {

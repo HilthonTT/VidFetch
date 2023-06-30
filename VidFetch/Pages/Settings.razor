@@ -30,11 +30,16 @@
                             <div class="d-flex align-items-center mb-3">
                                 <MudText class="mr-2">Download Subtitles included with video:</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.DownloadSubtitles"
-                                           Color="MudBlazor.Color.Primary" />
+                                           Color="MudBlazor.Color.Primary"/>
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudText class="mr-2">Automatically Save Videos:</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.SaveVideos"
+                                           Color="MudBlazor.Color.Primary"  />
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <MudText class="mr-2">Create Sub Directory for playlist:</MudText>
+                                <MudSwitch @bind-Checked="_settingsModel.CreateSubDirectoryPlaylist"
                                            Color="MudBlazor.Color.Primary" />
                             </div>
                         </MudItem>

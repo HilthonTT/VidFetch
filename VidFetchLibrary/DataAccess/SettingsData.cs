@@ -54,8 +54,6 @@ public class SettingsData : ISettingsData
     public async Task<int> UpdateSettingsAsync(SettingsLibrary settings)
     {
         await SetUpDb();
-
-        _cache.Remove(CacheName);
         
         var existingSettings = await GetSettingsAsync();
         if (existingSettings is not null)
@@ -73,6 +71,7 @@ public class SettingsData : ISettingsData
 
     private void MapSettingsLibrary(SettingsLibrary settings)
     {
+        _cache.Remove(CacheName);
         _settings.Id = settings.Id;
         _settings.IsDarkMode = settings.IsDarkMode;
         _settings.DownloadSubtitles = settings.DownloadSubtitles;
@@ -81,5 +80,6 @@ public class SettingsData : ISettingsData
         _settings.SelectedFormat = settings.SelectedFormat;
         _settings.SelectedResolution = settings.SelectedResolution;
         _settings.FfmpegPath = settings.FfmpegPath;
+        _settings.CreateSubDirectoryPlaylist = settings.CreateSubDirectoryPlaylist;
     }
 }

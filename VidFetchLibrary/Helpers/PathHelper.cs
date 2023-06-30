@@ -45,7 +45,7 @@ public class PathHelper : IPathHelper
         string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         string fileName = title + extension;
 
-        if (isPlaylist)
+        if (isPlaylist && _settings.CreateSubDirectoryPlaylist)
         {
             playlistTitle = GetSanizitedFileName(playlistTitle);
             string videoFolder = OpenFolderLocation();
@@ -74,7 +74,7 @@ public class PathHelper : IPathHelper
         string downloadsFolder = Environment.GetFolderPath(GetFolder(path));
         string fileName = title + extension;
 
-        if (isPlaylist)
+        if (isPlaylist && _settings.CreateSubDirectoryPlaylist)
         {
             playlistTitle = GetSanizitedFileName(playlistTitle);
             string videoFolder = OpenFolderLocation();

@@ -16,6 +16,10 @@ public class SaveSettingsModel
     [Required(ErrorMessage = "You must set your set your save videos settings.")]
     public bool SaveVideos { get; set; } = false;
 
+    [Display(Name = "Create SubDirectory Playlist")]
+    [Required(ErrorMessage = "You must set your set your create subdirectory playlist.")]
+    public bool CreateSubDirectoryPlaylist { get; set; } = false;
+
     [Display(Name = "Selected Path")]
     [Required(ErrorMessage = "You must set your selected Path settings.")]
     public string SelectedPath { get; set; }

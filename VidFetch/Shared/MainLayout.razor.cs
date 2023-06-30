@@ -23,11 +23,13 @@ public partial class MainLayout
         }
         else
         {
-            _isDarkMode = true;
+            settingsLibrary = new SettingsLibrary();
 
+            _isDarkMode = true;
             settingsLibrary.IsDarkMode = true;
             settingsLibrary.DownloadSubtitles = false;
             settingsLibrary.SaveVideos = false;
+            settingsLibrary.CreateSubDirectoryPlaylist = true;
             settingsLibrary.SelectedFormat = defaultData.GetVideoExtensions().First();
             settingsLibrary.SelectedPath = defaultData.GetDownloadPaths().First();
             settingsLibrary.SelectedResolution = defaultData.GetVideoResolutions().First();
@@ -45,5 +47,6 @@ public partial class MainLayout
         settingsLibrary.SelectedPath = _settings.SelectedPath;
         settingsLibrary.SelectedResolution = _settings.SelectedResolution;
         settingsLibrary.FfmpegPath = _settings.FfmpegPath;
+        settingsLibrary.CreateSubDirectoryPlaylist = _settings.CreateSubDirectoryPlaylist;
     }
 }
