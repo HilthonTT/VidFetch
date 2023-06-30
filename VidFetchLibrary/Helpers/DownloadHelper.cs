@@ -10,7 +10,6 @@ using YoutubeExplode.Converter;
 namespace VidFetchLibrary.Helpers;
 public class DownloadHelper : IDownloadHelper
 {
-    private const string VideoNotFoundErrorMessage = "Video not found.";
     private const int CacheTime = 5;
     private readonly IPathHelper _pathHelper;
     private readonly IMemoryCache _cache;
@@ -39,25 +38,28 @@ public class DownloadHelper : IDownloadHelper
         try
         {
             var video = await LoadVideoAsync(client, videoUrl, token) 
-                ?? throw new NullReferenceException(VideoNotFoundErrorMessage);
+                ?? throw new NullReferenceException("Video not found.");
             
             if (File.Exists(_settings.FfmpegPath))
             {
-                var streamInfos = await LoadStreamInfosAsync(client, video, token);
-                var conversionRequest = GetRequestBuilder(video, isPlaylist, playlistTitle);
-
-                await client.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
+                await DownloadWithFfmpeg(
+                    client,
+                    video,
+                    token,
+                    isPlaylist,
+                    playlistTitle,
+                    progress);
             }
             else
             {
-                var streamManifest = await client.Videos.Streams
-                    .GetManifestAsync(videoUrl, token);
-
-                var streamInfo = GetVideoStream(streamManifest);
-
-                string downloadFolder = _pathHelper.GetVideoDownloadPath(video.Title, isPlaylist, playlistTitle);
-
-                await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, token);
+                await DownloadWithoutFfmpeg(
+                    client,
+                    video,
+                    videoUrl,
+                    token,
+                    isPlaylist,
+                    playlistTitle,
+                    progress);
             }
 
             if (_settings.DownloadSubtitles)
@@ -67,12 +69,44 @@ public class DownloadHelper : IDownloadHelper
         }
         catch (TaskCanceledException)
         {
-            // Do Nothing as it has been purposely ended.
+            throw new Exception("Task has been cancelled.");
         }
         catch (Exception ex)
         {
             throw new Exception(ex.Message);
         }
+    }
+
+    private async Task DownloadWithFfmpeg(
+        YoutubeClient client,
+        Video video,
+        CancellationToken token,
+        bool isPlaylist,
+        string playlistTitle,
+        IProgress<double> progress)
+    {
+        var streamInfos = await LoadStreamInfosAsync(client, video, token);
+        var conversionRequest = GetRequestBuilder(video, isPlaylist, playlistTitle);
+
+        await client.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
+    }
+
+    private async Task DownloadWithoutFfmpeg(
+        YoutubeClient client,
+        Video video,
+        string videoUrl,
+        CancellationToken token,
+        bool isPlaylist,
+        string playlistTitle,
+        IProgress<double> progress)
+    {
+        var streamManifest = await client.Videos.Streams
+                    .GetManifestAsync(videoUrl, token);
+        var streamInfo = GetVideoStream(streamManifest);
+
+        string downloadFolder = _pathHelper.GetVideoDownloadPath(video.Title, isPlaylist, playlistTitle);
+
+        await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, token);
     }
 
     private async Task DownloadSubtitlesAsync(
@@ -100,6 +134,7 @@ public class DownloadHelper : IDownloadHelper
         {
             string sanitizedSubtitle = _pathHelper.GetSanizitedFileName($"{s.Language}");
             string subtitleDownloadFolder = Path.Combine(videoFolderPath, $"{sanitizedSubtitle}.vtt");
+            
             await client.Videos.ClosedCaptions.DownloadAsync(s, subtitleDownloadFolder, cancellationToken: token);
         }
     }
