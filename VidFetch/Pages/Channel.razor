@@ -22,7 +22,7 @@
                 <MudCardMedia Image="@_channel.ThumbnailUrl" />
                 <MudCardContent>
                     <MudLink Typo="Typo.h5" @onclick="OpenUrl">@_channel.Url</MudLink>
-                    <MudText Typo="Typo.body2">Uploaded @_videos?.Count videos</MudText>
+                    <MudText Typo="Typo.body2">Uploaded @_visibleVideos?.Count videos</MudText>
                 </MudCardContent>
                 <MudCardActions>
                     @if (_isSaved)
@@ -44,21 +44,22 @@
             <MudDivider />
             <MudText Typo="Typo.h5" Class="mb-4 mt-4">Uploaded Videos</MudText>
             <MudAlert Severity="Severity.Warning">Warning: Only shows 50 videos for performance.</MudAlert>
-            @if (_videos?.Count > 0)
-            {
-                <MudGrid>
-                    <MudVirtualize Items="_videos" Context="v" OverscanCount="10">
-                        <VideoComponent @key="v.VideoId"
-                                        Video="v"
-                                        CardSize="6"
-                                        RemoveEvent="RemoveVideo" />
-                    </MudVirtualize>
-                </MudGrid>
-            }
-            else
+            <MudGrid>
+                <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
+                    <VideoComponent @key="v.VideoId"
+                                    Video="v"
+                                    CardSize="6"
+                                    RemoveEvent="RemoveVideo" />
+                </MudVirtualize>
+            </MudGrid>
+            @if (_loadedItems < _videos.Count)
             {
                 <div class="text-center mt-4">
-                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                    @onclick="LoadMoreVideos">
+                        Load More
+                    </MudButton>
                 </div>
             }
         </MudItem>

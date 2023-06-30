@@ -4,38 +4,53 @@
 @inject IYoutube youtube
 @inject ISnackbar snackbar
 
-<MudTextField @bind-Value="_playlistUrl"
-                Class="mb-4"
-                Label="Enter Playlist URL"
-                Variant="Variant.Outlined"
-                Adornment="Adornment.End"
-                AdornmentIcon="@Icons.Material.Filled.Download"
-                OnAdornmentClick="LoadPlaylist"
-                Required="true"
-                Clearable="true" />
-
-<MudAutocomplete T="string" Label="@GetPlaylistSearchBarText()"
-                    Variant="Variant.Outlined"
-                    Class="mb-4"
-                    HelperText="Search the loaded playlists."
-                    AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                    OnAdornmentClick="FilterPlaylists"
-                    SearchFunc="SearchPlaylists"
-                    ResetValueOnEmptyText="true"
-@bind-Value="_playlistSearchText" />
-<MudButton Color="Color.Warning"
-            Variant="Variant.Filled"
-            Class="w-100 mb-3"
-@onclick="ClearPlaylists">
-    Clear Playlists
-</MudButton>
-<MudGrid>
-    <MudVirtualize Items="videoLibrary.Playlists" Context="p" OverscanCount="10">
-        <PlaylistComponent @key="p.PlaylistId"
-                           Playlist="p"
-                           RemoveEvent="(() => RemovePlaylist(p))"
-                           CardSize="4"/>
-    </MudVirtualize>
+<MudGrid Spacing="5">
+    <MudItem xs="12">
+        <MudTextField @bind-Value="_playlistUrl"
+                      Class="mb-4"
+                      Label="Enter Playlist URL"
+                      Variant="Variant.Outlined"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Download"
+                      OnAdornmentClick="LoadPlaylist"
+                      Required="true"
+                      Clearable="true" />
+    </MudItem>
+    <MudItem xs="12">
+        <MudAutocomplete T="string" Label="@GetPlaylistSearchBarText()"
+                         Variant="Variant.Outlined"
+                         Class="mb-4"
+                         HelperText="Search the loaded playlists."
+                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                         OnAdornmentClick="FilterPlaylists"
+                         SearchFunc="SearchPlaylists"
+                         ResetValueOnEmptyText="true"
+        @bind-Value="_playlistSearchText" />
+        <MudButton Color="Color.Warning"
+                   Variant="Variant.Filled"
+                   Class="w-100 mb-3"
+        @onclick="ClearPlaylists">
+            Clear Playlists
+        </MudButton>
+        <MudGrid>
+            <MudVirtualize Items="_visiblePlaylists" Context="p" OverscanCount="6">
+                <PlaylistComponent @key="p.PlaylistId"
+                                   Playlist="p"
+                                   RemoveEvent="(() => RemovePlaylist(p))"
+                                   CardSize="4" />
+            </MudVirtualize>
+        </MudGrid>
+        @if (_loadedItems < videoLibrary.PlaylistVideos.Count)
+        {
+            <div class="text-center mt-4">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                @onclick="LoadMorePlaylists">
+                    Load More
+                </MudButton>
+            </div>
+        }
+    </MudItem>
 </MudGrid>
 
 

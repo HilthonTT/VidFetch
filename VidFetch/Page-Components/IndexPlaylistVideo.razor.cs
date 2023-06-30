@@ -18,6 +18,7 @@ public partial class IndexPlaylistVideo
     private CancellationTokenSource _playlistTokenSource;
     private CancellationTokenSource _videoTokenSource;
     private PlaylistModel _playlist = new();
+    private List<VideoModel> _visibleVideos = new();
     private string _playlistUrl = "";
     private string _searchText = "";
     private string _currentDownloadingVideo = "";
@@ -25,6 +26,7 @@ public partial class IndexPlaylistVideo
     private bool _showDialog = false;
     private double _playlistProgress = 0;
     private double _videoProgress = 0;
+    private int _loadedItems = 6;
 
     protected override async Task OnInitializedAsync()
     {
@@ -32,7 +34,25 @@ public partial class IndexPlaylistVideo
         {
             _playlist = await youtube.GetPlaylistAsync(PlaylistUrl);
         }
+
+        _visibleVideos = videoLibrary.PlaylistVideos.Take(_loadedItems).ToList();
     }
+
+    private void LoadMoreVideos()
+    {
+        int itemsPerPage = 6;
+        int videosCount = videoLibrary.PlaylistVideos.Count;
+
+        _loadedItems += itemsPerPage;
+
+        if (_loadedItems > videosCount)
+        {
+            _loadedItems = videosCount;
+        }
+
+        _visibleVideos = videoLibrary.PlaylistVideos.Take(_loadedItems).ToList();
+    }
+
 
     private async Task LoadPlaylist()
     {

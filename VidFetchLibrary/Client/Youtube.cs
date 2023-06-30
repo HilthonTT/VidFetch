@@ -8,7 +8,7 @@ using YoutubeExplode.Common;
 namespace VidFetchLibrary.Client;
 public class Youtube : IYoutube
 {
-    private const int MaxDataCount = 50;
+    private const int MaxDataCount = 200;
     private const int CacheTime = 5;
 
     private readonly IDownloadHelper _downloaderHelper;

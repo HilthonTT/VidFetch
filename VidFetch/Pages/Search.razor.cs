@@ -4,6 +4,10 @@ namespace VidFetch.Pages;
 
 public partial class Search
 {
+    private List<VideoModel> _visibleVideos = new();
+    private List<ChannelModel> _visibleChannels = new();
+    private List<PlaylistModel> _visiblePlaylists = new();
+
     private CancellationTokenSource _videoTokenSource;
     private CancellationTokenSource _channelTokenSource;
     private CancellationTokenSource _playlistTokenSource;
@@ -11,12 +15,70 @@ public partial class Search
     private string _playlistSearchText = "";
     private string _channelSearchText = "";
 
+    private int _loadedVideos = 6;
+    private int _loadedChannels = 6;
+    private int _loadedPlaylists = 6;
+
+    protected override void OnInitialized()
+    {
+        _visibleVideos = videoLibrary.VideoResults.Take(_loadedVideos).ToList();
+        _visibleChannels = videoLibrary.ChannelResults.Take(_loadedChannels).ToList();
+        _visiblePlaylists = videoLibrary.PlaylistResults.Take(_loadedPlaylists).ToList();
+    }
+
+    private void LoadMoreVideos()
+    {
+        int itemsPerPage = 6;
+        int videosCount = videoLibrary.VideoResults.Count;
+
+        _loadedVideos += itemsPerPage;
+
+        if (_loadedVideos > videosCount)
+        {
+            _loadedVideos = videosCount;
+        }
+
+        _visibleVideos = videoLibrary.VideoResults.Take(_loadedVideos).ToList();
+    }
+
+    private void LoadMoreChannels()
+    {
+        int itemsPerPage = 6;
+        int channelCount = videoLibrary.ChannelResults.Count;
+
+        _loadedChannels += itemsPerPage;
+
+        if (_loadedChannels > channelCount)
+        {
+            _loadedChannels = channelCount;
+        }
+
+        _visibleChannels = videoLibrary.ChannelResults.Take(_loadedChannels).ToList();
+    }
+
+    private void LoadMorePlaylists()
+    {
+        int itemsPerPage = 6;
+        int playlistCount = videoLibrary.PlaylistResults.Count;
+
+        _loadedPlaylists += itemsPerPage;
+
+        if (_loadedPlaylists > playlistCount)
+        {
+            _loadedPlaylists = playlistCount;
+        }
+
+        _visiblePlaylists = videoLibrary.PlaylistResults.Take(_loadedPlaylists).ToList();
+    }
+
     private async Task SearchVideos()
     {
         if (string.IsNullOrWhiteSpace(_videoSearchText)is false)
         {
             var token = tokenHelper.InitializeToken(ref _videoTokenSource);
             videoLibrary.VideoResults = await youtube.GetVideosBySearchAsync(_videoSearchText, token);
+
+            _visibleVideos = videoLibrary.VideoResults.Take(_loadedVideos).ToList();
             CancelVideoSearch();
         }
     }
@@ -27,6 +89,8 @@ public partial class Search
         {
             var token = tokenHelper.InitializeToken(ref _playlistTokenSource);
             videoLibrary.PlaylistResults = await youtube.GetPlaylistsBySearchAsync(_playlistSearchText, token);
+
+            _visiblePlaylists = videoLibrary.PlaylistResults.Take(_loadedPlaylists).ToList();
             CancelPlaylistSearch();
         }
     }
@@ -37,6 +101,8 @@ public partial class Search
         {
             var token = tokenHelper.InitializeToken(ref _channelTokenSource);
             videoLibrary.ChannelResults = await youtube.GetChannelBySearchAsync(_channelSearchText, token);
+
+            _visibleChannels = videoLibrary.ChannelResults.Take(_loadedChannels).ToList();
             CancelChannelSearch();
         }
     }

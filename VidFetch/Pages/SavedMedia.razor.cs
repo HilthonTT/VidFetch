@@ -7,8 +7,14 @@ public partial class SavedMedia
 {
     private CancellationTokenSource _allVideosTokenSource;
     private List<VideoModel> _videos = new();
+    private List<VideoModel> _visibleVideos = new();
+
     private List<ChannelModel> _channels = new();
+    private List<ChannelModel> _visibleChannels = new();
+
     private List<PlaylistModel> _playlists = new();
+    private List<PlaylistModel> _visiblePlaylists = new();
+
     private string _videoSearchText = "";
     private string _channelSearchText = "";
     private string _playlistSearchText = "";
@@ -18,6 +24,10 @@ public partial class SavedMedia
     private bool _isPlaylistsLoading = true;
     private bool _isChannelsLoading = true;
 
+    private int _loadedVideos = 6;
+    private int _loadedChannels = 6;
+    private int _loadedPlaylists = 6;
+
     protected override async Task OnInitializedAsync()
     {
         await LoadVideos();
@@ -25,21 +35,69 @@ public partial class SavedMedia
         await LoadPlaylists();
     }
 
+    private void LoadMoreVideos()
+    {
+        int itemsPerPage = 6;
+        int videosCount = _videos.Count;
+
+        _loadedVideos += itemsPerPage;
+
+        if (_loadedVideos > videosCount)
+        {
+            _loadedVideos = videosCount;
+        }
+
+        _visibleVideos = _videos.Take(_loadedVideos).ToList();
+    }
+
+    private void LoadMoreChannels()
+    {
+        int itemsPerPage = 6;
+        int channelCount = _channels.Count;
+
+        _loadedChannels += itemsPerPage;
+
+        if (_loadedChannels > channelCount)
+        {
+            _loadedChannels = channelCount;
+        }
+
+        _visibleChannels = _channels.Take(_loadedChannels).ToList();
+    }
+
+    private void LoadMorePlaylists()
+    {
+        int itemsPerPage = 6;
+        int playlistCount = _playlists.Count;
+
+        _loadedPlaylists += itemsPerPage;
+
+        if (_loadedPlaylists > playlistCount)
+        {
+            _loadedPlaylists = playlistCount;
+        }
+
+        _visiblePlaylists = _playlists.Take(_loadedPlaylists).ToList();
+    }
+
     private async Task LoadVideos()
     {
         _videos = await videoData.GetAllVideosAsync();
+        _visibleVideos = _videos.Take(_loadedVideos).ToList();
         _isVideosLoading = false;
     }
 
     private async Task LoadChannels()
     {
         _channels = await channelData.GetAllChannelsAsync();
+        _visibleChannels = _channels.Take(_loadedChannels).ToList();
         _isChannelsLoading = false;
     }
 
     private async Task LoadPlaylists()
     {
         _playlists = await playlistData.GetAllPlaylistsAsync();
+        _visiblePlaylists = _playlists.Take(_loadedPlaylists).ToList();
         _isPlaylistsLoading = false;
     }
 

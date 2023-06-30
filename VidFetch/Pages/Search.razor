@@ -52,13 +52,23 @@
                     </MudButton>
                 }
                 <MudGrid>
-                    <MudVirtualize Items="videoLibrary.VideoResults" Context="v" OverscanCount="10">
+                    <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
                         <VideoComponent @key="v.Id"
                                         Video="v"
-                                        CardSize="6"
+                                        CardSize="4"
                                         RemoveEvent="(() => RemoveVideo(v))" />
                     </MudVirtualize>
                 </MudGrid>
+                @if (_loadedVideos < videoLibrary.VideoResults.Count)
+                {
+                    <div class="text-center mt-4">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                        @onclick="LoadMoreVideos">
+                            Load More
+                        </MudButton>
+                    </div>
+                }
             </MudItem>
         </MudGrid>
     </MudTabPanel>
@@ -97,13 +107,23 @@
                     </MudButton>
                 }
                 <MudGrid>
-                    <MudVirtualize Items="videoLibrary.ChannelResults" Context="c" OverscanCount="10">
+                    <MudVirtualize Items="_visibleChannels" Context="c" OverscanCount="6">
                         <ChannelComponent @key="c.Id"
                                           Channel="c"
-                                          CardSize="6"
+                                          CardSize="4"
                                           RemoveEvent="(() => RemoveChannel(c))" />
                     </MudVirtualize>
                 </MudGrid>
+                @if (_loadedChannels < videoLibrary.ChannelResults.Count)
+                {
+                    <div class="text-center mt-4">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                        @onclick="LoadMoreChannels">
+                            Load More
+                        </MudButton>
+                    </div>
+                }
             </MudItem>
         </MudGrid>
     </MudTabPanel>
@@ -142,13 +162,23 @@
                     </MudButton>
                 }
                 <MudGrid>
-                    <MudVirtualize Items="videoLibrary.PlaylistResults" Context="p" OverscanCount="10">
+                    <MudVirtualize Items="_visiblePlaylists" Context="p" OverscanCount="6">
                         <PlaylistComponent @key="p.PlaylistId"
                                            Playlist="p"
-                                           CardSize="6"
+                                           CardSize="4"
                                            RemoveEvent="(() => RemovePlaylist(p))" />
                     </MudVirtualize>
                 </MudGrid>
+                @if (_loadedPlaylists < videoLibrary.PlaylistResults.Count)
+                {
+                    <div class="text-center mt-4">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                        @onclick="LoadMorePlaylists">
+                            Load More
+                        </MudButton>
+                    </div>
+                }
             </MudItem>
         </MudGrid>
     </MudTabPanel>

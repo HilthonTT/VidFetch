@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using System.Text.RegularExpressions;
+using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Pages;
@@ -11,17 +12,37 @@ public partial class Playlist
 
     private PlaylistModel _playlist;
     private List<VideoModel> _videos = new();
+    private List<VideoModel> _visibleVideos = new();
     private bool _isSaved = false;
     private string _playlistId = "";
+    private int _loadedItems = 6;
+
     protected override async Task OnInitializedAsync()
     {
         _playlistId = UrlRegex().Match(Url).Value;
         await LoadData();
+
+        _visibleVideos = _videos.Take(_loadedItems).ToList();
     }
 
     protected override async Task OnParametersSetAsync()
     {
         await LoadNullData();
+    }
+
+    private void LoadMoreVideos()
+    {
+        int itemsPerPage = 6;
+        int videosCount = _videos.Count;
+
+        _loadedItems += itemsPerPage;
+
+        if (_loadedItems > videosCount)
+        {
+            _loadedItems = videosCount;
+        }
+
+        _visibleVideos = _videos.Take(_loadedItems).ToList();
     }
 
     private async Task LoadData()

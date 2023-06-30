@@ -64,7 +64,7 @@
             <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingVideo</MudAlert>
         }
        <MudGrid>
-            <MudVirtualize Items="videoLibrary.PlaylistVideos" Context="v" OverscanCount="10">
+            <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
                 <VideoComponent @key="v.VideoId"
                                 CardSize="4"
                                 Video="v"
@@ -72,6 +72,16 @@
                                 RemoveEvent="(() => RemovePlaylistVideo(v))" />
             </MudVirtualize>
        </MudGrid>
+        @if (_loadedItems < videoLibrary.PlaylistVideos.Count)
+        {
+            <div class="text-center mt-4">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                @onclick="LoadMoreVideos">
+                    Load More
+                </MudButton>
+            </div>
+        }
     </MudItem>
 </MudGrid>
 

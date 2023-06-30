@@ -30,12 +30,22 @@
     Clear Channels
 </MudButton>
 <MudGrid>
-    <MudVirtualize Items="videoLibrary.Channels" Context="c" OverscanCount="10">
+    <MudVirtualize Items="_visibleChannels" Context="c" OverscanCount="6">
         <ChannelComponent @key="c.ChannelId"
                           Channel="c"
                           CardSize="4"
                           RemoveEvent="(() => RemoveChannel(c))" />
     </MudVirtualize>
+    @if (_loadedItems < videoLibrary.PlaylistVideos.Count)
+    {
+        <div class="text-center mt-4">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+            @onclick="LoadMoreChannels">
+                Load More
+            </MudButton>
+        </div>
+    }
 </MudGrid>
 
 

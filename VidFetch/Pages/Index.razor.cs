@@ -22,6 +22,7 @@ public partial class Index
     {
         ToggleLoadingOverlay(true);
         var videos = await youtube.GetPlayListVideosAsync(url);
+
         foreach (var v in videos)
         {
             videoLibrary.PlaylistVideos.Add(v);

@@ -11,17 +11,37 @@ public partial class Channel
 
     private ChannelModel _channel;
     private List<VideoModel> _videos = new();
+    private List<VideoModel> _visibleVideos = new();
     private bool _isSaved = false;
     private string _channelId = "";
+    private int _loadedItems = 6;
+
     protected override async Task OnInitializedAsync()
     {
         _channelId = UrlRegex().Match(Url).Value;
         await LoadData();
+
+        _visibleVideos = _videos.Take(_loadedItems).ToList();
     }
 
     protected override async Task OnParametersSetAsync()
     {
         await LoadNullData();
+    }
+
+    private void LoadMoreVideos()
+    {
+        int itemsPerPage = 6;
+        int videosCount = _videos.Count;
+
+        _loadedItems += itemsPerPage;
+
+        if (_loadedItems > videosCount)
+        {
+            _loadedItems = videosCount;
+        }
+
+        _visibleVideos = _videos.Take(_loadedItems).ToList();
     }
 
     private async Task LoadNullData()
@@ -79,7 +99,7 @@ public partial class Channel
 
     private void RemoveVideo(VideoModel video)
     {
-        _videos.Remove(video);
+        _visibleVideos.Remove(video);
     }
 
     [GeneratedRegex("(?<=channel\\/)([\\w-]+)")]
