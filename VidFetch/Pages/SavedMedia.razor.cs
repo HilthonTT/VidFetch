@@ -5,6 +5,7 @@ namespace VidFetch.Pages;
 
 public partial class SavedMedia
 {
+    private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
     private CancellationTokenSource _allVideosTokenSource;
     private List<VideoModel> _videos = new();
     private List<VideoModel> _visibleVideos = new();
@@ -111,6 +112,11 @@ public partial class SavedMedia
 
         try
         {
+            if (IsFFmpegPathInvalid())
+            {
+                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+            }
+
             var cancellationToken = tokenHelper.InitializeToken(ref _allVideosTokenSource);
 
             var progressReport = new Progress<double>(value =>
@@ -279,5 +285,19 @@ public partial class SavedMedia
         }
 
         return $"Search {_playlists?.Count} Playlists";
+    }
+
+    private bool IsFFmpegPathInvalid()
+    {
+        string path = settingsLibrary.FfmpegPath;
+        bool isPathNotEmptyOrNull = path is not null;
+        bool FileExists = File.Exists(path);
+
+        if (isPathNotEmptyOrNull && FileExists)
+        {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -2,7 +2,7 @@
 
 public interface IDefaultData
 {
-    List<string> GetDownloadPaths();
-    List<string> GetVideoExtensions();
-    List<string> GetVideoResolutions();
+    List<DownloadPath> GetDownloadPaths();
+    List<VideoExtension> GetVideoExtensions();
+    List<VideoResolution> GetVideoResolutions();
 }

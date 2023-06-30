@@ -2,51 +2,90 @@
 
 public class DefaultData : IDefaultData
 {
-    public List<string> GetVideoExtensions()
+    public List<VideoExtension> GetVideoExtensions()
     {
-        return new List<string>()
-        {
-            ".mp4",
-            ".mp3",
-            ".avi",
-            ".mov",
-            ".wmv",
-            ".mkv",
-            ".flv",
-            ".tgpp",
-            ".webm",
-            ".mpg",
-            ".m4v",
-            ".3gp",
-        };
+        return new List<VideoExtension>()
+            {
+                VideoExtension.Mp4,
+                VideoExtension.Mp3,
+                VideoExtension.Avi,
+                VideoExtension.Mov,
+                VideoExtension.Wmv,
+                VideoExtension.Mkv,
+                VideoExtension.Flv,
+                VideoExtension.Tgpp,
+                VideoExtension.Webm,
+                VideoExtension.Mpg,
+                VideoExtension.M4v,
+                VideoExtension._3gp
+            };
     }
 
-    public List<string> GetDownloadPaths()
+    public List<DownloadPath> GetDownloadPaths()
     {
-        return new List<string>()
-        {
-            "Download Folder",
-            "Picture Folder",
-            "Document Folder",
-            "Video Folder",
-            "Music Folder",
-            "Desktop",
-        };
+        return new List<DownloadPath>()
+            {
+                DownloadPath.DownloadFolder,
+                DownloadPath.PictureFolder,
+                DownloadPath.DocumentFolder,
+                DownloadPath.VideoFolder,
+                DownloadPath.MusicFolder,
+                DownloadPath.Desktop
+            };
     }
 
-    public List<string> GetVideoResolutions()
+    public List<VideoResolution> GetVideoResolutions()
     {
-        return new List<string>()
-        {
-            "Highest Resolution",
-            "144p",
-            "240p",
-            "360p",
-            "480p",
-            "720p",
-            "1080p",
-            "1440p",
-            "2160p",
-        };
+        return new List<VideoResolution>()
+            {
+                VideoResolution.HighestResolution,
+                VideoResolution.P144,
+                VideoResolution.P240,
+                VideoResolution.P360,
+                VideoResolution.P480,
+                VideoResolution.P720,
+                VideoResolution.P1080,
+                VideoResolution.P1440,
+                VideoResolution.P2160
+            };
     }
+}
+
+public enum VideoExtension
+{
+    Mp4,
+    Mp3,
+    Avi,
+    Mov,
+    Wmv,
+    Mkv,
+    Flv,
+    Tgpp,
+    Webm,
+    Mpg,
+    M4v,
+    _3gp
+}
+
+public enum DownloadPath
+{
+    DownloadFolder,
+    PictureFolder,
+    DocumentFolder,
+    VideoFolder,
+    MusicFolder,
+    Desktop
+}
+
+public enum VideoResolution
+{
+    HighestResolution,
+    P144,
+    P240,
+    P360,
+    P480,
+    P720,
+    P1080,
+    P1440,
+    P2160
 }

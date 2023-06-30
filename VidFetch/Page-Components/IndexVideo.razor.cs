@@ -71,6 +71,7 @@ public partial class IndexVideo
             else
             {
                 await LoadSingleVideo();
+                _visibleVideos = videoLibrary.Videos.Take(_loadedItems).ToList();
             }
 
             _videoUrl = "";
@@ -112,7 +113,7 @@ public partial class IndexVideo
     {
         try
         {
-            if (File.Exists(settingsLibrary.FfmpegPath) is false)
+            if (IsFFmpegPathInvalid())
             {
                 snackbar.Add(FfmpegErrorMessage, Severity.Warning);
             }
@@ -187,11 +188,6 @@ public partial class IndexVideo
 
     private async Task OpenFileLocation()
     {
-        if (string.IsNullOrWhiteSpace(settingsLibrary.SelectedPath))
-        {
-            return;
-        }
-
         await folderHelper.OpenFolderLocationAsync();
     }
 
@@ -233,5 +229,19 @@ public partial class IndexVideo
     private bool IsPlaylistUrl()
     {
         return Uri.IsWellFormedUriString(_videoUrl, UriKind.Absolute) && _videoUrl.Contains("list=");
+    }
+
+    private bool IsFFmpegPathInvalid()
+    {
+        string path = settingsLibrary.FfmpegPath;
+        bool isPathNotEmptyOrNull = path is not null;
+        bool FileExists = File.Exists(path);
+
+        if (isPathNotEmptyOrNull && FileExists)
+        {
+            return true;
+        }
+
+        return false;
     }
 }

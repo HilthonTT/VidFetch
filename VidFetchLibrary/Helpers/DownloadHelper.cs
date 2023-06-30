@@ -6,6 +6,7 @@ using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
 using YoutubeExplode.Converter;
+using VidFetchLibrary.Data;
 
 namespace VidFetchLibrary.Helpers;
 public class DownloadHelper : IDownloadHelper
@@ -223,11 +224,11 @@ public class DownloadHelper : IDownloadHelper
 
             videoStreamInfo = _settings.SelectedResolution switch
             {
-                "Highest Resolution" => highestVideoResolutionStream,
+                VideoResolution.HighestResolution => highestVideoResolutionStream,
 
                 _ => streamManifest.GetVideoStreams()
                     .Where(s => s.Container == Container.Mp4)
-                    .First(s => s.VideoQuality.Label == _settings.SelectedResolution),
+                    .First(s => s.VideoQuality.Label == GetVideoQualityLabel()),
             };
 
             return videoStreamInfo;
@@ -247,14 +248,13 @@ public class DownloadHelper : IDownloadHelper
         {
             IVideoStreamInfo videoStreamInfo = null;
 
-
             videoStreamInfo = _settings.SelectedResolution switch
             {
-                "Highest Resolution" => highestResolutionStream,
+                VideoResolution.HighestResolution => highestResolutionStream,
 
                 _ => streamManifest.GetMuxedStreams()
                     .Where(s => s.Container == Container.Mp4)
-                    .First(s => s.VideoQuality.Label == _settings.SelectedResolution),
+                    .First(s => s.VideoQuality.Label == GetVideoQualityLabel()),
             };
 
             return videoStreamInfo;
@@ -262,6 +262,22 @@ public class DownloadHelper : IDownloadHelper
         catch
         {
             return highestResolutionStream;
+        }
+    }
+
+    private string GetVideoQualityLabel()
+    {
+        VideoResolution resolution = _settings.SelectedResolution;
+        string resolutionString = resolution.ToString();
+
+        if (resolutionString.StartsWith("P") && resolutionString.Length > 1)
+        {
+            resolutionString = resolutionString.Substring(1) + resolutionString[0];
+            return resolutionString;
+        }
+        else
+        {
+            return resolutionString;
         }
     }
 }

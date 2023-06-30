@@ -1,4 +1,6 @@
-﻿namespace VidFetchLibrary.Library;
+﻿using VidFetchLibrary.Data;
+
+namespace VidFetchLibrary.Library;
 
 public interface ISettingsLibrary
 {
@@ -6,9 +8,9 @@ public interface ISettingsLibrary
     int Id { get; set; }
     bool IsDarkMode { get; set; }
     bool SaveVideos { get; set; }
-    string SelectedPath { get; set; }
-    string SelectedFormat { get; set; }
-    string SelectedResolution { get; set; }
+    DownloadPath SelectedPath { get; set; }
+    VideoExtension SelectedFormat { get; set; }
+    VideoResolution SelectedResolution { get; set; }
     string FfmpegPath { get; set; }
     bool CreateSubDirectoryPlaylist { get; set; }
 }

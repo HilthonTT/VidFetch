@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using VidFetchLibrary.Data;
 
 namespace VidFetch.Models;
 public class SaveSettingsModel
@@ -22,13 +23,13 @@ public class SaveSettingsModel
 
     [Display(Name = "Selected Path")]
     [Required(ErrorMessage = "You must set your selected Path settings.")]
-    public string SelectedPath { get; set; }
+    public DownloadPath SelectedPath { get; set; }
 
     [Display(Name = "Selected Format")]
     [Required(ErrorMessage = "You must set your selected format settings.")]
-    public string SelectedFormat { get; set; }
+    public VideoExtension SelectedFormat { get; set; }
 
     [Display(Name = "Selected Resolution")]
     [Required(ErrorMessage = "You must set your selected resolution settings")]
-    public string SelectedResolution { get; set; }
+    public VideoResolution SelectedResolution { get; set; }
 }

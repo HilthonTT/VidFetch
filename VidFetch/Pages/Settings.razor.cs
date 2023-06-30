@@ -1,6 +1,7 @@
 using MudBlazor;
 using VidFetch.Models;
 using VidFetchLibrary.Library;
+using VidFetchLibrary.Data;
 
 namespace VidFetch.Pages;
 
@@ -9,9 +10,9 @@ public partial class Settings
     private readonly SaveSettingsModel _settingsModel = new();
     private readonly SaveFfmpegSettingsModel _ffmpegSettingsModel = new();
     private SettingsLibrary _settings;
-    private List<string> _paths = new();
-    private List<string> _formats = new();
-    private List<string> _resolutions = new();
+    private List<DownloadPath> _paths = new();
+    private List<VideoExtension> _formats = new();
+    private List<VideoResolution> _resolutions = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -88,7 +89,6 @@ public partial class Settings
         }
     }
 
-
     private async Task SaveFfmpegSettings()
     {
         try
@@ -125,6 +125,11 @@ public partial class Settings
         {
             snackbar.Add("Failed to save settings.", Severity.Error);
         }
+    }
+
+    private string GetSpacedString(string path)
+    {
+        return pathHelper.GetSpacedString(path);
     }
 
     private bool IsValidPath()

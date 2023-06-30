@@ -1,4 +1,5 @@
 ﻿using SQLite;
+using VidFetchLibrary.Data;
 
 namespace VidFetchLibrary.Library;
 public class SettingsLibrary : ISettingsLibrary
@@ -9,8 +10,8 @@ public class SettingsLibrary : ISettingsLibrary
     public bool DownloadSubtitles { get; set; }
     public bool SaveVideos { get; set; }
     public bool CreateSubDirectoryPlaylist { get; set; }
-    public string SelectedPath { get; set; }
-    public string SelectedFormat { get; set; }
-    public string SelectedResolution { get; set; }
+    public DownloadPath SelectedPath { get; set; }
+    public VideoExtension SelectedFormat { get; set; }
+    public VideoResolution SelectedResolution { get; set; }
     public string FfmpegPath { get; set; }
 }

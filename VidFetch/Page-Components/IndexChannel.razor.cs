@@ -53,6 +53,8 @@ public partial class IndexChannel
                 if (IsChannelNull(channel))
                 {
                     videoLibrary.Channels.Add(channel);
+
+                    _visibleChannels = videoLibrary.Channels.Take(_loadedItems).ToList();
                 }
 
                 await OpenLoading.InvokeAsync(false);

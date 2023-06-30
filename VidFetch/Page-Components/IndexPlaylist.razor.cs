@@ -53,6 +53,8 @@ public partial class IndexPlaylist
                 if (IsPlaylistNull(playlist))
                 {
                     videoLibrary.Playlists.Add(playlist);
+
+                    _visiblePlaylists = videoLibrary.Playlists.Take(_loadedItems).ToList();
                 }
 
                 await OpenLoading.InvokeAsync(false);

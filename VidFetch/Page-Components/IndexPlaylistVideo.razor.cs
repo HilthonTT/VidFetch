@@ -66,8 +66,11 @@ public partial class IndexPlaylistVideo
             if (IsUrlPlaylist())
             {
                 await LoadPlaylistVideos();
+
                 _showDialog = true;
                 _firstVideoInPlaylistUrl = _playlistUrl;
+
+                _visibleVideos = videoLibrary.PlaylistVideos.Take(_loadedItems).ToList();
             }
             else
             {

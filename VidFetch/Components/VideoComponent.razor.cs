@@ -40,7 +40,7 @@ public partial class VideoComponent
     {
         _isDownloading = true;
 
-        if (File.Exists(settingsLibrary.FfmpegPath) is false)
+        if (IsFFmpegPathInvalid())
         {
             snackbar.Add(FfmpegErrorMessage, Severity.Warning);
         }
@@ -112,5 +112,19 @@ public partial class VideoComponent
     private void AddSnackbar()
     {
         snackbar.Add($"Successfully downloaded {Video.Title}", Severity.Normal);
+    }
+
+    private bool IsFFmpegPathInvalid()
+    {
+        string path = settingsLibrary.FfmpegPath;
+        bool isPathNotEmptyOrNull = path is not null;
+        bool FileExists = File.Exists(path);
+
+        if (isPathNotEmptyOrNull && FileExists)
+        {
+            return true;
+        }
+
+        return false;
     }
 }
