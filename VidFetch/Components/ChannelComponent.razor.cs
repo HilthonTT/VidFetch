@@ -22,9 +22,12 @@ public partial class ChannelComponent
         _isSaved = await channelData.ChannelExistsAsync(Channel.Url, Channel.ChannelId);
     }
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadChannelData();
+        if (firstRender)
+        {
+            await LoadChannelData();
+        }
     }
 
     private async Task LoadChannelData()

@@ -23,9 +23,12 @@ public partial class PlaylistComponent
         _isSaved = await playlistData.PlaylistExistsAsync(Playlist.Url, Playlist.PlaylistId);
     }
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadPlaylistData();
+        if (firstRender)
+        {
+            await LoadPlaylistData();
+        }
     }
 
     private async Task LoadPlaylistData()

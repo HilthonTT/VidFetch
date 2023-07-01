@@ -31,9 +31,12 @@ public partial class VideoComponent
         _isSaved = await videoData.VideoExistsAsync(Video.Url, Video.VideoId);
     }
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadVideoData();
+        if (firstRender)
+        {    
+            await LoadVideoData();
+        }
     }
 
     private async Task LoadVideoData()
