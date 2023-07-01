@@ -8,9 +8,18 @@
     <MudCard Class="mb-4 h-100">
         <MudCardHeader>
             <CardHeaderAvatar>
-                <MudAvatar>
-                    <MudImage title="@Channel.Title" Src="@Channel.ThumbnailUrl"></MudImage>
-                </MudAvatar>
+                @if (string.IsNullOrWhiteSpace(Channel.ThumbnailUrl))
+                {
+                    <MudAvatar Variant="Variant.Outlined">
+                        @Channel.Title.First()
+                    </MudAvatar>
+                }
+                else
+                {
+                    <MudAvatar>
+                        <MudImage title="@Channel.Title" Src="@Channel.ThumbnailUrl"></MudImage>
+                    </MudAvatar>
+                }
             </CardHeaderAvatar>
             <CardHeaderContent>
                 <MudText Typo="Typo.subtitle1"

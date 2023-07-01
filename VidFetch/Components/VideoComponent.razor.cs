@@ -52,10 +52,8 @@ public partial class VideoComponent
 
         if (isAuthorThumbnailEmpty)
         {
-            string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
-
             var channel = await youtube.GetChannelAsync(Video.AuthorUrl);
-            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
+            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
             Video.AuthorThumbnailUrl = channelThumbnail;
         }
     }

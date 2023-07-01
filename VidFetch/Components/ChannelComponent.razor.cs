@@ -24,7 +24,17 @@ public partial class ChannelComponent
 
     protected override async Task OnParametersSetAsync()
     {
-        await LoadNullData();
+        await LoadChannelData();
+    }
+
+    private async Task LoadChannelData()
+    {
+        var playlistTasks = new List<Task>()
+        {
+            LoadThumbnail(),
+        };
+
+        await Task.WhenAll(playlistTasks);
     }
 
     private async Task SaveChannel()
@@ -37,14 +47,14 @@ public partial class ChannelComponent
         }
     }
 
-    private async Task LoadNullData()
+    private async Task LoadThumbnail()
     {
         bool isThumbnailEmpty = string.IsNullOrWhiteSpace(Channel.ThumbnailUrl);
+
         if (isThumbnailEmpty)
         {
-            string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
             var channel = await youtube.GetChannelAsync(Channel.Url);
-            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
+            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
             Channel.ThumbnailUrl = channelThumbnail;
         }
     }

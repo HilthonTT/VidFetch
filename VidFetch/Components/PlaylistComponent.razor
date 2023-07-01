@@ -7,10 +7,19 @@
 <MudItem xs="CardSize">
     <MudCard Class="mb-4 h-100">
         <MudCardHeader>
-            <CardHeaderAvatar>
-                <MudAvatar>
-                    <MudImage title="@Playlist.AuthorName" Src="@Playlist.AuthorThumbnailUrl"></MudImage>
-                </MudAvatar>
+            <CardHeaderAvatar>       
+                @if (string.IsNullOrWhiteSpace(Playlist.AuthorThumbnailUrl))
+                {
+                    <MudAvatar Variant="Variant.Outlined">
+                        @Playlist.Title.First()
+                    </MudAvatar>
+                }
+                else
+                {
+                    <MudAvatar>
+                        <MudImage title="@Playlist.AuthorName" Src="@Playlist.AuthorThumbnailUrl"></MudImage>
+                    </MudAvatar>
+                }
             </CardHeaderAvatar>
             <CardHeaderContent>
                 <MudText Typo="Typo.subtitle1" Class="text-break"

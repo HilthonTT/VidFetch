@@ -11,9 +11,18 @@
     <MudCard Class="mb-4 h-100">
         <MudCardHeader>
             <CardHeaderAvatar>
-                <MudAvatar>
-                    <MudImage title="@Video.AuthorName" Src="@Video.AuthorThumbnailUrl"></MudImage>
-                </MudAvatar>
+                @if (string.IsNullOrWhiteSpace(Video.AuthorThumbnailUrl))
+                {
+                    <MudAvatar Variant="Variant.Outlined">
+                        @Video.Title.First()
+                    </MudAvatar>
+                }
+                else
+                {
+                    <MudAvatar>
+                        <MudImage title="@Video.AuthorName" Src="@Video.AuthorThumbnailUrl"></MudImage>
+                    </MudAvatar>
+                }
             </CardHeaderAvatar>
             <CardHeaderContent>
                 <MudText Typo="Typo.subtitle1" Class="text-break" title="@Video.Title">

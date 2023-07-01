@@ -17,6 +17,7 @@ public partial class PlaylistComponent
     public EventCallback<PlaylistModel> RemoveEvent { get; set; }
 
     private bool _isSaved = false;
+    
     protected override async Task OnInitializedAsync()
     {
         _isSaved = await playlistData.PlaylistExistsAsync(Playlist.Url, Playlist.PlaylistId);
@@ -24,7 +25,18 @@ public partial class PlaylistComponent
 
     protected override async Task OnParametersSetAsync()
     {
-        await LoadNullData();
+        await LoadPlaylistData();
+    }
+
+    private async Task LoadPlaylistData()
+    {
+        var videoTask = new List<Task>
+        {
+            LoadThumbnail(),
+            LoadAuthorThumbnail(),
+        };
+
+        await Task.WhenAll(videoTask);
     }
 
     private async Task SavePlaylist()
@@ -32,28 +44,33 @@ public partial class PlaylistComponent
         if (_isSaved is false)
         {
             await playlistData.SetPlaylistAsync(Playlist.Url, Playlist.PlaylistId);
+
             snackbar.Add($"Successfully saved {Playlist.Title}");
             _isSaved = true;
         }
     }
 
-    private async Task LoadNullData()
+    private async Task LoadAuthorThumbnail()
     {
-        bool isThumbnailEmpty = string.IsNullOrWhiteSpace(Playlist.ThumbnailUrl);
         bool isAuthorThumbnailEmpty = string.IsNullOrWhiteSpace(Playlist.AuthorThumbnailUrl);
-        string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
-        if (isThumbnailEmpty)
-        {
-            var playlist = await youtube.GetPlaylistAsync(Playlist.Url);
-            string playlistThumbnail = string.IsNullOrWhiteSpace(playlist.ThumbnailUrl) ? defaultUrl : playlist.ThumbnailUrl;
-            Playlist.ThumbnailUrl = playlistThumbnail;
-        }
 
         if (isAuthorThumbnailEmpty)
         {
             var channel = await youtube.GetChannelAsync(Playlist.AuthorUrl);
-            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
+            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
             Playlist.AuthorThumbnailUrl = channelThumbnail;
+        }
+    }
+
+    private async Task LoadThumbnail()
+    {
+        bool isThumbnailEmpty = string.IsNullOrWhiteSpace(Playlist.ThumbnailUrl);
+
+        if (isThumbnailEmpty)
+        {
+            var playlist = await youtube.GetPlaylistAsync(Playlist.Url);
+            string playlistThumbnail = string.IsNullOrWhiteSpace(playlist.ThumbnailUrl) ? "" : playlist.ThumbnailUrl;
+            Playlist.ThumbnailUrl = playlistThumbnail;
         }
     }
 
