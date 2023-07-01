@@ -81,7 +81,9 @@ public class VideoData : IVideoData
         await SetUpDb();
 
         var existingVideo = await GetVideoAsync(url, videoId);
-        RemoveCache();
+
+        string key = GetCache(videoId);
+        RemoveCache(key);
 
         if (existingVideo is null)
         {
@@ -97,19 +99,18 @@ public class VideoData : IVideoData
     public async Task<int> DeleteVideoAsync(VideoModel video)
     {
         await SetUpDb();
+
         string key = GetCache(video.VideoId);
+        RemoveCache(key);
 
-        var existingVideo = await GetVideoAsync(video.Url, video.VideoId);
+        return await _db.DeleteAsync<VideoModel>(video.Id);
+    }
 
-        if (existingVideo is not null)
-        {
-            RemoveCache(key);
-            return await _db.DeleteAsync<VideoModel>(existingVideo.Id);
-        }
-        else
-        {
-            return 0;
-        }
+    public void RemoveVideoCache(string videoId)
+    {
+        string key = GetCache(videoId);
+
+        _cache.Remove(key);
     }
 
     private async Task<int> CreateVideoAsync(VideoModel video)
@@ -124,13 +125,14 @@ public class VideoData : IVideoData
         return await _db.UpdateAsync(video);
     }
 
-    private void RemoveCache(string id = "")
+    private void RemoveCache(string videoId = "")
     {
         _cache.Remove(CacheName);
 
-        if (string.IsNullOrWhiteSpace(id) is false)
+        if (string.IsNullOrWhiteSpace(videoId) is false)
         {
-            _cache.Remove(id);
+            string key = GetCache(videoId);
+            _cache.Remove(key);
         }
     }
 

@@ -33,7 +33,31 @@ public partial class VideoComponent
 
     protected override async Task OnParametersSetAsync()
     {
-        await LoadNullData();
+        await LoadVideoData();
+    }
+
+    private async Task LoadVideoData()
+    {
+        var videoTasks = new List<Task>
+        {
+            LoadAuthorThumbnail(),
+        };
+
+        await Task.WhenAll(videoTasks);
+    }
+
+    private async Task LoadAuthorThumbnail()
+    {
+        bool isAuthorThumbnailEmpty = string.IsNullOrWhiteSpace(Video.AuthorThumbnailUrl);
+
+        if (isAuthorThumbnailEmpty)
+        {
+            string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
+
+            var channel = await youtube.GetChannelAsync(Video.AuthorUrl);
+            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
+            Video.AuthorThumbnailUrl = channelThumbnail;
+        }
     }
 
     private async Task DownloadVideo()
@@ -67,6 +91,7 @@ public partial class VideoComponent
         if (_isSaved is false)
         {
             await videoData.SetVideoAsync(Video.Url, Video.VideoId);
+
             snackbar.Add($"Successfully saved {Video.Title}");
             _isSaved = true;
         }
@@ -74,26 +99,13 @@ public partial class VideoComponent
 
     private async Task Remove()
     {
+        videoData.RemoveVideoCache(Video.VideoId);
         await RemoveEvent.InvokeAsync(Video);
     }
 
     private async Task OpenUrl(string text)
     {
         await launcher.OpenAsync(text);
-    }
-
-    private async Task LoadNullData()
-    {
-        bool isAuthorThumbnailEmpty = string.IsNullOrWhiteSpace(Video.AuthorThumbnailUrl);
-
-        if (isAuthorThumbnailEmpty)
-        {
-            string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
-
-            var channel = await youtube.GetChannelAsync(Video.AuthorUrl);
-            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
-            Video.AuthorThumbnailUrl =  channelThumbnail;
-        }
     }
 
     private void CancelVideoDownload()
