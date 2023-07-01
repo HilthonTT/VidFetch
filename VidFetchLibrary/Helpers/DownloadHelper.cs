@@ -16,20 +16,22 @@ public class DownloadHelper : IDownloadHelper
     private readonly IMemoryCache _cache;
     private readonly ICachingHelper _cachingHelper;
     private readonly ISettingsLibrary _settings;
+    private readonly YoutubeClient _youtube;
 
     public DownloadHelper(IPathHelper pathHelper,
                           IMemoryCache cache,
-                          ICachingHelper cachingHelper, 
-                          ISettingsLibrary settings)
+                          ICachingHelper cachingHelper,
+                          ISettingsLibrary settings, 
+                          YoutubeClient youtube)
     {
         _pathHelper = pathHelper;
         _cache = cache;
         _cachingHelper = cachingHelper;
         _settings = settings;
+        _youtube = youtube;
     }
 
     public async Task DownloadVideoAsync(
-        YoutubeClient client,
         string videoUrl,
         IProgress<double> progress,
         CancellationToken token,
@@ -38,13 +40,12 @@ public class DownloadHelper : IDownloadHelper
     {
         try
         {
-            var video = await LoadVideoAsync(client, videoUrl, token) 
+            var video = await LoadVideoAsync(videoUrl, token)
                 ?? throw new NullReferenceException("Video not found.");
-            
+
             if (File.Exists(_settings.FfmpegPath))
             {
                 await DownloadWithFfmpeg(
-                    client,
                     video,
                     token,
                     isPlaylist,
@@ -54,7 +55,6 @@ public class DownloadHelper : IDownloadHelper
             else
             {
                 await DownloadWithoutFfmpeg(
-                    client,
                     video,
                     videoUrl,
                     token,
@@ -65,7 +65,7 @@ public class DownloadHelper : IDownloadHelper
 
             if (_settings.DownloadSubtitles)
             {
-                await DownloadSubtitlesAsync(client, video, token);
+                await DownloadSubtitlesAsync(video, token);
             }
         }
         catch (TaskCanceledException)
@@ -79,21 +79,19 @@ public class DownloadHelper : IDownloadHelper
     }
 
     private async Task DownloadWithFfmpeg(
-        YoutubeClient client,
         Video video,
         CancellationToken token,
         bool isPlaylist,
         string playlistTitle,
         IProgress<double> progress)
     {
-        var streamInfos = await LoadStreamInfosAsync(client, video, token);
+        var streamInfos = await LoadStreamInfosAsync(_youtube, video, token);
         var conversionRequest = GetRequestBuilder(video, isPlaylist, playlistTitle);
 
-        await client.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
+        await _youtube.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
     }
 
     private async Task DownloadWithoutFfmpeg(
-        YoutubeClient client,
         Video video,
         string videoUrl,
         CancellationToken token,
@@ -101,21 +99,20 @@ public class DownloadHelper : IDownloadHelper
         string playlistTitle,
         IProgress<double> progress)
     {
-        var streamManifest = await client.Videos.Streams
+        var streamManifest = await _youtube.Videos.Streams
                     .GetManifestAsync(videoUrl, token);
         var streamInfo = GetVideoStream(streamManifest);
 
         string downloadFolder = _pathHelper.GetVideoDownloadPath(video.Title, isPlaylist, playlistTitle);
 
-        await client.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, token);
+        await _youtube.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, token);
     }
 
     private async Task DownloadSubtitlesAsync(
-        YoutubeClient client,
         Video video,
         CancellationToken token)
     {
-        var subtitleinfo = await LoadSubtitleInfoAsync(client, video, token);
+        var subtitleinfo = await LoadSubtitleInfoAsync(_youtube, video, token);
 
         if (subtitleinfo is null || subtitleinfo.Count <= 0)
         {
@@ -135,25 +132,15 @@ public class DownloadHelper : IDownloadHelper
         {
             string sanitizedSubtitle = _pathHelper.GetSanizitedFileName($"{s.Language}");
             string subtitleDownloadFolder = Path.Combine(videoFolderPath, $"{sanitizedSubtitle}.vtt");
-            
-            await client.Videos.ClosedCaptions.DownloadAsync(s, subtitleDownloadFolder, cancellationToken: token);
+
+            await _youtube.Videos.ClosedCaptions.DownloadAsync(s, subtitleDownloadFolder, cancellationToken: token);
         }
     }
 
-    private async Task<Video> LoadVideoAsync(
-        YoutubeClient client,
-        string url,
-        CancellationToken token)
+    private async Task<Video> LoadVideoAsync(string url, CancellationToken token)
     {
-        string key = _cachingHelper.CacheVideoKey(url);
-
-        var output = await _cache.GetOrCreateAsync(key, async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
-            return await client.Videos.GetAsync(url, token);
-        });
-
-        return output;
+        var video = await _cachingHelper.LoadYoutubeExplodeVideoAsync(url, token);
+        return video;
     }
 
     private async Task<IStreamInfo[]> LoadStreamInfosAsync(
@@ -161,7 +148,7 @@ public class DownloadHelper : IDownloadHelper
         Video video,
         CancellationToken token)
     {
-        string key = _cachingHelper.CacheStreamInfoKey(video.Url);
+        string key = _cachingHelper.CacheStreamManifest(video.Url);
         IVideoStreamInfo videoStreamInfo;
 
         var streamManifest = await _cache.GetOrCreateAsync(key, async entry =>
@@ -199,7 +186,7 @@ public class DownloadHelper : IDownloadHelper
 
         return output;
     }
-         
+
     private ConversionRequest GetRequestBuilder(Video video, bool isPlaylist, string playlistTitle)
     {
         string downloadFolder = _pathHelper.GetVideoDownloadPath(video.Title, isPlaylist, playlistTitle);

@@ -7,6 +7,7 @@ using VidFetchLibrary.DataAccess;
 using VidFetchLibrary.Client;
 using VidFetchLibrary.Helpers;
 using VidFetchLibrary.Library;
+using YoutubeExplode;
 
 namespace VidFetch;
 public static class RegisterServices
@@ -28,6 +29,8 @@ public static class RegisterServices
 #endif
         builder.Services.AddMudServices();
         builder.Services.AddMemoryCache();
+        builder.Services.AddTransient<YoutubeClient>();
+
         builder.Services.AddSingleton<IVideoLibrary, VideoLibrary>();
         builder.Services.AddSingleton<ISettingsLibrary, SettingsLibrary>();
 
