@@ -16,3 +16,8 @@ Code refactoring:
 		For example, the string "Highest Resolution" 
 		could be replaced with a constant 
 		or enum to improve readability and maintainability.
+
+
+* Better use experience:
+	- Modify the loading.
+	- Have the last saved media to be on top and not at the bottom.
