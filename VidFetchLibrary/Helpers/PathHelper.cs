@@ -27,13 +27,23 @@ public partial class PathHelper : IPathHelper
         return string.Concat(fileName.Select(c => invalidChars.Contains(c) ? '_' : c));
     }
 
-    public string OpenFolderLocation() 
+    public string OpenFolderLocation()
     {
-        return _settings.SelectedPath switch
+        string path = _settings.SelectedPath switch
         {
             DownloadPath.DownloadFolder => GetDownloadPath(""),
             _ => GetSelectedPath(""),
         };
+
+        int dotIndex = path.LastIndexOf('.');
+
+        if (dotIndex >= 0)
+        {
+            string trimmedFilePath = path[..dotIndex];
+            path = trimmedFilePath;
+        }
+
+        return path;
     }
 
     public string GetSpacedString(string value)
