@@ -45,6 +45,12 @@ public class CachingHelper : ICachingHelper
             return new VideoModel(video);
         });
 
+        if (output is null)
+        {
+            _cache.Remove(primaryKey);
+            _cache.Remove(secondaryKey);
+        }
+
         return output;
     }
 
@@ -59,6 +65,11 @@ public class CachingHelper : ICachingHelper
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
             return await _youtube.Videos.GetAsync(url, token);
         });
+
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
 
         return output;
     }
@@ -93,6 +104,11 @@ public class CachingHelper : ICachingHelper
             }
         });
 
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
+
         return output;
     }
 
@@ -113,6 +129,11 @@ public class CachingHelper : ICachingHelper
                 .ToList();
         });
 
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
+
         return output;
     }
 
@@ -132,6 +153,11 @@ public class CachingHelper : ICachingHelper
                 .ToList();
         });
 
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
+
         return output;
     }
 
@@ -146,6 +172,11 @@ public class CachingHelper : ICachingHelper
             var playlist = await _youtube.Playlists.GetAsync(url);
             return new PlaylistModel(playlist);
         });
+
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
 
         return output;
     }
@@ -167,6 +198,11 @@ public class CachingHelper : ICachingHelper
                 .ToList();
         });
 
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
+
         return output;
     }
 
@@ -187,6 +223,11 @@ public class CachingHelper : ICachingHelper
                 .ToList();
         });
 
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
+
         return output;
     }
 
@@ -206,6 +247,11 @@ public class CachingHelper : ICachingHelper
             return results.Select(v => new PlaylistModel(v))
                 .ToList();
         });
+
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
 
         return output;
     }
@@ -234,6 +280,7 @@ public class CachingHelper : ICachingHelper
     {
         string queryString = new Uri(url).Query;
         var queryParams = HttpUtility.ParseQueryString(queryString);
+
         return queryParams.Get("list");
     }
 

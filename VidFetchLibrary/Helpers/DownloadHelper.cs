@@ -157,6 +157,11 @@ public class DownloadHelper : IDownloadHelper
             return await client.Videos.Streams.GetManifestAsync(video.Id, token);
         });
 
+        if (streamManifest is null)
+        {
+            _cache.Remove(key);
+        }
+
         var audioStreamInfo = streamManifest
             .GetAudioStreams()
             .Where(s => s.Container == Container.Mp4)
@@ -183,6 +188,11 @@ public class DownloadHelper : IDownloadHelper
 
             return subtitleinfo.ToList();
         });
+
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
 
         return output;
     }

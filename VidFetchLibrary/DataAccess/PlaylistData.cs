@@ -41,8 +41,16 @@ public class PlaylistData : IPlaylistData
         var output = await _cache.GetOrCreateAsync(CacheName, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
-            return await _db.Table<PlaylistModel>().ToListAsync();
+            var playlists = await _db.Table<PlaylistModel>().ToListAsync();
+
+            playlists.Sort((x, y) => y.Id.CompareTo(x.Id));
+            return playlists;
         });
+
+        if (output is null)
+        {
+            _cache.Remove(CacheName);
+        }
 
         return output;
     }
@@ -58,14 +66,18 @@ public class PlaylistData : IPlaylistData
             return await _db.Table<PlaylistModel>().FirstOrDefaultAsync(v => v.PlaylistId == playlistId || v.Url == url);
         });
 
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
+
         return output;
     }
 
     public async Task<bool> PlaylistExistsAsync(string url, string playlistId)
     {
-        await SetUpDb();
-
         var playlist = await GetPlaylistAsync(url, playlistId);
+
         if (playlist is null)
         {
             return false;
@@ -78,7 +90,6 @@ public class PlaylistData : IPlaylistData
 
     public async Task<int> SetPlaylistAsync(string url, string playlistId)
     {
-        await SetUpDb();
         var existingPlaylist = await GetPlaylistAsync(url, playlistId);
 
         string key = GetCache(playlistId);

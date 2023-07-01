@@ -41,8 +41,16 @@ public class VideoData : IVideoData
         var output = await _cache.GetOrCreateAsync(CacheName, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
-            return await _db.Table<VideoModel>().ToListAsync();
+            var videos = await _db.Table<VideoModel>().ToListAsync();
+
+            videos.Sort((x, y) => y.Id.CompareTo(x.Id));
+            return videos;
         });
+
+        if (output is null)
+        {
+            _cache.Remove(CacheName);
+        }
 
         return output;
     }
@@ -55,16 +63,21 @@ public class VideoData : IVideoData
         var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
-            return await _db.Table<VideoModel>().FirstOrDefaultAsync(v => v.VideoId == videoId || v.Url == url);
+
+            return await _db.Table<VideoModel>()
+                .FirstOrDefaultAsync(v => v.VideoId == videoId || v.Url == url);
         });
+
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
 
         return output;
     }
 
     public async Task<bool> VideoExistsAsync(string url, string videoId)
     {
-        await SetUpDb();
-
         var video = await GetVideoAsync(url, videoId);
         if (video is null)
         {
@@ -78,8 +91,6 @@ public class VideoData : IVideoData
 
     public async Task<int> SetVideoAsync(string url, string videoId)
     {
-        await SetUpDb();
-
         var existingVideo = await GetVideoAsync(url, videoId);
 
         string key = GetCache(videoId);

@@ -41,8 +41,16 @@ public class ChannelData : IChannelData
         var output = await _cache.GetOrCreateAsync(CacheName, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
-            return await _db.Table<ChannelModel>().ToListAsync();
+            var channels = await _db.Table<ChannelModel>().ToListAsync();
+
+            channels.Sort((x, y) => y.Id.CompareTo(x.Id));
+            return channels;
         });
+
+        if (output is null)
+        {
+            _cache.Remove(CacheName);
+        }
         
         return output;
     }
@@ -58,13 +66,16 @@ public class ChannelData : IChannelData
             return await _db.Table<ChannelModel>().FirstOrDefaultAsync(c => c.Url == url || c.ChannelId == channelId);
         });
 
+        if (output is null)
+        {
+            _cache.Remove(key);
+        }
+
         return output;
     }
 
     public async Task<bool> ChannelExistsAsync(string url, string channelId)
     {
-        await SetUpDb();
-
         var channel = await GetChannelAsync(url, channelId);
         if (channel is null)
         {
@@ -78,8 +89,6 @@ public class ChannelData : IChannelData
 
     public async Task<int> SetChannelAsync(string url, string channelId)
     {
-        await SetUpDb();
-
         var existingChannel = await GetChannelAsync(url, channelId);
 
         string key = GetCache(channelId);
