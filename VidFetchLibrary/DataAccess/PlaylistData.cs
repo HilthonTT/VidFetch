@@ -79,9 +79,10 @@ public class PlaylistData : IPlaylistData
     public async Task<int> SetPlaylistAsync(string url, string playlistId)
     {
         await SetUpDb();
-
         var existingPlaylist = await GetPlaylistAsync(url, playlistId);
-        RemoveCache();
+
+        string key = GetCache(playlistId);
+        RemoveCache(key);
 
         if (existingPlaylist is null)
         {
@@ -99,17 +100,8 @@ public class PlaylistData : IPlaylistData
         await SetUpDb();
         string key = GetCache(playlist.PlaylistId);
 
-        var existingPlaylist = await GetPlaylistAsync(playlist.Url, playlist.PlaylistId);
-
-        if (existingPlaylist is not null)
-        {
-            RemoveCache(key);
-            return await _db.DeleteAsync<VideoModel>(existingPlaylist.Id);
-        }
-        else
-        {
-            return 0;
-        }
+        RemoveCache(key);
+        return await _db.DeleteAsync<VideoModel>(playlist.Id);
     }
 
     private async Task<int> CreatePlaylistAsync(PlaylistModel playlist)
@@ -124,27 +116,26 @@ public class PlaylistData : IPlaylistData
         return await _db.UpdateAsync(playlist);
     }
 
-    private void RemoveCache(string id = "")
+    private void RemoveCache(string playlistId = "")
     {
         _cache.Remove(CacheName);
 
-        if (string.IsNullOrWhiteSpace(id) is false)
+        if (string.IsNullOrWhiteSpace(playlistId) is false)
         {
-            _cache.Remove(id);
+            string key = GetCache(playlistId);
+            _cache.Remove(key);
         }
     }
 
-    private static string GetCache(string id)
+    private static string GetCache(string playlistId)
     {
-        return $"{CacheName}-{id}";
+        return $"{CacheName}-{playlistId}";
     }
 
     private async Task<PlaylistModel> FillDataAsync(PlaylistModel playlist)
     {
-        string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
-
         var channel = await _youtube.GetChannelAsync(playlist.AuthorUrl);
-        string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
+        string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
 
         playlist.AuthorThumbnailUrl = channelThumbnail;
 

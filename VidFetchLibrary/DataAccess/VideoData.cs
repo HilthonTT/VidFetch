@@ -136,17 +136,15 @@ public class VideoData : IVideoData
         }
     }
 
-    private static string GetCache(string id)
+    private static string GetCache(string videoId)
     {
-        return $"{CacheName}-{id}";
+        return $"{CacheName}-{videoId}";
     }
 
     private async Task<VideoModel> FillDataAsync(VideoModel video)
     {
-        string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
-
         var channel = await _youtube.GetChannelAsync(video.AuthorUrl);
-        string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? defaultUrl : channel.ThumbnailUrl;
+        string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
 
         video.AuthorThumbnailUrl = channelThumbnail;
 

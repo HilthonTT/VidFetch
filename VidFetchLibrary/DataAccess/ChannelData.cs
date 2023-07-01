@@ -81,7 +81,9 @@ public class ChannelData : IChannelData
         await SetUpDb();
 
         var existingChannel = await GetChannelAsync(url, channelId);
-        RemoveCache();
+
+        string key = GetCache(channelId);
+        RemoveCache(key);
 
         if (existingChannel is null)
         {
@@ -97,19 +99,11 @@ public class ChannelData : IChannelData
     public async Task<int> DeleteChannelAsync(ChannelModel channel)
     {
         await SetUpDb();
+
         string key = GetCache(channel.ChannelId);
+        RemoveCache(key);
 
-        var existingChannel = await GetChannelAsync(channel.Url, channel.ChannelId);
-
-        if (existingChannel is null)
-        {
-            RemoveCache(key);
-            return await _db.DeleteAsync<ChannelModel>(channel.Id);
-        }
-        else
-        {
-            return 0;
-        }
+        return await _db.DeleteAsync<ChannelModel>(channel.Id);
     }
 
     private async Task<int> CreateChannelAsync(ChannelModel channel)
@@ -122,18 +116,19 @@ public class ChannelData : IChannelData
         return await _db.UpdateAsync(channel);
     }
 
-    private void RemoveCache(string id = "")
+    private void RemoveCache(string channelId = "")
     {
         _cache.Remove(CacheName);
 
-        if (string.IsNullOrWhiteSpace(id) is false)
+        if (string.IsNullOrWhiteSpace(channelId) is false)
         {
-            _cache.Remove(id);
+            string key = GetCache(channelId);
+            _cache.Remove(key);
         }
     }
 
-    private static string GetCache(string id)
+    private static string GetCache(string channelId)
     {
-        return $"{CacheName}-{id}";
+        return $"{CacheName}-{channelId}";
     }
 }
