@@ -11,7 +11,6 @@
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
         <MudTextField @bind-Value="_videoUrl"
-                      Class="mb-4"
                       Label="Enter Video URL"
                       Variant="Variant.Outlined"
                       Adornment="Adornment.End"
@@ -19,12 +18,7 @@
                       OnAdornmentClick="LoadVideoOrPlaylistVideos"
                       Required="true"
                       Clearable="true" />
-        <MudButton Class="w-100"
-                   Color="Color.Warning"
-                   Variant="Variant.Outlined"
-        @onclick="OpenFileLocation">
-            Open Folder Location
-        </MudButton>
+
     </MudItem>
 </MudGrid>
 <MudGrid Spacing="5">
@@ -47,21 +41,6 @@
                 Cancel
             </MudButton>
         }
-        <MudButton Color="Color.Warning"
-                   Variant="Variant.Filled"
-                   Class="w-100 mb-3"
-        @onclick="ClearVideos">
-            Clear Videos
-        </MudButton>
-        <MudAutocomplete T="string" Label="@GetSearchBarText()"
-                         Variant="Variant.Outlined"
-                         Class="mb-4"
-                         HelperText="Search the loaded videos."
-                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                         OnAdornmentClick="FilterVideos"
-                         SearchFunc="SearchVideos"
-                         ResetValueOnEmptyText="true"
-        @bind-Value="_videoSearchText" />
         <MudProgressLinear Color="Color.Primary"
                            Striped="true"
                            Size="Size.Medium"
@@ -69,27 +48,57 @@
                            Value="@_videosProgress"
                            Class="my-7"
                            Buffer="true" />
-        @if (string.IsNullOrWhiteSpace(_currentDownloadingVideo) is false)
-        {
-            <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingVideo</MudAlert>
-        }
-       <MudGrid>
-            <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
-                <VideoComponent @key="v.VideoId"
-                                CardSize="4"
-                                Video="v"
-                                RemoveEvent="(() => RemoveVideo(v))" />
-            </MudVirtualize>
-       </MudGrid>
-        @if (_loadedItems < videoLibrary.Videos.Count)
-        {
-            <div class="text-center mt-4">
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Primary"
-                @onclick="LoadMoreVideos">
-                    Load More
+        <div class="justify-content-between d-flex align-items-center">
+            <div class="mx-3">
+                <MudButton Color="Color.Error"
+                           Variant="Variant.Outlined"
+                @onclick="ClearVideos">
+                    Clear Videos
                 </MudButton>
             </div>
+            <div class="w-100">
+                <MudAutocomplete @bind-Value="_searchText"
+                                 T="string"
+                                 Label="@GetSearchBarText()"
+                                 Variant="Variant.Outlined"
+                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                                 OnAdornmentClick="FilterVideos"
+                                 SearchFunc="SearchVideos"
+                                 ResetValueOnEmptyText="true" />
+            </div>
+            <div class="mx-3">
+                <MudButton Color="Color.Warning"
+                           Variant="Variant.Outlined"
+                @onclick="OpenFileLocation">
+                    Open Folder Location
+                </MudButton>
+            </div>
+        </div>
+        @if (_visibleVideos?.Count > 0 || videoLibrary.Videos.Count > 0)
+        {
+            <MudDivider Class="mb-6 mt-6"></MudDivider>
+            @if (string.IsNullOrWhiteSpace(_currentDownloadingVideo) is false)
+            {
+                <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingVideo</MudAlert>
+            }
+            <MudGrid>
+                <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
+                    <VideoComponent @key="v.VideoId"
+                                    CardSize="4"
+                                    Video="v"
+                                    RemoveEvent="(() => RemoveVideo(v))" />
+                </MudVirtualize>
+            </MudGrid>
+            @if (_loadedItems < videoLibrary.Videos.Count)
+            {
+                <div class="text-center mt-4">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                    @onclick="LoadMoreVideos">
+                        Load More
+                    </MudButton>
+                </div>
+            }
         }
     </MudItem>
 </MudGrid>

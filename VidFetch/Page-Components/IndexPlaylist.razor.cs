@@ -101,7 +101,7 @@ public partial class IndexPlaylist
         _visiblePlaylists.Remove(playlist);
     }
 
-    private string GetPlaylistSearchBarText()
+    private string GetSearchBarText()
     {
         if (videoLibrary?.Playlists.Count <= 0)
         {

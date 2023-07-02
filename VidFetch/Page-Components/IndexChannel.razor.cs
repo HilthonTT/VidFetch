@@ -12,7 +12,7 @@ public partial class IndexChannel
 
     private List<ChannelModel> _visibleChannels = new();
     private string _channelUrl = "";
-    private string _channelSearchText = "";
+    private string _searchText = "";
     private int _loadedItems = 6;
 
     protected override void OnInitialized()
@@ -81,10 +81,10 @@ public partial class IndexChannel
     private void FilterChannels()
     {
         videoLibrary.Channels = searchHelper
-            .FilterList(videoLibrary.Channels, _channelSearchText);
+            .FilterList(videoLibrary.Channels, _searchText);
 
         _visibleChannels = searchHelper
-            .FilterList(videoLibrary.Channels, _channelSearchText)
+            .FilterList(videoLibrary.Channels, _searchText)
             .Take(_loadedItems)
             .ToList();
     }
@@ -101,7 +101,7 @@ public partial class IndexChannel
         _visibleChannels.Remove(channel);
     }
 
-    private string GetChannelSearchBarText()
+    private string GetSearchBarText()
     {
         if (videoLibrary?.Channels.Count <= 0)
         {

@@ -27,7 +27,7 @@ public partial class IndexVideo
     private CancellationTokenSource _allVideosTokenSource;
     private List<VideoModel> _visibleVideos = new();
     private string _videoUrl = "";
-    private string _videoSearchText = "";
+    private string _searchText = "";
     private string _currentDownloadingVideo = "";
     private double _videosProgress = 0;
     private int _loadedItems = 6;
@@ -166,10 +166,10 @@ public partial class IndexVideo
     private void FilterVideos()
     {
         videoLibrary.Videos = searchHelper
-            .FilterList(videoLibrary.Videos, _videoSearchText);
+            .FilterList(videoLibrary.Videos, _searchText);
 
         _visibleVideos = searchHelper
-            .FilterList(videoLibrary.Videos, _videoSearchText)
+            .FilterList(videoLibrary.Videos, _searchText)
             .Take(_loadedItems)
             .ToList();
     }
