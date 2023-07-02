@@ -1,0 +1,35 @@
+﻿@inject IChannelData channelData
+@inject ISearchHelper searchHelper
+
+<MudGrid Spacing="5">
+    <MudItem xs="12" Class="text-center">
+        <MudAutocomplete T="string" Label="@GetChannelSearchBarText()"
+                         Variant="Variant.Outlined"
+                         Class="mb-3"
+                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                         OnAdornmentClick="FilterChannels"
+                         SearchFunc="SearchChannels"
+                         ResetValueOnEmptyText="true"
+        @bind-Value="_searchText" />
+        <MudGrid>
+            <MudVirtualize Items="_visibleChannels" Context="c" OverscanCount="6">
+                <ChannelComponent @key="c.ChannelId"
+                                  Channel="c"
+                                  CardSize="4"
+                                  RemoveEvent="(() => DeleteChannel(c))" />
+            </MudVirtualize>
+        </MudGrid>
+        @if (_loadedItems < _channels.Count)
+        {
+            <div class="text-center mt-4">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                @onclick="LoadMoreChannels">
+                    Load More
+                </MudButton>
+            </div>
+        }
+    </MudItem>
+</MudGrid>
+
+

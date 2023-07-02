@@ -1,0 +1,35 @@
+﻿@inject IPlaylistData playlistData
+@inject ISearchHelper searchHelper
+
+<MudGrid Spacing="5">
+    <MudItem xs="12" Class="text-center">
+        <MudAutocomplete T="string" Label="@GetSearchBarText()"
+                         Variant="Variant.Outlined"
+                         Class="mb-3"
+                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                         OnAdornmentClick="FilterPlaylists"
+                         SearchFunc="SearchPlaylists"
+                         ResetValueOnEmptyText="true"
+        @bind-Value="_searchText" />
+        <MudGrid>
+            <MudVirtualize Items="_visiblePlaylists" Context="p" OverscanCount="6">
+                <PlaylistComponent @key="p.PlaylistId"
+                                   Playlist="p"
+                                   CardSize="4"
+                                   RemoveEvent="(() => DeletePlaylist(p))" />
+            </MudVirtualize>
+        </MudGrid>
+        @if (_loadedItems < _playlists.Count)
+        {
+            <div class="text-center mt-4">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                @onclick="LoadMorePlaylists">
+                    Load More
+                </MudButton>
+            </div>
+        }
+    </MudItem>
+</MudGrid>
+
+

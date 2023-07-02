@@ -1,168 +1,27 @@
 ﻿@page "/SavedMedias"
-@inject IYoutube youtube
-@inject IVideoData videoData
-@inject IChannelData channelData
-@inject IPlaylistData playlistData
-@inject ISnackbar snackbar
-@inject ISearchHelper searchHelper
-@inject ITokenHelper tokenHelper
-@inject IFolderHelper folderHelper
-@inject ISettingsLibrary settingsLibrary
-
 
 <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
     Saved Medias
     <MudIcon Icon="@Icons.Material.Filled.PersonalVideo"></MudIcon>
 </MudText>
 
+<MudDialog Options="((new DialogOptions() { NoHeader = true }))"
+           IsVisible="_isVisible"
+           Class="backdrop-blur">
+    <DialogContent>
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    </DialogContent>
+</MudDialog>
+
+
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
     <MudTabPanel Text="Videos">
-        <MudGrid Spacing="5">
-            <MudItem xs="12" Class="text-center">
-                <MudButton Class="mb-4 w-100"
-                           Color="Color.Warning"
-                           Variant="Variant.Outlined"
-                @onclick="OpenFileLocation">
-                    Open Folder Location
-                </MudButton>
-                @if (_allVideosTokenSource is null)
-                {
-                    <MudButton Color="Color.Primary"
-                               Variant="Variant.Filled"
-                               Class="w-100 mb-3"
-                    @onclick="DownloadSavedVideos">
-                        @GetDownloadVideoText()
-                    </MudButton>
-                }
-                else
-                {
-                    <MudButton Color="Color.Error"
-                               Variant="Variant.Filled"
-                               Class="w-100 mb-3"
-                    @onclick="CancelDownload">
-                        Cancel
-                    </MudButton>
-                }
-                <MudAutocomplete T="string" Label="@GetVideoSearchBarText()"
-                                 Variant="Variant.Outlined"
-                                 Class="mb-3"
-                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                                 OnAdornmentClick="FilterVideos"
-                                 SearchFunc="SearchVideos"
-                                 ResetValueOnEmptyText="true"
-                @bind-Value="_videoSearchText" />
-                <MudProgressLinear Color="Color.Primary"
-                                   Striped="true"
-                                   Size="Size.Medium"
-                                   Max="1"
-                                   Value="@_videosProgress"
-                                   Class="my-7"
-                                   Buffer="true" />
-                @if (string.IsNullOrWhiteSpace(_currentDownloadingVideo) is false)
-                {
-                    <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingVideo</MudAlert>
-                }
-                @if (_isVideosLoading)
-                {
-                    <div class="text-center">
-                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-                    </div>
-                }
-                <MudGrid>
-                    <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
-                        <VideoComponent @key="v.VideoId"
-                                        Video="v"
-                                        CardSize="4"
-                                        RemoveEvent="(() => DeleteVideo(v))" />
-                    </MudVirtualize>
-                </MudGrid>
-                @if (_loadedVideos < _videos.Count)
-                {
-                    <div class="text-center mt-4">
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                        @onclick="LoadMoreVideos">
-                            Load More
-                        </MudButton>
-                    </div>
-                }
-            </MudItem>
-        </MudGrid>
+        <SavedMediaVideo OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
     <MudTabPanel Text="Channels">
-        <MudGrid Spacing="5">
-            <MudItem xs="12" Class="text-center">
-                <MudAutocomplete T="string" Label="@GetChannelSearchBarText()"
-                                 Variant="Variant.Outlined"
-                                 Class="mb-3"
-                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                                 OnAdornmentClick="FilterChannels"
-                                 SearchFunc="SearchChannels"
-                                 ResetValueOnEmptyText="true"
-                @bind-Value="_channelSearchText" />
-                @if (_isChannelsLoading)
-                {
-                    <div class="text-center">
-                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-                    </div>
-                }
-                <MudGrid>
-                    <MudVirtualize Items="_visibleChannels" Context="c" OverscanCount="6">
-                        <ChannelComponent @key="c.ChannelId"
-                                          Channel="c"
-                                          CardSize="4"
-                                          RemoveEvent="(() => DeleteChannel(c))" />
-                    </MudVirtualize>
-                </MudGrid>
-                @if (_loadedChannels < _channels.Count)
-                {
-                    <div class="text-center mt-4">
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                        @onclick="LoadMoreChannels">
-                            Load More
-                        </MudButton>
-                    </div>
-                }
-            </MudItem>
-        </MudGrid>
+        <SavedMediaChannel OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
     <MudTabPanel Text="Playlists">
-        <MudGrid Spacing="5">
-            <MudItem xs="12" Class="text-center">
-                <MudAutocomplete T="string" Label="@GetPlaylistSearchBarText()"
-                                 Variant="Variant.Outlined"
-                                 Class="mb-3"
-                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                                 OnAdornmentClick="FilterPlaylists"
-                                 SearchFunc="SearchPlaylists"
-                                 ResetValueOnEmptyText="true"
-                @bind-Value="_playlistSearchText" />
-                @if (_isPlaylistsLoading)
-                {
-                    <div class="text-center">
-                        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-                    </div>
-                }
-                <MudGrid>
-                    <MudVirtualize Items="_visiblePlaylists" Context="p" OverscanCount="6">
-                        <PlaylistComponent @key="p.PlaylistId"
-                                           Playlist="p"
-                                           CardSize="4"
-                                           RemoveEvent="(() => DeletePlaylist(p))" />
-                    </MudVirtualize>
-                </MudGrid>
-                @if (_loadedPlaylists < _playlists.Count)
-                {
-                    <div class="text-center mt-4">
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                        @onclick="LoadMorePlaylists">
-                            Load More
-                        </MudButton>
-                    </div>
-                }
-            </MudItem>
-        </MudGrid>
+        <SavedMediaPlaylist OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
 </MudTabs>

@@ -1,0 +1,75 @@
+﻿@inject IVideoData videoData
+@inject IYoutube youtube
+@inject ITokenHelper tokenHelper
+@inject ISearchHelper searchHelper
+@inject IFolderHelper folderHelper
+@inject ISettingsLibrary settingsLibrary
+@inject ISnackbar snackbar
+
+<MudGrid Spacing="5">
+    <MudItem xs="12" Class="text-center">
+        <MudButton Class="mb-4 w-100"
+                   Color="Color.Warning"
+                   Variant="Variant.Outlined"
+        @onclick="OpenFileLocation">
+            Open Folder Location
+        </MudButton>
+        @if (_allVideosTokenSource is null)
+        {
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       Class="w-100 mb-3"
+            @onclick="DownloadSavedVideos">
+                @GetDownloadVideoText()
+            </MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Error"
+                       Variant="Variant.Filled"
+                       Class="w-100 mb-3"
+            @onclick="CancelDownload">
+                Cancel
+            </MudButton>
+        }
+        <MudAutocomplete T="string" Label="@GetSearchBarText()"
+                         Variant="Variant.Outlined"
+                         Class="mb-3"
+                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                         OnAdornmentClick="FilterVideos"
+                         SearchFunc="SearchVideos"
+                         ResetValueOnEmptyText="true"
+        @bind-Value="_searchText" />
+        <MudProgressLinear Color="Color.Primary"
+                           Striped="true"
+                           Size="Size.Medium"
+                           Max="1"
+                           Value="@_videosProgress"
+                           Class="my-7"
+                           Buffer="true" />
+        @if (string.IsNullOrWhiteSpace(_currentDownloadingVideo) is false)
+        {
+            <MudAlert Class="mb-4" Severity="Severity.Warning">@_currentDownloadingVideo</MudAlert>
+        }
+        <MudGrid>
+            <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
+                <VideoComponent @key="v.VideoId"
+                                Video="v"
+                                CardSize="4"
+                                RemoveEvent="(() => DeleteVideo(v))" />
+            </MudVirtualize>
+        </MudGrid>
+        @if (_loadedItems < _videos.Count)
+        {
+            <div class="text-center mt-4">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                @onclick="LoadMoreVideos">
+                    Load More
+                </MudButton>
+            </div>
+        }
+    </MudItem>
+</MudGrid>
+
+

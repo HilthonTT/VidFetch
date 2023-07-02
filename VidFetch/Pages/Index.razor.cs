@@ -11,12 +11,6 @@ public partial class Index
     private string _playlistUrl = "";
     private bool _isVisible = false;
     private MudTabs _tabs;
-    private MudTabPanel _videoPanel;
-    private MudTabPanel _playlistVideoPanel;
-    private MudTabPanel _channelPanel;
-    private MudTabPanel _playlistPanel;
-    private MudDialog _loadingDialog;
-    private MudProgressCircular _progressCircular;
 
     private async Task LoadPlaylistVideos(string url)
     {
@@ -37,9 +31,9 @@ public partial class Index
         _tabs.ActivatePanel(id);
     }
 
-    private void ToggleLoadingOverlay(bool show)
+    private void ToggleLoadingOverlay(bool isVisible)
     {
-        _isVisible = show;
+        _isVisible = isVisible;
     }
 
     private void GetPlaylistUrl(string url)

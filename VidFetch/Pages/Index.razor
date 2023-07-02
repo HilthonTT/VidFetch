@@ -7,12 +7,11 @@
     <MudIcon Icon="@Icons.Custom.Brands.YouTube" Title="Paste A Link"></MudIcon>
 </MudText>
 
-<MudDialog @ref="_loadingDialog"
-           Options="((new DialogOptions() { NoHeader = true }))"
+<MudDialog Options="((new DialogOptions() { NoHeader = true }))"
            IsVisible="_isVisible"
            Class="backdrop-blur">
     <DialogContent>
-        <MudProgressCircular @ref="_progressCircular" Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
     </DialogContent>
 </MudDialog>
 
@@ -23,21 +22,20 @@
          ApplyEffectsToContainer="true"
          PanelClass="pa-6"
          Centered="true">
-    <MudTabPanel @ref="_videoPanel" Text="Videos" ID=@VideoId>
+    <MudTabPanel Text="Videos" ID=@VideoId>
         <IndexVideo SwitchEvent="(() => Activate(PlaylistVideoId))"
                     AddVideos="LoadPlaylistVideos"
                     OpenLoading="ToggleLoadingOverlay"
-                    GetPlaylistUrl="GetPlaylistUrl"/>
+                    GetPlaylistUrl="GetPlaylistUrl" />
     </MudTabPanel>
-    <MudTabPanel @ref="_playlistVideoPanel" Text="Playlist Videos" ID=@PlaylistVideoId>
-        <IndexPlaylistVideo 
-            PlaylistUrl="@_playlistUrl" 
-            OpenLoading="ToggleLoadingOverlay" />
+    <MudTabPanel Text="Playlist Videos" ID=@PlaylistVideoId>
+        <IndexPlaylistVideo PlaylistUrl="@_playlistUrl"
+                            OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
-    <MudTabPanel @ref="_channelPanel" Text="Channels" ID=@ChannelId>
+    <MudTabPanel Text="Channels" ID=@ChannelId>
         <IndexChannel OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
-    <MudTabPanel @ref="_playlistPanel" Text="Playlists" ID=@PlaylistId>
+    <MudTabPanel Text="Playlists" ID=@PlaylistId>
         <IndexPlaylist OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
 </MudTabs>
