@@ -47,20 +47,20 @@ public class DownloadHelper : IDownloadHelper
             {
                 await DownloadWithFfmpeg(
                     video,
-                    token,
                     isPlaylist,
                     playlistTitle,
-                    progress);
+                    progress,
+                    token);
             }
             else
             {
                 await DownloadWithoutFfmpeg(
                     video,
                     videoUrl,
-                    token,
                     isPlaylist,
                     playlistTitle,
-                    progress);
+                    progress,
+                    token);
             }
 
             if (_settings.DownloadSubtitles)
@@ -80,10 +80,10 @@ public class DownloadHelper : IDownloadHelper
 
     private async Task DownloadWithFfmpeg(
         Video video,
-        CancellationToken token,
         bool isPlaylist,
         string playlistTitle,
-        IProgress<double> progress)
+        IProgress<double> progress, 
+        CancellationToken token)
     {
         var streamInfos = await LoadStreamInfosAsync(_youtube, video, token);
         var conversionRequest = GetRequestBuilder(video, isPlaylist, playlistTitle);
@@ -94,10 +94,10 @@ public class DownloadHelper : IDownloadHelper
     private async Task DownloadWithoutFfmpeg(
         Video video,
         string videoUrl,
-        CancellationToken token,
         bool isPlaylist,
         string playlistTitle,
-        IProgress<double> progress)
+        IProgress<double> progress,
+        CancellationToken token)
     {
         var streamManifest = await _youtube.Videos.Streams
                     .GetManifestAsync(videoUrl, token);
