@@ -112,7 +112,7 @@ public partial class SavedMedia
 
         try
         {
-            if (IsFFmpegPathInvalid())
+            if (IsFFmpegInvalid())
             {
                 snackbar.Add(FfmpegErrorMessage, Severity.Warning);
             }
@@ -295,13 +295,12 @@ public partial class SavedMedia
         return $"Search {_playlists?.Count} Playlists";
     }
 
-    private bool IsFFmpegPathInvalid()
+    private bool IsFFmpegInvalid()
     {
-        string path = settingsLibrary.FfmpegPath;
-        bool isPathNotEmptyOrNull = path is not null;
-        bool FileExists = File.Exists(path);
+        bool isFFmpegEmpty = string.IsNullOrWhiteSpace(settingsLibrary.FfmpegPath) is false;
+        bool ffmpPegDoesNotExist = File.Exists(settingsLibrary.FfmpegPath) is false;
 
-        if (isPathNotEmptyOrNull && FileExists)
+        if (isFFmpegEmpty && ffmpPegDoesNotExist)
         {
             return true;
         }
