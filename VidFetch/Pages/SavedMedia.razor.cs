@@ -102,7 +102,7 @@ public partial class SavedMedia
         _isPlaylistsLoading = false;
     }
 
-    private async Task DownloadAll()
+    private async Task DownloadSavedVideos()
     {
         if (_videos?.Count <= 0)
         {
@@ -117,24 +117,16 @@ public partial class SavedMedia
                 snackbar.Add(FfmpegErrorMessage, Severity.Warning);
             }
 
-            var cancellationToken = tokenHelper.InitializeToken(ref _allVideosTokenSource);
+            var token = tokenHelper.InitializeToken(ref _allVideosTokenSource);
 
-            var progressReport = new Progress<double>(value =>
+            var progress = new Progress<double>(value =>
             {
                 UpdateProgress(ref _videosProgress, value);
             });
 
             foreach (var v in _videos)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                _currentDownloadingVideo = v.Title;
-
-                await youtube.DownloadVideoAsync(
-                    v.Url,
-                    progressReport,
-                    cancellationToken);
-
-                snackbar.Add($"Successfully downloaded {v.Title}");
+                await DownloadVideo(v, progress, token);
             }
 
             _currentDownloadingVideo = "";
@@ -144,6 +136,16 @@ public partial class SavedMedia
         {
             snackbar.Add($"There was an issue downloading your videos: {ex.Message}", Severity.Error);
         }
+    }
+
+    private async Task DownloadVideo(VideoModel video, Progress<double> progress, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        _currentDownloadingVideo = video.Title;
+
+        await youtube.DownloadVideoAsync(video.Url, progress, token);
+
+        snackbar.Add($"Successfully downloaded {video.Title}");
     }
 
     private async Task DeleteVideo(VideoModel video)

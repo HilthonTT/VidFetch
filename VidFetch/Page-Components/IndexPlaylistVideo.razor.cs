@@ -122,9 +122,9 @@ public partial class IndexPlaylistVideo
                 snackbar.Add(FfmpegErrorMessage, Severity.Warning);
             }
 
-            var cancellationToken = tokenHelper.InitializeToken(ref _playlistTokenSource);
+            var token = tokenHelper.InitializeToken(ref _playlistTokenSource);
 
-            var progressReport = new Progress<double>(value =>
+            var progress = new Progress<double>(value =>
             {
                 UpdateProgress(ref _playlistProgress, value);
             });
@@ -133,24 +133,7 @@ public partial class IndexPlaylistVideo
 
             foreach (var v in videosCopy)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                _currentDownloadingVideo = v.Title;
-
-
-                await youtube.DownloadVideoAsync(
-                    v.Url,
-                    progressReport,
-                    cancellationToken,
-                    true,
-                    _playlist.Title);
-
-                AddSnackbar(v.Title);
-
-                if (settingsLibrary.RemoveAfterDownload)
-                {
-                    videoLibrary.PlaylistVideos.Remove(v);
-                    _visibleVideos.Remove(v);
-                }
+                await DownloadVideo(v, progress, token);
             }
 
             CancelPlaylistDownload();
@@ -162,7 +145,23 @@ public partial class IndexPlaylistVideo
         }
     }
 
-    private async Task DownloadVideo(string url)
+    private async Task DownloadVideo(VideoModel video, Progress<double> progress, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        _currentDownloadingVideo = video.Title;
+
+        await youtube.DownloadVideoAsync(video.Url, progress, token, true, _playlist.Title);
+
+        AddSnackbar(video.Title);
+
+        if (settingsLibrary.RemoveAfterDownload)
+        {
+            videoLibrary.PlaylistVideos.Remove(video);
+            _visibleVideos.Remove(video);
+        }
+    }
+
+    private async Task DownloadFirstVideo(string url)
     {
         try
         {

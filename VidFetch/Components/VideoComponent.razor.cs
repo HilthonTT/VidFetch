@@ -63,28 +63,32 @@ public partial class VideoComponent
 
     private async Task DownloadVideo()
     {
-        _isDownloading = true;
-
-        if (IsFFmpegPathInvalid())
+        try
         {
-            snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+            _isDownloading = true;
+
+            if (IsFFmpegPathInvalid())
+            {
+                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+            }
+
+            var token = tokenHelper.InitializeToken(ref _tokenSource);
+
+            var progress = new Progress<double>(value =>
+            {
+                _progress = value;
+                StateHasChanged();
+            });
+
+            await youtube.DownloadVideoAsync(Video.Url, progress, token);
+
+            AddSnackbar();
+            CancelVideoDownload();
         }
-
-        var cancellationToken = tokenHelper.InitializeToken(ref _tokenSource);
-        
-        var progressReporter = new Progress<double>(value =>
+        catch (Exception ex)
         {
-            _progress = value;
-            StateHasChanged();
-        });
-
-        await youtube.DownloadVideoAsync(
-            Video.Url,
-            progressReporter,
-            cancellationToken);
-        
-        AddSnackbar();
-        CancelVideoDownload();
+            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
     }
 
     private async Task SaveVideo()

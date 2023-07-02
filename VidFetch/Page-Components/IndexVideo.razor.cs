@@ -118,7 +118,7 @@ public partial class IndexVideo
                 snackbar.Add(FfmpegErrorMessage, Severity.Warning);
             }
 
-            var cancellationToken = tokenHelper.InitializeToken(ref _allVideosTokenSource);
+            var token = tokenHelper.InitializeToken(ref _allVideosTokenSource);
 
             var progressReport = new Progress<double>(value =>
             {
@@ -129,21 +129,7 @@ public partial class IndexVideo
 
             foreach (var v in videosCopy)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                _currentDownloadingVideo = v.Title;
-
-                await youtube.DownloadVideoAsync(
-                    v.Url,
-                    progressReport,
-                    cancellationToken);
-
-                if (settingsLibrary.RemoveAfterDownload)
-                {
-                    videoLibrary.Videos.Remove(v);
-                    _visibleVideos.Remove(v);
-                }
-
-                AddSnackbar(v.Title);
+                await DownloadVideo(v, progressReport, token);
             }
 
             _currentDownloadingVideo = "";
@@ -153,6 +139,22 @@ public partial class IndexVideo
         {
             snackbar.Add($"Error: {ex.Message}", Severity.Error);
         }
+    }
+
+    private async Task DownloadVideo(VideoModel video, Progress<double> progress, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        _currentDownloadingVideo = video.Title;
+
+        await youtube.DownloadVideoAsync(video.Url, progress, token);
+
+        if (settingsLibrary.RemoveAfterDownload)
+        {
+            videoLibrary.Videos.Remove(video);
+            _visibleVideos.Remove(video);
+        }
+
+        AddSnackbar(video.Title);
     }
 
 
