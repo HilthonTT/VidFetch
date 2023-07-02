@@ -10,6 +10,7 @@ public class SettingsLibrary : ISettingsLibrary
     public bool DownloadSubtitles { get; set; }
     public bool SaveVideos { get; set; }
     public bool CreateSubDirectoryPlaylist { get; set; }
+    public bool RemoveAfterDownload { get; set; }
     public DownloadPath SelectedPath { get; set; }
     public VideoExtension SelectedFormat { get; set; }
     public VideoResolution SelectedResolution { get; set; }

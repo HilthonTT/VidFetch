@@ -117,7 +117,7 @@ public partial class IndexPlaylistVideo
     {
         try
         {
-            if (File.Exists(settingsLibrary.FfmpegPath) is false)
+            if (IsFFmpegInvalid())
             {
                 snackbar.Add(FfmpegErrorMessage, Severity.Warning);
             }
@@ -129,7 +129,9 @@ public partial class IndexPlaylistVideo
                 UpdateProgress(ref _playlistProgress, value);
             });
 
-            foreach (var v in videoLibrary.PlaylistVideos)
+            var videosCopy = _visibleVideos.ToList();
+
+            foreach (var v in videosCopy)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 _currentDownloadingVideo = v.Title;
@@ -143,6 +145,12 @@ public partial class IndexPlaylistVideo
                     _playlist.Title);
 
                 AddSnackbar(v.Title);
+
+                if (settingsLibrary.RemoveAfterDownload)
+                {
+                    videoLibrary.PlaylistVideos.Remove(v);
+                    _visibleVideos.Remove(v);
+                }
             }
 
             CancelPlaylistDownload();
@@ -271,5 +279,18 @@ public partial class IndexPlaylistVideo
         }
 
         return $"Search {videoLibrary.PlaylistVideos?.Count} Videos";
+    }
+
+    private bool IsFFmpegInvalid()
+    {
+        bool isFFmpegEmpty = string.IsNullOrWhiteSpace(settingsLibrary.FfmpegPath) is false;
+        bool ffmpPegDoesNotExist = File.Exists(settingsLibrary.FfmpegPath) is false;
+
+        if (isFFmpegEmpty && ffmpPegDoesNotExist)
+        {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -43,6 +43,11 @@
                                 <MudSwitch @bind-Checked="_settingsModel.CreateSubDirectoryPlaylist"
                                            Color="MudBlazor.Color.Primary" />
                             </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <MudText class="mr-2">Remove Video After Download</MudText>
+                                <MudSwitch @bind-Checked="_settingsModel.RemoveAfterDownload"
+                                           Color="MudBlazor.Color.Primary" />
+                            </div>
                         </MudItem>
                         <MudItem xs="6">
                             <div class="d-flex align-items-center mb-3">

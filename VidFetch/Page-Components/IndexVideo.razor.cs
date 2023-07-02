@@ -125,7 +125,9 @@ public partial class IndexVideo
                 UpdateProgress(ref _videosProgress, value);
             });
 
-            foreach (var v in videoLibrary.Videos)
+            var videosCopy = _visibleVideos.ToList();
+
+            foreach (var v in videosCopy)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 _currentDownloadingVideo = v.Title;
@@ -134,6 +136,12 @@ public partial class IndexVideo
                     v.Url,
                     progressReport,
                     cancellationToken);
+
+                if (settingsLibrary.RemoveAfterDownload)
+                {
+                    videoLibrary.Videos.Remove(v);
+                    _visibleVideos.Remove(v);
+                }
 
                 AddSnackbar(v.Title);
             }

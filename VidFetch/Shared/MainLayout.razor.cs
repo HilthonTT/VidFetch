@@ -30,6 +30,7 @@ public partial class MainLayout
             settingsLibrary.DownloadSubtitles = false;
             settingsLibrary.SaveVideos = false;
             settingsLibrary.CreateSubDirectoryPlaylist = true;
+            settingsLibrary.RemoveAfterDownload = false;
             settingsLibrary.SelectedFormat = defaultData.GetVideoExtensions().First();
             settingsLibrary.SelectedPath = defaultData.GetDownloadPaths().First();
             settingsLibrary.SelectedResolution = defaultData.GetVideoResolutions().First();
@@ -48,5 +49,6 @@ public partial class MainLayout
         settingsLibrary.SelectedResolution = _settings.SelectedResolution;
         settingsLibrary.FfmpegPath = _settings.FfmpegPath;
         settingsLibrary.CreateSubDirectoryPlaylist = _settings.CreateSubDirectoryPlaylist;
+        settingsLibrary.RemoveAfterDownload = _settings.RemoveAfterDownload;
     }
 }

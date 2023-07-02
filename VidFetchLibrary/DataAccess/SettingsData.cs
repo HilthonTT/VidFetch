@@ -83,5 +83,6 @@ public class SettingsData : ISettingsData
         _settings.SelectedResolution = settings.SelectedResolution;
         _settings.FfmpegPath = settings.FfmpegPath;
         _settings.CreateSubDirectoryPlaylist = settings.CreateSubDirectoryPlaylist;
+        _settings.RemoveAfterDownload = settings.RemoveAfterDownload;
     }
 }

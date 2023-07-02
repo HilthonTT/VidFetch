@@ -13,4 +13,5 @@ public interface ISettingsLibrary
     VideoResolution SelectedResolution { get; set; }
     string FfmpegPath { get; set; }
     bool CreateSubDirectoryPlaylist { get; set; }
+    bool RemoveAfterDownload { get; set; }
 }

@@ -32,6 +32,7 @@ public partial class Settings
             _settingsModel.SelectedFormat = _settings.SelectedFormat;
             _settingsModel.SelectedResolution = _settings.SelectedResolution;
             _settingsModel.CreateSubDirectoryPlaylist = _settings.CreateSubDirectoryPlaylist;
+            _settingsModel.RemoveAfterDownload = _settings.RemoveAfterDownload;
             _ffmpegSettingsModel.SelectedResolution = _settings.SelectedResolution;
             _ffmpegSettingsModel.FfmpegPath = _settings.FfmpegPath;
         }
@@ -40,7 +41,8 @@ public partial class Settings
             _settingsModel.IsDarkMode = true;
             _settingsModel.DownloadSubtitles = false;
             _settingsModel.SaveVideos = false;
-            _settingsModel.CreateSubDirectoryPlaylist = false;
+            _settingsModel.CreateSubDirectoryPlaylist = true;
+            _settingsModel.RemoveAfterDownload = false;
             _settingsModel.SelectedFormat = defaultData.GetVideoExtensions().First();
             _settingsModel.SelectedPath = defaultData.GetDownloadPaths().First();
             _ffmpegSettingsModel.SelectedResolution = defaultData.GetVideoResolutions().First();
@@ -70,11 +72,12 @@ public partial class Settings
                 SelectedFormat = _settingsModel.SelectedFormat,
                 SelectedResolution = _settingsModel.SelectedResolution,
                 CreateSubDirectoryPlaylist = _settingsModel.CreateSubDirectoryPlaylist,
+                RemoveAfterDownload = _settingsModel.RemoveAfterDownload,
             };
 
             _ffmpegSettingsModel.SelectedResolution = s.SelectedResolution;
 
-            int exitCode = await settingsData.UpdateSettingsAsync(s);
+            int exitCode = await settingsData.SetSettingsAsync(s);
 
             if (exitCode == 1)
             {
@@ -112,7 +115,7 @@ public partial class Settings
                 SelectedResolution = _ffmpegSettingsModel.SelectedResolution,
             };
 
-            await settingsData.UpdateSettingsAsync(s);
+            await settingsData.SetSettingsAsync(s);
 
             _settingsModel.SelectedResolution = _ffmpegSettingsModel.SelectedResolution;
 

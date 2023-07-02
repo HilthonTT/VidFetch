@@ -12,14 +12,17 @@ public class SaveSettingsModel
     [Required(ErrorMessage = "You must set your set your download subtitles settings.")]
     public bool DownloadSubtitles { get; set; } = false;
 
-
     [Display(Name = "Save Videos")]
     [Required(ErrorMessage = "You must set your set your save videos settings.")]
     public bool SaveVideos { get; set; } = false;
 
-    [Display(Name = "Create SubDirectory Playlist")]
+    [Display(Name = "Create Subdirectory Playlist")]
     [Required(ErrorMessage = "You must set your set your create subdirectory playlist.")]
-    public bool CreateSubDirectoryPlaylist { get; set; } = false;
+    public bool CreateSubDirectoryPlaylist { get; set; } = true;
+
+    [Display(Name = "Remove After Download")]
+    [Required(ErrorMessage = "You must set your set your remove after download settings.")]
+    public bool RemoveAfterDownload { get; set; } = false;
 
     [Display(Name = "Selected Path")]
     [Required(ErrorMessage = "You must set your selected Path settings.")]
