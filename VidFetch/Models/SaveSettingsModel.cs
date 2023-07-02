@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using VidFetchLibrary.Data;
+using VidFetchLibrary.Library;
 
 namespace VidFetch.Models;
 public class SaveSettingsModel
@@ -26,13 +27,30 @@ public class SaveSettingsModel
 
     [Display(Name = "Selected Path")]
     [Required(ErrorMessage = "You must set your selected Path settings.")]
-    public DownloadPath SelectedPath { get; set; }
+    public DownloadPath SelectedPath { get; set; } = DownloadPath.DownloadFolder;
 
     [Display(Name = "Selected Format")]
     [Required(ErrorMessage = "You must set your selected format settings.")]
-    public VideoExtension SelectedFormat { get; set; }
+    public VideoExtension SelectedFormat { get; set; } = VideoExtension.Mp4;
 
     [Display(Name = "Selected Resolution")]
     [Required(ErrorMessage = "You must set your selected resolution settings")]
-    public VideoResolution SelectedResolution { get; set; }
+    public VideoResolution SelectedResolution { get; set; } = VideoResolution.P1080;
+
+    public SaveSettingsModel()
+    {
+        
+    }
+
+    public SaveSettingsModel(SettingsLibrary settings)
+    {
+        IsDarkMode = settings.IsDarkMode;
+        DownloadSubtitles = settings.DownloadSubtitles;
+        SaveVideos = settings.SaveVideos;
+        SelectedPath = settings.SelectedPath;
+        SelectedFormat = settings.SelectedFormat;
+        SelectedResolution = settings.SelectedResolution;
+        CreateSubDirectoryPlaylist = settings.CreateSubDirectoryPlaylist;
+        RemoveAfterDownload = settings.RemoveAfterDownload;
+    }
 }

@@ -7,8 +7,8 @@ namespace VidFetch.Pages;
 
 public partial class Settings
 {
-    private readonly SaveSettingsModel _settingsModel = new();
-    private readonly SaveFfmpegSettingsModel _ffmpegSettingsModel = new();
+    private SaveSettingsModel _settingsModel = new();
+    private SaveFfmpegSettingsModel _ffmpegSettingsModel = new();
     private SettingsLibrary _settings;
     private List<DownloadPath> _paths = new();
     private List<VideoExtension> _formats = new();
@@ -25,28 +25,8 @@ public partial class Settings
         _settings = await settingsData.GetSettingsAsync();
         if (_settings is not null)
         {
-            _settingsModel.IsDarkMode = _settings.IsDarkMode;
-            _settingsModel.DownloadSubtitles = _settings.DownloadSubtitles;
-            _settingsModel.SaveVideos = _settings.SaveVideos;
-            _settingsModel.SelectedPath = _settings.SelectedPath;
-            _settingsModel.SelectedFormat = _settings.SelectedFormat;
-            _settingsModel.SelectedResolution = _settings.SelectedResolution;
-            _settingsModel.CreateSubDirectoryPlaylist = _settings.CreateSubDirectoryPlaylist;
-            _settingsModel.RemoveAfterDownload = _settings.RemoveAfterDownload;
-            _ffmpegSettingsModel.SelectedResolution = _settings.SelectedResolution;
-            _ffmpegSettingsModel.FfmpegPath = _settings.FfmpegPath;
-        }
-        else
-        {
-            _settingsModel.IsDarkMode = true;
-            _settingsModel.DownloadSubtitles = false;
-            _settingsModel.SaveVideos = false;
-            _settingsModel.CreateSubDirectoryPlaylist = true;
-            _settingsModel.RemoveAfterDownload = false;
-            _settingsModel.SelectedFormat = defaultData.GetVideoExtensions().First();
-            _settingsModel.SelectedPath = defaultData.GetDownloadPaths().First();
-            _ffmpegSettingsModel.SelectedResolution = defaultData.GetVideoResolutions().First();
-            _ffmpegSettingsModel.FfmpegPath = "";
+            _settingsModel = new(_settings);
+            _ffmpegSettingsModel = new(_settings);
         }
     }
 
@@ -78,6 +58,7 @@ public partial class Settings
             _ffmpegSettingsModel.SelectedResolution = s.SelectedResolution;
 
             int exitCode = await settingsData.SetSettingsAsync(s);
+            settingsLibrary = new SettingsLibrary(s);
 
             if (exitCode == 1)
             {
@@ -116,9 +97,9 @@ public partial class Settings
             };
 
             await settingsData.SetSettingsAsync(s);
+            settingsLibrary = new SettingsLibrary(s);
 
             _settingsModel.SelectedResolution = _ffmpegSettingsModel.SelectedResolution;
-
             settingsLibrary.SelectedResolution = s.SelectedResolution;
             settingsLibrary.FfmpegPath = s.FfmpegPath;
 
