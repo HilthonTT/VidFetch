@@ -33,33 +33,35 @@ public class SettingsData : ISettingsData
         }
     }
 
-    /// <summary>
-    /// Kept the old way because of it being an issue with reloading the page.
-    /// </summary>
-    /// <returns>Returns SettingsLibrary</returns>
     public async Task<SettingsLibrary> GetSettingsAsync()
     {
         await SetUpDb();
 
-        var output = _cache.Get<SettingsLibrary>(CacheName);
+        var output = await _cache.GetOrCreateAsync(CacheName, async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+
+            return await _db.Table<SettingsLibrary>()
+                .FirstOrDefaultAsync();
+        });
+
         if (output is null)
         {
-            output = await _db.Table<SettingsLibrary>().FirstOrDefaultAsync();
-            _cache.Set(CacheName, output, TimeSpan.FromHours(CacheTime));
+            _cache.Remove(CacheName);
         }
 
         return output;
     }
 
-    public async Task<int> UpdateSettingsAsync(SettingsLibrary settings)
-    {
-        await SetUpDb();
-        
+    public async Task<int> SetSettingsAsync(SettingsLibrary settings)
+    {        
         var existingSettings = await GetSettingsAsync();
+
         if (existingSettings is not null)
         {
             settings.Id = existingSettings.Id;
             MapSettingsLibrary(settings);
+            
             return await _db.UpdateAsync(settings);
         }
         else

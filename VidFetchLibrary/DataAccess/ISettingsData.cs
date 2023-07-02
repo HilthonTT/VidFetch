@@ -4,5 +4,5 @@ namespace VidFetchLibrary.DataAccess;
 public interface ISettingsData
 {
     Task<SettingsLibrary> GetSettingsAsync();
-    Task<int> UpdateSettingsAsync(SettingsLibrary settings);
+    Task<int> SetSettingsAsync(SettingsLibrary settings);
 }
