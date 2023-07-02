@@ -200,6 +200,9 @@ public partial class IndexVideo
 
     private void UpdateProgress(ref double progressVariable, double value)
     {
+        if (Math.Abs(value - progressVariable) < 0.1)
+            return;
+
         progressVariable = value;
         StateHasChanged();
     }

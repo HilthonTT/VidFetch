@@ -76,8 +76,7 @@ public partial class VideoComponent
 
             var progress = new Progress<double>(value =>
             {
-                _progress = value;
-                StateHasChanged();
+                UpdateProgress(ref _progress, value);
             });
 
             await youtube.DownloadVideoAsync(Video.Url, progress, token);
@@ -89,6 +88,15 @@ public partial class VideoComponent
         {
             snackbar.Add($"Error: {ex.Message}", Severity.Error);
         }
+    }
+
+    private void UpdateProgress(ref double progressVariable, double value)
+    {
+        if (Math.Abs(value - progressVariable) < 0.1)
+            return;
+
+        progressVariable = value;
+        StateHasChanged();
     }
 
     private async Task SaveVideo()
