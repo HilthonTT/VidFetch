@@ -58,6 +58,8 @@ public partial class VideoComponent
             var channel = await youtube.GetChannelAsync(Video.AuthorUrl);
             string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
             Video.AuthorThumbnailUrl = channelThumbnail;
+
+            StateHasChanged();
         }
     }
 

@@ -28,6 +28,7 @@ public partial class PlaylistComponent
         if (firstRender)
         {
             await LoadPlaylistData();
+            RerenderIfNeeded();
         }
     }
 
@@ -91,5 +92,16 @@ public partial class PlaylistComponent
     {
         string encodedUrl = Uri.EscapeDataString(Playlist.Url);
         navManager.NavigateTo($"/Playlist/{encodedUrl}");
+    }
+
+    private void RerenderIfNeeded()
+    {
+        bool isAuthorThumbnailEmpty = string.IsNullOrWhiteSpace(Playlist.AuthorThumbnailUrl);
+        bool isThumbnailEmpty = string.IsNullOrWhiteSpace(Playlist.ThumbnailUrl);
+
+        if (isAuthorThumbnailEmpty || isThumbnailEmpty)
+        {
+            StateHasChanged();
+        }
     }
 }
