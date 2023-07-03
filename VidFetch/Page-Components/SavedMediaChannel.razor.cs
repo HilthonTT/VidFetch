@@ -52,10 +52,21 @@ public partial class SavedMediaChannel
         return await searchHelper.SearchAsync(_channels, searchInput);
     }
 
+    private void HandleSearchValueChanged(string value)
+    {
+        _searchText = value;
+        FilterChannels();
+    }
+
     private void FilterChannels()
     {
-        _channels = searchHelper.FilterList(_channels, _searchText);
-        _visibleChannels = searchHelper.FilterList(_channels, _searchText).Take(_loadedItems).ToList();
+        _channels = searchHelper
+            .FilterList(_channels, _searchText);
+
+        _visibleChannels = searchHelper
+            .FilterList(_channels, _searchText)
+            .Take(_loadedItems)
+            .ToList();
     }
 
     private string GetSearchBarText()

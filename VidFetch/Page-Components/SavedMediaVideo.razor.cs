@@ -92,6 +92,23 @@ public partial class SavedMediaVideo
         return await searchHelper.SearchAsync(_videos, searchInput);
     }
 
+    private void HandleSearchValueChanged(string value)
+    {
+        _searchText = value;
+        FilterVideos();
+    }
+
+    private void FilterVideos()
+    {
+        _videos = searchHelper
+            .FilterList(_videos, _searchText);
+
+        _visibleVideos = searchHelper
+            .FilterList(_videos, _searchText)
+            .Take(_loadedItems)
+            .ToList();
+    }
+
     private async Task DeleteVideo(VideoModel video)
     {
         _videos.Remove(video);
@@ -102,12 +119,6 @@ public partial class SavedMediaVideo
     private async Task OpenFileLocation()
     {
         await folderHelper.OpenFolderLocationAsync();
-    }
-
-    private void FilterVideos()
-    {
-        _videos = searchHelper.FilterList(_videos, _searchText);
-        _visibleVideos = searchHelper.FilterList(_videos, _searchText).Take(_loadedItems).ToList();
     }
 
     private void UpdateProgress(ref double progressVariable, double value)

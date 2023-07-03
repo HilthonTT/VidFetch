@@ -39,10 +39,21 @@ public partial class SavedMediaPlaylist
         return await searchHelper.SearchAsync(_playlists, searchInput);
     }
 
+    private void HandleSearchValueChanged(string value)
+    {
+        _searchText = value;
+        FilterPlaylists();
+    }
+
     private void FilterPlaylists()
     {
-        _playlists = searchHelper.FilterList(_playlists, _searchText);
-        _visiblePlaylists = searchHelper.FilterList(_playlists, _searchText).Take(_loadedItems).ToList();
+        _playlists = searchHelper
+            .FilterList(_playlists, _searchText);
+
+        _visiblePlaylists = searchHelper
+            .FilterList(_playlists, _searchText)
+            .Take(_loadedItems)
+            .ToList();
     }
 
     private void LoadMorePlaylists()

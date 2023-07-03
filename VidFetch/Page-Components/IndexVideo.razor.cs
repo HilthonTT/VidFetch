@@ -157,10 +157,15 @@ public partial class IndexVideo
         AddSnackbar(video.Title);
     }
 
-
     private async Task<IEnumerable<string>> SearchVideos(string searchInput)
     {
         return await searchHelper.SearchAsync(videoLibrary.Videos, searchInput);
+    }
+
+    private void HandleSearchValueChanged(string value)
+    {
+        _searchText = value;
+        FilterVideos();
     }
 
     private void FilterVideos()

@@ -78,6 +78,12 @@ public partial class IndexChannel
         return await searchHelper.SearchAsync(videoLibrary.Channels, searchInput);
     }
 
+    private void HandleSearchValueChanged(string value)
+    {
+        _searchText = value;
+        FilterChannels();
+    }
+
     private void FilterChannels()
     {
         videoLibrary.Channels = searchHelper

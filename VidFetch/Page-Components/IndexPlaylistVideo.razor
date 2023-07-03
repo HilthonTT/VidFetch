@@ -55,14 +55,14 @@
                 </MudButton>
             </div>
             <div class="w-100">
-                <MudAutocomplete @bind-Value="_searchText"
-                                 T="string"
+                <MudAutocomplete T="string"
                                  Label="@GetSearchBarText()"
                                  Variant="Variant.Outlined"
                                  AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
                                  OnAdornmentClick="FilterPlaylistVideo"
                                  SearchFunc="SearchPlaylistVideos"
-                                 ResetValueOnEmptyText="true" />
+                                 ResetValueOnEmptyText="true"
+                                 ValueChanged="HandleSearchValueChanged"/>
             </div>
             <div class="mx-3">
                 <MudButton Color="Color.Success"

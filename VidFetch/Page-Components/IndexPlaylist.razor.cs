@@ -78,6 +78,12 @@ public partial class IndexPlaylist
         return await searchHelper.SearchAsync(videoLibrary.Playlists, searchInput);
     }
 
+    private void HandleSearchValueChanged(string value)
+    {
+        _playlistSearchText = value;
+        FilterPlaylists();
+    }
+
     private void FilterPlaylists()
     {
         videoLibrary.Playlists = searchHelper
