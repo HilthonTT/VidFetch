@@ -1,4 +1,5 @@
 using VidFetchLibrary.Library;
+using VidFetchLibrary.Data;
 
 namespace VidFetch.Shared;
 
@@ -23,7 +24,12 @@ public partial class MainLayout
         }
         else
         {
-            settingsLibrary = new SettingsLibrary();
+            settingsLibrary = new SettingsLibrary
+            {
+                SelectedPath = DownloadPath.DownloadFolder,
+                SelectedFormat = VideoExtension.Mp4,
+                SelectedResolution = VideoResolution.P1080,
+            };
         }
     }
 }
