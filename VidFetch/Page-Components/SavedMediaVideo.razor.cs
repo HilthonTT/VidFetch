@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Page_Components;
@@ -11,6 +12,7 @@ public partial class SavedMediaVideo
     public EventCallback<bool> OpenLoading { get; set; }
 
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
+    private SettingsLibrary _settings;
     private CancellationTokenSource _allVideosTokenSource;
     private List<VideoModel> _videos = new();
     private List<VideoModel> _visibleVideos = new();
@@ -21,6 +23,7 @@ public partial class SavedMediaVideo
 
     protected override async Task OnInitializedAsync()
     {
+        _settings = await settingsData.GetSettingsAsync();
         await LoadVideos();
     }
 
@@ -182,8 +185,8 @@ public partial class SavedMediaVideo
 
     private bool IsFFmpegInvalid()
     {
-        bool isFFmpegEmpty = string.IsNullOrWhiteSpace(settingsLibrary.FfmpegPath)is false;
-        bool ffmpPegDoesNotExist = File.Exists(settingsLibrary.FfmpegPath)is false;
+        bool isFFmpegEmpty = string.IsNullOrWhiteSpace(_settings.FfmpegPath) is false;
+        bool ffmpPegDoesNotExist = File.Exists(_settings.FfmpegPath) is false;
         if (isFFmpegEmpty && ffmpPegDoesNotExist)
         {
             return true;

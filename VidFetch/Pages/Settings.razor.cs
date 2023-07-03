@@ -59,7 +59,6 @@ public partial class Settings
             _ffmpegSettingsModel.SelectedResolution = s.SelectedResolution;
 
             int exitCode = await settingsData.SetSettingsAsync(s);
-            settingsLibrary = new SettingsLibrary(s);
 
             if (exitCode == 1)
             {
@@ -87,22 +86,20 @@ public partial class Settings
 
             var s = new SettingsLibrary
             {
-                Id = settingsLibrary.Id,
-                IsDarkMode = settingsLibrary.IsDarkMode,
-                DownloadSubtitles = settingsLibrary.DownloadSubtitles,
-                SaveVideos = settingsLibrary.SaveVideos,
-                SelectedPath = settingsLibrary.SelectedPath,
-                SelectedFormat = settingsLibrary.SelectedFormat,
+                Id = _settings.Id,
+                IsDarkMode = _settings.IsDarkMode,
+                DownloadSubtitles = _settings.DownloadSubtitles,
+                SaveVideos = _settings.SaveVideos,
+                SelectedPath = _settings.SelectedPath,
+                SelectedFormat = _settings.SelectedFormat,
                 FfmpegPath = _ffmpegSettingsModel.FfmpegPath,
                 SelectedResolution = _ffmpegSettingsModel.SelectedResolution,
             };
 
             await settingsData.SetSettingsAsync(s);
-            settingsLibrary = new SettingsLibrary(s);
+            _settings = new SettingsLibrary(s);
 
             _settingsModel.SelectedResolution = _ffmpegSettingsModel.SelectedResolution;
-            settingsLibrary.SelectedResolution = s.SelectedResolution;
-            settingsLibrary.FfmpegPath = s.FfmpegPath;
 
             snackbar.Add("Successfully saved settings.");
         }

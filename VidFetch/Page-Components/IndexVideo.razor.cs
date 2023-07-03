@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Page_Components;
@@ -24,6 +25,7 @@ public partial class IndexVideo
 
 
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
+    private SettingsLibrary _settings;
     private CancellationTokenSource _allVideosTokenSource;
     private List<VideoModel> _visibleVideos = new();
     private string _videoUrl = "";
@@ -32,9 +34,10 @@ public partial class IndexVideo
     private double _videosProgress = 0;
     private int _loadedItems = 6;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _visibleVideos = videoLibrary.Videos.Take(_loadedItems).ToList();
+        _settings = await settingsData.GetSettingsAsync();
     }
 
     private void LoadMoreVideos()
@@ -93,7 +96,7 @@ public partial class IndexVideo
             videoLibrary.Videos.Add(video);
         }
 
-        if (settingsLibrary.SaveVideos)
+        if (_settings.SaveVideos)
         {
             await SaveVideos();
         }
@@ -148,7 +151,7 @@ public partial class IndexVideo
 
         await youtube.DownloadVideoAsync(video.Url, progress, token);
 
-        if (settingsLibrary.RemoveAfterDownload)
+        if (_settings.RemoveAfterDownload)
         {
             videoLibrary.Videos.Remove(video);
             _visibleVideos.Remove(video);
@@ -259,8 +262,8 @@ public partial class IndexVideo
 
     private bool IsFFmpegInvalid()
     {
-        bool isFFmpegEmpty = string.IsNullOrWhiteSpace(settingsLibrary.FfmpegPath) is false;
-        bool ffmpPegDoesNotExist = File.Exists(settingsLibrary.FfmpegPath) is false;
+        bool isFFmpegEmpty = string.IsNullOrWhiteSpace(_settings.FfmpegPath) is false;
+        bool ffmpPegDoesNotExist = File.Exists(_settings.FfmpegPath) is false;
 
         if (isFFmpegEmpty && ffmpPegDoesNotExist)
         {

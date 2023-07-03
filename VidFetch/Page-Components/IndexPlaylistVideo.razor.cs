@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Page_Components;
@@ -15,6 +16,7 @@ public partial class IndexPlaylistVideo
     public EventCallback<bool> OpenLoading { get; set; }
 
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
+    private SettingsLibrary _settings;
     private CancellationTokenSource _playlistTokenSource;
     private CancellationTokenSource _videoTokenSource;
     private PlaylistModel _playlist = new();
@@ -30,6 +32,8 @@ public partial class IndexPlaylistVideo
 
     protected override async Task OnInitializedAsync()
     {
+        _settings = await settingsData.GetSettingsAsync();
+
         if (string.IsNullOrWhiteSpace(PlaylistUrl) is false)
         {
             _playlist = await youtube.GetPlaylistAsync(PlaylistUrl);
@@ -97,7 +101,7 @@ public partial class IndexPlaylistVideo
             }
         }
 
-        if (settingsLibrary.SaveVideos)
+        if (_settings.SaveVideos)
         {
             await SavePlaylistVideos();
         }
@@ -154,7 +158,7 @@ public partial class IndexPlaylistVideo
 
         AddSnackbar(video.Title);
 
-        if (settingsLibrary.RemoveAfterDownload)
+        if (_settings.RemoveAfterDownload)
         {
             videoLibrary.PlaylistVideos.Remove(video);
             _visibleVideos.Remove(video);
@@ -165,7 +169,7 @@ public partial class IndexPlaylistVideo
     {
         try
         {
-            if (File.Exists(settingsLibrary.FfmpegPath)is false)
+            if (File.Exists(_settings.FfmpegPath)is false)
             {
                 snackbar.Add(FfmpegErrorMessage, Severity.Warning);
             }
@@ -291,8 +295,8 @@ public partial class IndexPlaylistVideo
 
     private bool IsFFmpegInvalid()
     {
-        bool isFFmpegEmpty = string.IsNullOrWhiteSpace(settingsLibrary.FfmpegPath) is false;
-        bool ffmpPegDoesNotExist = File.Exists(settingsLibrary.FfmpegPath) is false;
+        bool isFFmpegEmpty = string.IsNullOrWhiteSpace(_settings.FfmpegPath) is false;
+        bool ffmpPegDoesNotExist = File.Exists(_settings.FfmpegPath) is false;
 
         if (isFFmpegEmpty && ffmpPegDoesNotExist)
         {

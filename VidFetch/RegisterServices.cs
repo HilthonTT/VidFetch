@@ -32,7 +32,6 @@ public static class RegisterServices
         builder.Services.AddTransient<YoutubeClient>();
 
         builder.Services.AddSingleton<IVideoLibrary, VideoLibrary>();
-        builder.Services.AddSingleton<ISettingsLibrary, SettingsLibrary>();
 
         // Helpers
         builder.Services.AddSingleton<ISearchHelper,  SearchHelper>();

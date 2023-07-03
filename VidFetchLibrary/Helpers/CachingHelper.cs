@@ -7,7 +7,6 @@ using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
 using YoutubeExplode.Common;
 using System.Web;
-using VidFetchLibrary.Library;
 
 namespace VidFetchLibrary.Helpers;
 public class CachingHelper : ICachingHelper
@@ -15,13 +14,11 @@ public class CachingHelper : ICachingHelper
     private const int CacheTime = 5;
     private const int MaxDataCount = 200;
     private readonly IMemoryCache _cache;
-    private readonly ISettingsLibrary _settings;
     private YoutubeClient _youtube;
 
-    public CachingHelper(IMemoryCache cache, ISettingsLibrary settings)
+    public CachingHelper(IMemoryCache cache)
     {
         _cache = cache;
-        _settings = settings;
         InitializeClient();
     }
 

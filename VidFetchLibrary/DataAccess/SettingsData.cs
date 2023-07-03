@@ -45,6 +45,7 @@ public class SettingsData : ISettingsData
         if (output is null)
         {
             _cache.Remove(CacheName);
+            return new();
         }
 
         return output;
