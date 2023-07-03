@@ -11,8 +11,14 @@ public partial class Search
     private CancellationTokenSource _videoTokenSource;
     private CancellationTokenSource _channelTokenSource;
     private CancellationTokenSource _playlistTokenSource;
+
+    private string _videoUrl = "";
     private string _videoSearchText = "";
+
+    private string _playlistUrl = "";
     private string _playlistSearchText = "";
+
+    private string _channelUrl = "";
     private string _channelSearchText = "";
 
     private int _loadedVideos = 6;
@@ -81,10 +87,10 @@ public partial class Search
 
     private async Task SearchVideos()
     {
-        if (string.IsNullOrWhiteSpace(_videoSearchText) is false)
+        if (string.IsNullOrWhiteSpace(_videoUrl) is false)
         {
             var token = tokenHelper.InitializeToken(ref _videoTokenSource);
-            videoLibrary.VideoResults = await youtube.GetVideosBySearchAsync(_videoSearchText, token);
+            videoLibrary.VideoResults = await youtube.GetVideosBySearchAsync(_videoUrl, token);
 
             _visibleVideos = videoLibrary.VideoResults.Take(_loadedVideos).ToList();
             CancelVideoSearch();
@@ -93,10 +99,10 @@ public partial class Search
 
     private async Task SearchPlaylists()
     {
-        if (string.IsNullOrWhiteSpace(_playlistSearchText) is false)
+        if (string.IsNullOrWhiteSpace(_playlistUrl) is false)
         {
             var token = tokenHelper.InitializeToken(ref _playlistTokenSource);
-            videoLibrary.PlaylistResults = await youtube.GetPlaylistsBySearchAsync(_playlistSearchText, token);
+            videoLibrary.PlaylistResults = await youtube.GetPlaylistsBySearchAsync(_playlistUrl, token);
 
             _visiblePlaylists = videoLibrary.PlaylistResults.Take(_loadedPlaylists).ToList();
             CancelPlaylistSearch();
@@ -105,10 +111,10 @@ public partial class Search
 
     private async Task SearchChannels()
     {
-        if (string.IsNullOrWhiteSpace(_channelSearchText) is false)
+        if (string.IsNullOrWhiteSpace(_channelUrl) is false)
         {
             var token = tokenHelper.InitializeToken(ref _channelTokenSource);
-            videoLibrary.ChannelResults = await youtube.GetChannelBySearchAsync(_channelSearchText, token);
+            videoLibrary.ChannelResults = await youtube.GetChannelBySearchAsync(_channelUrl, token);
 
             _visibleChannels = videoLibrary.ChannelResults.Take(_loadedChannels).ToList();
             CancelChannelSearch();
@@ -133,6 +139,24 @@ public partial class Search
     private async Task<IEnumerable<string>> FilterSearchPlaylists(string searchInput)
     {
         return await searchHelper.SearchAsync(videoLibrary.PlaylistResults, searchInput);
+    }
+
+    private void HandleVideoSearchValueChanged(string value)
+    {
+        _videoSearchText = value;
+        FilterVideos();
+    }
+
+    private void HandleChannelSearchValueChanged(string value) 
+    {
+        _channelSearchText = value;
+        FilterChannels();
+    }
+
+    private void HandlePlaylistSearchValueChanged(string value)
+    {
+        _playlistSearchText = value;
+        FilterChannels();
     }
 
     private void FilterVideos()
@@ -166,6 +190,21 @@ public partial class Search
             .FilterList(videoLibrary.PlaylistResults, _playlistSearchText)
             .Take(_loadedPlaylists)
             .ToList();
+    }
+
+    private void ClearVideos()
+    {
+        videoLibrary.VideoResults?.Clear();
+    }
+
+    private void ClearChannels()
+    {
+        videoLibrary.ChannelResults?.Clear();
+    }
+
+    private void ClearPlaylists()
+    {
+        videoLibrary.PlaylistResults?.Clear();
     }
 
     private void RemoveVideo(VideoModel video)

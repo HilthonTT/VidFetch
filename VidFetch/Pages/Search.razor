@@ -14,7 +14,7 @@
     <MudTabPanel Text="Videos">
         <MudGrid Spacing="5">
             <MudItem xs="12" Class="text-center">
-                <MudTextField @bind-Value="_videoSearchText"
+                <MudTextField @bind-Value="_videoUrl"
                               Class="mb-4"
                               Label="Input the video's title"
                               HelperText="This is where you input video's title."
@@ -24,50 +24,69 @@
                               OnAdornmentClick="SearchVideos"
                               Required="true"
                               Clearable="true" />
-                <MudButton Class="mt-4 w-100"
-                           Color="Color.Warning"
-                           Variant="Variant.Outlined"
-                @onclick="OpenFileLocation">
-                    Open Folder Location
-                </MudButton>
+
             </MudItem>
         </MudGrid>
         <MudGrid Spacing="5">
             <MudItem xs="12">
-                <MudAutocomplete T="string" Label="@GetVideoSearchBarText()"
-                                 Variant="Variant.Outlined"
-                                 Class="mb-4"
-                                 HelperText="Search the loaded videos."
-                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                                 OnAdornmentClick="FilterVideos"
-                                 SearchFunc="FilterSearchVideos"
-                                 ResetValueOnEmptyText="true" />
-                @if (_videoTokenSource is not null)
-                {
-                    <MudButton Color="Color.Error"
-                               Variant="Variant.Filled"
-                               Class="w-100 mb-4"
-                    @onclick="CancelVideoSearch">
-                        Cancel Video Search
-                    </MudButton>
-                }
-                <MudGrid>
-                    <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
-                        <VideoComponent @key="v.Id"
-                                        Video="v"
-                                        CardSize="4"
-                                        RemoveEvent="(() => RemoveVideo(v))" />
-                    </MudVirtualize>
-                </MudGrid>
-                @if (_loadedVideos < videoLibrary.VideoResults.Count)
-                {
-                    <div class="text-center mt-4">
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                        @onclick="LoadMoreVideos">
-                            Load More
+                <div class="justify-content-between d-flex align-items-center">
+                    <div class="mx-3">
+                        @if (_videoTokenSource is not null)
+                        {
+                            <MudButton @onclick="CancelVideoSearch"
+                                       Color="Color.Error"
+                                       Variant="Variant.Outlined">
+                                Cancel Search
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudButton @onclick="SearchVideos"
+                                       Color="Color.Success"
+                                       Variant="Variant.Outlined">
+                                Search Videos
+                            </MudButton>
+                        }
+                    </div>
+                    <div class="w-100">
+                        <MudAutocomplete T="string"
+                                         Label="@GetVideoSearchBarText()"
+                                         Variant="Variant.Outlined"
+                                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                                         OnAdornmentClick="FilterVideos"
+                                         SearchFunc="FilterSearchVideos"
+                                         ResetValueOnEmptyText="true"
+                                         ValueChanged="HandleVideoSearchValueChanged" />
+                    </div>
+                    <div class="mx-3">
+                        <MudButton Color="Color.Warning"
+                                   Variant="Variant.Outlined"
+                        @onclick="OpenFileLocation">
+                            Open Folder Location
                         </MudButton>
                     </div>
+                </div>
+                @if (_visibleVideos?.Count > 0 || videoLibrary.VideoResults?.Count > 0)
+                {
+                    <MudDivider Class="mb-6 mt-6"></MudDivider>
+                    <MudGrid>
+                        <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
+                            <VideoComponent @key="v.Id"
+                                            Video="v"
+                                            CardSize="4"
+                                            RemoveEvent="(() => RemoveVideo(v))" />
+                        </MudVirtualize>
+                    </MudGrid>
+                    @if (_loadedVideos < videoLibrary.VideoResults?.Count)
+                    {
+                        <div class="text-center mt-4">
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                            @onclick="LoadMoreVideos">
+                                Load More
+                            </MudButton>
+                        </div>
+                    }
                 }
             </MudItem>
         </MudGrid>
@@ -75,10 +94,10 @@
     <MudTabPanel Text="Channels">
         <MudGrid Spacing="5">
             <MudItem xs="12" Class="text-center">
-                <MudTextField @bind-Value="_channelSearchText"
+                <MudTextField @bind-Value="_channelUrl"
                               Class="mb-4"
                               Label="Input the channel's title"
-                              HelperText="This is where you input the channel's title."
+                              HelperText="This is where you input channel's title."
                               Variant="Variant.Outlined"
                               Adornment="Adornment.End"
                               AdornmentIcon="@Icons.Material.Filled.Download"
@@ -89,40 +108,64 @@
         </MudGrid>
         <MudGrid Spacing="5">
             <MudItem xs="12">
-                <MudAutocomplete T="string" Label="@GetChannelSearchBarText()"
-                                 Variant="Variant.Outlined"
-                                 Class="mb-4"
-                                 HelperText="Search the loaded channels"
-                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                                 OnAdornmentClick="FilterChannels"
-                                 SearchFunc="FilterSearchChannels"
-                                 ResetValueOnEmptyText="true" />
-                @if (_channelTokenSource is not null)
-                {
-                    <MudButton Color="Color.Error"
-                               Variant="Variant.Filled"
-                               Class="w-100 mb-4"
-                    @onclick="CancelChannelSearch">
-                        Cancel Channel Search
-                    </MudButton>
-                }
-                <MudGrid>
-                    <MudVirtualize Items="_visibleChannels" Context="c" OverscanCount="6">
-                        <ChannelComponent @key="c.Id"
-                                          Channel="c"
-                                          CardSize="4"
-                                          RemoveEvent="(() => RemoveChannel(c))" />
-                    </MudVirtualize>
-                </MudGrid>
-                @if (_loadedChannels < videoLibrary.ChannelResults.Count)
-                {
-                    <div class="text-center mt-4">
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                        @onclick="LoadMoreChannels">
-                            Load More
+                <div class="justify-content-between d-flex align-items-center">
+                    <div class="mx-3">
+                        @if (_channelTokenSource is not null)
+                        {
+                            <MudButton @onclick="CancelChannelSearch"
+                                       Color="Color.Error"
+                                       Variant="Variant.Outlined">
+                                Cancel Search
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudButton @onclick="SearchChannels"
+                                       Color="Color.Success"
+                                       Variant="Variant.Outlined">
+                                Search Channels
+                            </MudButton>
+                        }
+                    </div>
+                    <div class="w-100">
+                        <MudAutocomplete T="string"
+                                         Label="@GetChannelSearchBarText()"
+                                         Variant="Variant.Outlined"
+                                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                                         OnAdornmentClick="FilterChannels"
+                                         SearchFunc="FilterSearchChannels"
+                                         ResetValueOnEmptyText="true"
+                                         ValueChanged="HandleChannelSearchValueChanged" />
+                    </div>
+                    <div class="mx-3">
+                        <MudButton Color="Color.Warning"
+                                   Variant="Variant.Outlined"
+                        @onclick="OpenFileLocation">
+                            Open Folder Location
                         </MudButton>
                     </div>
+                </div>
+                @if (_visibleChannels?.Count > 0 || videoLibrary.ChannelResults?.Count > 0)
+                {
+                    <MudDivider Class="mb-6 mt-6"></MudDivider>
+                    <MudGrid>
+                        <MudVirtualize Items="_visibleChannels" Context="c" OverscanCount="6">
+                            <ChannelComponent @key="c.Id"
+                                              Channel="c"
+                                              CardSize="4"
+                                              RemoveEvent="(() => RemoveChannel(c))" />
+                        </MudVirtualize>
+                    </MudGrid>
+                    @if (_loadedChannels < videoLibrary.ChannelResults?.Count)
+                    {
+                        <div class="text-center mt-4">
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                            @onclick="LoadMoreChannels">
+                                Load More
+                            </MudButton>
+                        </div>
+                    }
                 }
             </MudItem>
         </MudGrid>
@@ -130,54 +173,79 @@
     <MudTabPanel Text="Playlists">
         <MudGrid Spacing="5">
             <MudItem xs="12" Class="text-center">
-                <MudTextField @bind-Value="_playlistSearchText"
+                <MudTextField @bind-Value="_playlistUrl"
                               Class="mb-4"
                               Label="Input the playlist's title"
-                              HelperText="This is where you input the playlist's title."
+                              HelperText="This is where you input playlist's title."
                               Variant="Variant.Outlined"
                               Adornment="Adornment.End"
                               AdornmentIcon="@Icons.Material.Filled.Download"
-                              OnAdornmentClick="SearchPlaylists"
+                              OnAdornmentClick="SearchChannels"
                               Required="true"
                               Clearable="true" />
+
             </MudItem>
         </MudGrid>
         <MudGrid Spacing="5">
             <MudItem xs="12">
-                <MudAutocomplete T="string" Label="@GetPlaylistSearchBarText()"
-                                 Variant="Variant.Outlined"
-                                 Class="mb-4"
-                                 HelperText="Search the loaded playlists"
-                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                                 OnAdornmentClick="FilterPlaylists"
-                                 SearchFunc="FilterSearchPlaylists"
-                                 ResetValueOnEmptyText="true" />
-                @if (_playlistTokenSource is not null)
-                {
-                    <MudButton Color="Color.Error"
-                               Variant="Variant.Filled"
-                               Class="w-100 mb-4"
-                    @onclick="CancelPlaylistSearch">
-                        Cancel Playlist Search
-                    </MudButton>
-                }
-                <MudGrid>
-                    <MudVirtualize Items="_visiblePlaylists" Context="p" OverscanCount="6">
-                        <PlaylistComponent @key="p.PlaylistId"
-                                           Playlist="p"
-                                           CardSize="4"
-                                           RemoveEvent="(() => RemovePlaylist(p))" />
-                    </MudVirtualize>
-                </MudGrid>
-                @if (_loadedPlaylists < videoLibrary.PlaylistResults.Count)
-                {
-                    <div class="text-center mt-4">
-                        <MudButton Variant="Variant.Filled"
-                                   Color="Color.Primary"
-                        @onclick="LoadMorePlaylists">
-                            Load More
+                <div class="justify-content-between d-flex align-items-center">
+                    <div class="mx-3">
+                        @if (_playlistTokenSource is not null)
+                        {
+                            <MudButton @onclick="CancelPlaylistSearch"
+                                       Color="Color.Error"
+                                       Variant="Variant.Outlined">
+                                Cancel Search
+                            </MudButton>
+                        }
+                        else
+                        {
+                            <MudButton @onclick="SearchPlaylists"
+                                       Color="Color.Success"
+                                       Variant="Variant.Outlined">
+                                Search Playlists
+                            </MudButton>
+                        }
+                    </div>
+                    <div class="w-100">
+                        <MudAutocomplete T="string"
+                                         Label="@GetPlaylistSearchBarText()"
+                                         Variant="Variant.Outlined"
+                                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                                         OnAdornmentClick="FilterPlaylists"
+                                         SearchFunc="FilterSearchPlaylists"
+                                         ResetValueOnEmptyText="true"
+                                         ValueChanged="HandlePlaylistSearchValueChanged" />
+                    </div>
+                    <div class="mx-3">
+                        <MudButton Color="Color.Warning"
+                                   Variant="Variant.Outlined"
+                        @onclick="OpenFileLocation">
+                            Open Folder Location
                         </MudButton>
                     </div>
+                </div>
+                @if (_visiblePlaylists?.Count > 0 || videoLibrary.PlaylistResults?.Count > 0)
+                {
+                    <MudDivider Class="mb-6 mt-6"></MudDivider>
+                    <MudGrid>
+                        <MudVirtualize Items="_visiblePlaylists" Context="p" OverscanCount="6">
+                            <PlaylistComponent @key="p.Id"
+                                               Playlist="p"
+                                               CardSize="4"
+                                               RemoveEvent="(() => RemovePlaylist(p))" />
+                        </MudVirtualize>
+                    </MudGrid>
+                    @if (_loadedPlaylists < videoLibrary.PlaylistResults?.Count)
+                    {
+                        <div class="text-center mt-4">
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                            @onclick="LoadMorePlaylists">
+                                Load More
+                            </MudButton>
+                        </div>
+                    }
                 }
             </MudItem>
         </MudGrid>
