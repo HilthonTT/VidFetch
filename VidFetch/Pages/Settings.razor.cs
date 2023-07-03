@@ -41,7 +41,7 @@ public partial class Settings
     {
         try
         {
-            bool isReload = _settingsModel.IsDarkMode != settingsLibrary.IsDarkMode;
+            bool isReload = _settingsModel.IsDarkMode != _settings.IsDarkMode;
 
             var s = new SettingsLibrary
             {
@@ -50,9 +50,10 @@ public partial class Settings
                 SaveVideos = _settingsModel.SaveVideos,
                 SelectedPath = _settingsModel.SelectedPath,
                 SelectedFormat = _settingsModel.SelectedFormat,
-                SelectedResolution = _settingsModel.SelectedResolution,
                 CreateSubDirectoryPlaylist = _settingsModel.CreateSubDirectoryPlaylist,
                 RemoveAfterDownload = _settingsModel.RemoveAfterDownload,
+                FfmpegPath = _settings.FfmpegPath,
+                SelectedResolution = _settings.SelectedResolution,
             };
 
             _ffmpegSettingsModel.SelectedResolution = s.SelectedResolution;

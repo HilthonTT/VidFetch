@@ -15,7 +15,7 @@ public class FolderHelper : IFolderHelper
 
     public async Task OpenFolderLocationAsync()
     {
-        string folderPath = _pathHelper.OpenFolderLocation();
+        string folderPath = await _pathHelper.OpenFolderLocation();
 
         await _launcher.OpenAsync(folderPath);
     }

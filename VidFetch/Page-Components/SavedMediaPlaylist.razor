@@ -1,11 +1,15 @@
 ﻿@inject IPlaylistData playlistData
 @inject ISearchHelper searchHelper
+@inject ITokenHelper tokenHelper
+@inject ISnackbar snackbar
+@inject IYoutube youtube
 
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
         <div class="justify-content-between d-flex align-items-center">
             <div class="mx-3">
-                <MudButton Color="Color.Error"
+                <MudButton @onclick="OpenDialog"
+                           Color="Color.Error"
                            Variant="Variant.Outlined">
                     Delete Playlists
                 </MudButton>
@@ -21,7 +25,8 @@
                                  ValueChanged="HandleSearchValueChanged"/>
             </div>
             <div class="mx-3">
-                <MudButton Color="Color.Warning"
+                <MudButton @onclick="UpdateAllPlaylists"
+                           Color="Color.Warning"
                            Variant="Variant.Outlined">
                     Update Data
                 </MudButton>
@@ -52,4 +57,19 @@
     </MudItem>
 </MudGrid>
 
+<MudDialog IsVisible="_isVisible">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Delete all playlists
+            <MudIcon Icon="@Icons.Material.Filled.Dangerous"></MudIcon>
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        Deleting all of your playlists is irreversible!
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog" Color="Color.Error">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="DeleteAllPlaylists">Confirm</MudButton>
+    </DialogActions>
+</MudDialog>
 

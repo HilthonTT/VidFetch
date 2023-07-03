@@ -1,11 +1,15 @@
 ﻿@inject IChannelData channelData
 @inject ISearchHelper searchHelper
+@inject ITokenHelper tokenHelper
+@inject ISnackbar snackbar
+@inject IYoutube youtube
 
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
         <div class="justify-content-between d-flex align-items-center">
             <div class="mx-3">
-                <MudButton Color="Color.Error"
+                <MudButton @onclick="OpenDialog"
+                           Color="Color.Error"
                            Variant="Variant.Outlined">
                     Delete Channels
                 </MudButton>
@@ -21,10 +25,22 @@
                                  ValueChanged="HandleSearchValueChanged"/>
             </div>
             <div class="mx-3">
-                <MudButton Color="Color.Warning"
-                           Variant="Variant.Outlined">
-                    Update Data
-                </MudButton>
+               @if (_tokenSource is null)
+                {
+                    <MudButton @onclick="UpdateAllChannels"
+                               Color="Color.Warning"
+                               Variant="Variant.Outlined">
+                        Update Data
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton @onclick="CancelUpdateChannel"
+                               Color="Color.Error"
+                               Variant="Variant.Outlined">
+                        Cancel Data
+                    </MudButton>
+                }
             </div>
         </div>
         @if (_visibleChannels?.Count > 0 || _channels?.Count > 0)
@@ -52,4 +68,20 @@
     </MudItem>
 </MudGrid>
 
+
+<MudDialog IsVisible="_isVisible">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Delete all channels
+            <MudIcon Icon="@Icons.Material.Filled.Dangerous"></MudIcon>
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        Deleting all of your channels is irreversible!
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog" Color="Color.Error">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="DeleteAllChannels">Confirm</MudButton>
+    </DialogActions>
+</MudDialog>
 

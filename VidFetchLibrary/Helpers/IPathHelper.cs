@@ -1,9 +1,10 @@
-﻿namespace VidFetchLibrary.Helpers;
+﻿using VidFetchLibrary.Library;
 
+namespace VidFetchLibrary.Helpers;
 public interface IPathHelper
 {
     string GetSanizitedFileName(string fileName);
     string GetSpacedString(string value);
-    string GetVideoDownloadPath(string title, bool isPlaylist = false, string playlistTitle = "");
-    string OpenFolderLocation();
+    Task<string> GetVideoDownloadPath(SettingsLibrary settings, string title, bool isPlaylist = false, string playlistTitle = "");
+    Task<string> OpenFolderLocation();
 }

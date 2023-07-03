@@ -7,6 +7,7 @@ using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
 using YoutubeExplode.Converter;
 using VidFetchLibrary.Data;
+using VidFetchLibrary.DataAccess;
 
 namespace VidFetchLibrary.Helpers;
 public class DownloadHelper : IDownloadHelper
@@ -15,19 +16,19 @@ public class DownloadHelper : IDownloadHelper
     private readonly IPathHelper _pathHelper;
     private readonly IMemoryCache _cache;
     private readonly ICachingHelper _cachingHelper;
-    private readonly ISettingsLibrary _settings;
+    private readonly ISettingsData _settingsData;
     private readonly YoutubeClient _youtube;
 
     public DownloadHelper(IPathHelper pathHelper,
                           IMemoryCache cache,
                           ICachingHelper cachingHelper,
-                          ISettingsLibrary settings, 
+                          ISettingsData settingsData,
                           YoutubeClient youtube)
     {
         _pathHelper = pathHelper;
         _cache = cache;
         _cachingHelper = cachingHelper;
-        _settings = settings;
+        _settingsData = settingsData;
         _youtube = youtube;
     }
 
@@ -43,10 +44,14 @@ public class DownloadHelper : IDownloadHelper
             var video = await LoadVideoAsync(videoUrl, token)
                 ?? throw new NullReferenceException("Video not found.");
 
-            if (File.Exists(_settings.FfmpegPath))
+            var settings = await _settingsData.GetSettingsAsync();
+
+            string path = settings.FfmpegPath;
+            if (File.Exists(path))
             {
                 await DownloadWithFfmpeg(
                     video,
+                    settings,
                     isPlaylist,
                     playlistTitle,
                     progress,
@@ -56,6 +61,7 @@ public class DownloadHelper : IDownloadHelper
             {
                 await DownloadWithoutFfmpeg(
                     video,
+                    settings,
                     videoUrl,
                     isPlaylist,
                     playlistTitle,
@@ -63,7 +69,7 @@ public class DownloadHelper : IDownloadHelper
                     token);
             }
 
-            if (_settings.DownloadSubtitles)
+            if (settings.DownloadSubtitles)
             {
                 await DownloadSubtitlesAsync(video, token);
             }
@@ -80,19 +86,21 @@ public class DownloadHelper : IDownloadHelper
 
     private async Task DownloadWithFfmpeg(
         Video video,
+        SettingsLibrary settings,
         bool isPlaylist,
         string playlistTitle,
         IProgress<double> progress, 
         CancellationToken token)
     {
-        var streamInfos = await LoadStreamInfosAsync(_youtube, video, token);
-        var conversionRequest = GetRequestBuilder(video, isPlaylist, playlistTitle);
+        var streamInfos = await LoadStreamInfosAsync(_youtube, video, settings, token);
+        var conversionRequest = await GetRequestBuilder(settings, video, isPlaylist, playlistTitle);
 
         await _youtube.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
     }
 
     private async Task DownloadWithoutFfmpeg(
         Video video,
+        SettingsLibrary settings,
         string videoUrl,
         bool isPlaylist,
         string playlistTitle,
@@ -101,9 +109,13 @@ public class DownloadHelper : IDownloadHelper
     {
         var streamManifest = await _youtube.Videos.Streams
                     .GetManifestAsync(videoUrl, token);
-        var streamInfo = GetVideoStream(streamManifest);
+        var streamInfo = GetVideoStream(streamManifest, settings);
 
-        string downloadFolder = _pathHelper.GetVideoDownloadPath(video.Title, isPlaylist, playlistTitle);
+        string downloadFolder = await _pathHelper.GetVideoDownloadPath(
+            settings,
+            video.Title,
+            isPlaylist,
+            playlistTitle);
 
         await _youtube.Videos.Streams.DownloadAsync(streamInfo, downloadFolder, progress, token);
     }
@@ -119,7 +131,7 @@ public class DownloadHelper : IDownloadHelper
             return;
         }
 
-        string videoFolder = _pathHelper.OpenFolderLocation();
+        string videoFolder = await _pathHelper.OpenFolderLocation();
         string sanitizedVideoTitle = _pathHelper.GetSanizitedFileName(video.Title);
         string videoFolderPath = Path.Combine(videoFolder, sanitizedVideoTitle);
 
@@ -146,6 +158,7 @@ public class DownloadHelper : IDownloadHelper
     private async Task<IStreamInfo[]> LoadStreamInfosAsync(
         YoutubeClient client,
         Video video,
+        SettingsLibrary settings,
         CancellationToken token)
     {
         string key = _cachingHelper.CacheStreamManifest(video.Url);
@@ -167,7 +180,7 @@ public class DownloadHelper : IDownloadHelper
             .Where(s => s.Container == Container.Mp4)
             .GetWithHighestBitrate();
 
-        videoStreamInfo = GetFfmpegVideoStream(streamManifest);
+        videoStreamInfo = GetFfmpegVideoStream(streamManifest, settings);
 
         return new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
     }
@@ -197,12 +210,16 @@ public class DownloadHelper : IDownloadHelper
         return output;
     }
 
-    private ConversionRequest GetRequestBuilder(Video video, bool isPlaylist, string playlistTitle)
+    private async Task<ConversionRequest> GetRequestBuilder(
+        SettingsLibrary settings,
+        Video video,
+        bool isPlaylist,
+        string playlistTitle)
     {
-        string downloadFolder = _pathHelper.GetVideoDownloadPath(video.Title, isPlaylist, playlistTitle);
+        string downloadFolder = await _pathHelper.GetVideoDownloadPath(settings, video.Title, isPlaylist, playlistTitle);
 
         var requestBuilder = new ConversionRequestBuilder(downloadFolder)
-            .SetFFmpegPath(_settings.FfmpegPath)
+            .SetFFmpegPath(settings.FfmpegPath)
             .SetPreset(ConversionPreset.UltraFast)
             .SetContainer(Container.Mp4)
             .Build();
@@ -210,7 +227,9 @@ public class DownloadHelper : IDownloadHelper
         return requestBuilder;
     }
 
-    private IVideoStreamInfo GetFfmpegVideoStream(StreamManifest streamManifest)
+    private IVideoStreamInfo GetFfmpegVideoStream(
+        StreamManifest streamManifest,
+        SettingsLibrary settings)
     {
         var highestVideoResolutionStream = streamManifest.GetVideoStreams()
                     .Where(s => s.Container == Container.Mp4)
@@ -219,13 +238,13 @@ public class DownloadHelper : IDownloadHelper
         {
             IVideoStreamInfo videoStreamInfo = null;
 
-            videoStreamInfo = _settings.SelectedResolution switch
+            videoStreamInfo = settings.SelectedResolution switch
             {
                 VideoResolution.HighestResolution => highestVideoResolutionStream,
 
                 _ => streamManifest.GetVideoStreams()
                     .Where(s => s.Container == Container.Mp4)
-                    .First(s => s.VideoQuality.Label == GetVideoQualityLabel()),
+                    .First(s => s.VideoQuality.Label == GetVideoQualityLabel(settings)),
             };
 
             return videoStreamInfo;
@@ -236,7 +255,9 @@ public class DownloadHelper : IDownloadHelper
         }
     }
 
-    private IVideoStreamInfo GetVideoStream(StreamManifest streamManifest)
+    private IVideoStreamInfo GetVideoStream(
+        StreamManifest streamManifest,
+        SettingsLibrary settings)
     {
         var highestResolutionStream = streamManifest.GetMuxedStreams()
                 .Where(s => s.Container == Container.Mp4)
@@ -245,13 +266,13 @@ public class DownloadHelper : IDownloadHelper
         {
             IVideoStreamInfo videoStreamInfo = null;
 
-            videoStreamInfo = _settings.SelectedResolution switch
+            videoStreamInfo = settings.SelectedResolution switch
             {
                 VideoResolution.HighestResolution => highestResolutionStream,
 
                 _ => streamManifest.GetMuxedStreams()
                     .Where(s => s.Container == Container.Mp4)
-                    .First(s => s.VideoQuality.Label == GetVideoQualityLabel()),
+                    .First(s => s.VideoQuality.Label == GetVideoQualityLabel(settings)),
             };
 
             return videoStreamInfo;
@@ -262,9 +283,9 @@ public class DownloadHelper : IDownloadHelper
         }
     }
 
-    private string GetVideoQualityLabel()
+    private string GetVideoQualityLabel(SettingsLibrary settings)
     {
-        VideoResolution resolution = _settings.SelectedResolution;
+        VideoResolution resolution = settings.SelectedResolution;
         string resolutionString = resolution.ToString();
 
         if (resolutionString.StartsWith("P") && resolutionString.Length > 1)

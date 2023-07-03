@@ -1,23 +1,28 @@
 ﻿using System.Text.RegularExpressions;
 using VidFetchLibrary.Data;
+using VidFetchLibrary.DataAccess;
 using VidFetchLibrary.Library;
 
 namespace VidFetchLibrary.Helpers;
 public partial class PathHelper : IPathHelper
 {
-    private readonly ISettingsLibrary _settings;
+    private readonly ISettingsData _settingsData;
 
-    public PathHelper(ISettingsLibrary settings)
+    public PathHelper(ISettingsData settingsData)
     {
-        _settings = settings;
+        _settingsData = settingsData;
     }
 
-    public string GetVideoDownloadPath(string title, bool isPlaylist = false, string playlistTitle = "")
+    public async Task<string> GetVideoDownloadPath(
+        SettingsLibrary settings,
+        string title,
+        bool isPlaylist = false,
+        string playlistTitle = "")
     {
-        return _settings.SelectedPath switch
+        return settings.SelectedPath switch
         {
-            DownloadPath.DownloadFolder => GetDownloadPath(title, isPlaylist, playlistTitle),
-            _ => GetSelectedPath(title, isPlaylist, playlistTitle),
+            DownloadPath.DownloadFolder => await GetDownloadPath(settings, title, isPlaylist, playlistTitle),
+            _ => await GetSelectedPath(settings, title, isPlaylist, playlistTitle),
         };
     }
 
@@ -27,12 +32,14 @@ public partial class PathHelper : IPathHelper
         return string.Concat(fileName.Select(c => invalidChars.Contains(c) ? '_' : c));
     }
 
-    public string OpenFolderLocation()
+    public async Task<string> OpenFolderLocation()
     {
-        string path = _settings.SelectedPath switch
+        var settings = await _settingsData.GetSettingsAsync();
+
+        string path = settings.SelectedPath switch
         {
-            DownloadPath.DownloadFolder => GetDownloadPath(""),
-            _ => GetSelectedPath(""),
+            DownloadPath.DownloadFolder => await GetDownloadPath(settings, ""),
+            _ => await GetSelectedPath(settings, ""),
         };
 
         int dotIndex = path.LastIndexOf('.');
@@ -53,7 +60,8 @@ public partial class PathHelper : IPathHelper
         return selectedPathString;
     }
 
-    private string GetDownloadPath(
+    private async Task<string> GetDownloadPath(
+        SettingsLibrary settings,
         string title,
         bool isPlaylist = false,
         string playlistTitle = "")
@@ -61,12 +69,12 @@ public partial class PathHelper : IPathHelper
         title = GetSanizitedFileName(title);
 
         string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        string fileName = GetFileNameAndExtension(title);
+        string fileName = GetFileNameAndExtension(title, settings);
 
-        if (isPlaylist && _settings.CreateSubDirectoryPlaylist)
+        if (isPlaylist && settings.CreateSubDirectoryPlaylist)
         {
             playlistTitle = GetSanizitedFileName(playlistTitle);
-            string videoFolder = OpenFolderLocation();
+            string videoFolder = await OpenFolderLocation();
             string videoFolderPath = Path.Combine(videoFolder, playlistTitle);
 
             if (Directory.Exists(videoFolderPath) is false)
@@ -80,20 +88,21 @@ public partial class PathHelper : IPathHelper
         return Path.Combine(userFolder, "Downloads", fileName);
     }
 
-    private string GetSelectedPath(
+    private async Task<string> GetSelectedPath(
+        SettingsLibrary settings,
         string title,
         bool isPlaylist = false,
         string playlistTitle = "")
     {
         title = GetSanizitedFileName(title);
 
-        string downloadsFolder = Environment.GetFolderPath(GetFolder());
-        string fileName = GetFileNameAndExtension(title);
+        string downloadsFolder = Environment.GetFolderPath(GetFolder(settings));
+        string fileName = GetFileNameAndExtension(title, settings);
 
-        if (isPlaylist && _settings.CreateSubDirectoryPlaylist)
+        if (isPlaylist && settings.CreateSubDirectoryPlaylist)
         {
             playlistTitle = GetSanizitedFileName(playlistTitle);
-            string videoFolder = OpenFolderLocation();
+            string videoFolder = await OpenFolderLocation();
             string videoFolderPath = Path.Combine(videoFolder, playlistTitle);
 
             if (Directory.Exists(videoFolderPath) is false)
@@ -107,10 +116,9 @@ public partial class PathHelper : IPathHelper
         return Path.Combine(downloadsFolder, fileName);
     }
 
-    private Environment.SpecialFolder GetFolder()
+    private Environment.SpecialFolder GetFolder(SettingsLibrary settings)
     {
-
-        return _settings.SelectedPath switch
+        return settings.SelectedPath switch
         {
             DownloadPath.VideoFolder => Environment.SpecialFolder.MyVideos,
             DownloadPath.DocumentFolder => Environment.SpecialFolder.MyDocuments,
@@ -121,9 +129,9 @@ public partial class PathHelper : IPathHelper
         };
     }
 
-    private string GetFileNameAndExtension(string title)
+    private string GetFileNameAndExtension(string title, SettingsLibrary settings)
     {
-        string fileExtension = _settings.SelectedFormat
+        string fileExtension = settings.SelectedFormat
             .ToString()
             .ToLower()
             .TrimStart('_');
