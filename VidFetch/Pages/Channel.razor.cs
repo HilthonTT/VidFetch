@@ -73,6 +73,8 @@ public partial class Channel
             await channelData.DeleteChannelAsync(_channel);
             snackbar.Add($"Successfully deleted {_channel.Title}");
             _isSaved = false;
+
+            navManager.NavigateTo("/SavedMedias");
         }
     }
 
@@ -95,6 +97,16 @@ public partial class Channel
             _videos = await youtube.GetChannelVideosAsync(Url);
             _isSaved = await channelData.ChannelExistsAsync(Url, _channelId);
         }
+    }
+
+    private bool IsChannelNull()
+    {
+        if (_channel is null)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void RemoveVideo(VideoModel video)

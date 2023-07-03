@@ -63,6 +63,16 @@ public partial class Watch
         return "";
     }
 
+    private bool IsVideoNull()
+    {
+        if (_video is null)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     [GeneratedRegex("(https?://[^\\s]+)")]
     private static partial Regex MyRegex();
 

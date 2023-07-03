@@ -3,7 +3,7 @@
 @inject IVideoData videoData
 @inject ILauncher launcher
 
-@if (_video is not null)
+@if (IsVideoNull() is false)
 {
     <MudCard>
         <div class="text-center">
@@ -35,10 +35,13 @@
         </MudCardContent>
     </MudCard>
 }
-else
-{
-    <div class="align-items-center justify-content-center d-flex text-center mt-4">
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-    </div>
-}
+
+<MudDialog Options="((new DialogOptions() { NoHeader = true }))"
+            IsVisible="IsVideoNull()"
+            Class="backdrop-blur">
+    <DialogContent>
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    </DialogContent>
+</MudDialog>
+
 

@@ -102,12 +102,24 @@ public partial class Playlist
             await playlistData.DeletePlaylistAsync(_playlist);
             snackbar.Add($"Successfully deleted {_playlist.Title}");
             _isSaved = false;
+
+            navManager.NavigateTo("/SavedMedias");
         }
     }
 
     private async Task OpenUrl()
     {
         await launcher.OpenAsync(Url);
+    }
+
+    private bool IsPlaylistNull()
+    {
+        if (_playlist is null)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void RemoveVideo(VideoModel video)

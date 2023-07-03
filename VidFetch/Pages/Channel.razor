@@ -3,8 +3,9 @@
 @inject IChannelData channelData
 @inject ISnackbar snackbar
 @inject ILauncher launcher
+@inject NavigationManager navManager
 
-@if (_channel is not null)
+@if (IsChannelNull() is false)
 {
     <MudGrid Spacing="5">
         <MudItem xs="12">
@@ -22,7 +23,7 @@
                 <MudCardMedia Image="@_channel.ThumbnailUrl" />
                 <MudCardContent>
                     <MudLink Typo="Typo.h5" @onclick="OpenUrl">@_channel.Url</MudLink>
-                    <MudText Typo="Typo.body2">Uploaded @_visibleVideos?.Count videos</MudText>
+                    <MudText Typo="Typo.body2">Showing only @_videos?.Count videos</MudText>
                 </MudCardContent>
                 <MudCardActions>
                     @if (_isSaved)
@@ -40,36 +41,41 @@
                 </MudCardActions>
             </MudCard>
         </MudItem>
-        <MudItem xs="12">
-            <MudDivider />
-            <MudText Typo="Typo.h5" Class="mb-4 mt-4">Uploaded Videos</MudText>
-            <MudAlert Severity="Severity.Warning">Warning: Only shows 50 videos for performance.</MudAlert>
-            <MudGrid>
-                <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
-                    <VideoComponent @key="v.VideoId"
-                                    Video="v"
-                                    CardSize="6"
-                                    RemoveEvent="RemoveVideo" />
-                </MudVirtualize>
-            </MudGrid>
-            @if (_loadedItems < _videos.Count)
-            {
-                <div class="text-center mt-4">
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Primary"
-                    @onclick="LoadMoreVideos">
-                        Load More
-                    </MudButton>
-                </div>
-            }
-        </MudItem>
+        @if (_visibleVideos?.Count > 0 || _videos?.Count > 0)
+        {
+            <MudItem xs="12">
+                <MudDivider Class="mt-6 mb-6" />
+                <MudText Typo="Typo.h5" Class="mb-4 mt-4">Uploaded Videos</MudText>
+                <MudGrid>
+                    <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
+                        <VideoComponent @key="v.VideoId"
+                                        Video="v"
+                                        CardSize="6"
+                                        RemoveEvent="RemoveVideo" />
+                    </MudVirtualize>
+                </MudGrid>
+                @if (_loadedItems < _videos.Count)
+                {
+                    <div class="text-center mt-4">
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                        @onclick="LoadMoreVideos">
+                            Load More
+                        </MudButton>
+                    </div>
+                }
+            </MudItem>
+        }
     </MudGrid>
 }
-else
-{
-    <div class="align-items-center justify-content-center d-flex text-center mt-4">
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-    </div>
-}
+
+<MudDialog Options="((new DialogOptions() { NoHeader = true }))"
+            IsVisible="IsChannelNull()"
+            Class="backdrop-blur">
+    <DialogContent>
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    </DialogContent>
+</MudDialog>
+
 
 

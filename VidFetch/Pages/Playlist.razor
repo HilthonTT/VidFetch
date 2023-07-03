@@ -3,8 +3,9 @@
 @inject IPlaylistData playlistData
 @inject ISnackbar snackbar
 @inject ILauncher launcher
+@inject NavigationManager navManager
 
-@if (_playlist is not null)
+@if (IsPlaylistNull() is false)
 {
     <MudGrid Spacing="5">
         <MudItem xs="12">
@@ -65,10 +66,13 @@
         </MudItem>
     </MudGrid>
 }
-else
-{
-    <div class="align-items-center justify-content-center d-flex text-center mt-4">
-        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-    </div>
-}
+
+<MudDialog Options="((new DialogOptions() { NoHeader = true }))"
+           IsVisible="IsPlaylistNull()"
+           Class="backdrop-blur">
+    <DialogContent>
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    </DialogContent>
+</MudDialog>
+
 
