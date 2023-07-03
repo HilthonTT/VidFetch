@@ -30,14 +30,7 @@ public partial class Watch
 
     private async Task LoadVideo()
     {
-        string channelIdentifier = ChannelIdRegex().Match(Url).Value;
-
-        _video = await videoData.GetVideoAsync(Url, channelIdentifier);
-
-        if (_video is null)
-        {
-            _video = await youtube.GetVideoAsync(Url);
-        }
+        _video ??= await youtube.GetVideoAsync(Url);
     }
 
     private string FormatDescription()
