@@ -58,7 +58,7 @@ public partial class SavedMediaChannel
         _visibleChannels = searchHelper.FilterList(_channels, _searchText).Take(_loadedItems).ToList();
     }
 
-    private string GetChannelSearchBarText()
+    private string GetSearchBarText()
     {
         if (_channels?.Count <= 0)
         {

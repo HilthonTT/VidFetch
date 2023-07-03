@@ -3,31 +3,51 @@
 
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
-        <MudAutocomplete T="string" Label="@GetChannelSearchBarText()"
-                         Variant="Variant.Outlined"
-                         Class="mb-3"
-                         AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                         OnAdornmentClick="FilterChannels"
-                         SearchFunc="SearchChannels"
-                         ResetValueOnEmptyText="true"
-        @bind-Value="_searchText" />
-        <MudGrid>
-            <MudVirtualize Items="_visibleChannels" Context="c" OverscanCount="6">
-                <ChannelComponent @key="c.ChannelId"
-                                  Channel="c"
-                                  CardSize="4"
-                                  RemoveEvent="(() => DeleteChannel(c))" />
-            </MudVirtualize>
-        </MudGrid>
-        @if (_loadedItems < _channels.Count)
-        {
-            <div class="text-center mt-4">
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Primary"
-                @onclick="LoadMoreChannels">
-                    Load More
+        <div class="justify-content-between d-flex align-items-center">
+            <div class="mx-3">
+                <MudButton Color="Color.Error"
+                           Variant="Variant.Outlined">
+                    Delete Channels
                 </MudButton>
             </div>
+            <div class="w-100">
+                <MudAutocomplete @bind-Value="_searchText"
+                                 T="string"
+                                 Label="@GetSearchBarText()"
+                                 Variant="Variant.Outlined"
+                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                                 OnAdornmentClick="FilterChannels"
+                                 SearchFunc="SearchChannels"
+                                 ResetValueOnEmptyText="true" />
+            </div>
+            <div class="mx-3">
+                <MudButton Color="Color.Warning"
+                           Variant="Variant.Outlined">
+                    Update Data
+                </MudButton>
+            </div>
+        </div>
+        @if (_visibleChannels?.Count > 0 || _channels?.Count > 0)
+        {
+            <MudDivider Class="mb-6 mt-6"></MudDivider>
+            <MudGrid>
+                <MudVirtualize Items="_visibleChannels" Context="c" OverscanCount="6">
+                    <ChannelComponent @key="c.ChannelId"
+                                      Channel="c"
+                                      CardSize="4"
+                                      RemoveEvent="(() => DeleteChannel(c))" />
+                </MudVirtualize>
+            </MudGrid>
+            @if (_loadedItems < _channels.Count)
+            {
+                <div class="text-center mt-4">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                    @onclick="LoadMoreChannels">
+                        Load More
+                    </MudButton>
+                </div>
+            }
         }
     </MudItem>
 </MudGrid>
