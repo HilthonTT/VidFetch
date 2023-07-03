@@ -14,12 +14,14 @@ public partial class SavedMediaVideo
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
     private SettingsLibrary _settings;
     private CancellationTokenSource _allVideosTokenSource;
+    private CancellationTokenSource _tokenSource;
     private List<VideoModel> _videos = new();
     private List<VideoModel> _visibleVideos = new();
     private string _searchText = "";
     private string _currentDownloadingVideo = "";
     private double _videosProgress = 0;
     private int _loadedItems = 6;
+    private bool _isVisible = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -112,11 +114,49 @@ public partial class SavedMediaVideo
         try
         {
             var videosCopy = _videos.ToList();
-        }
-        catch (Exception)
-        {
+            var token = tokenHelper.InitializeToken(ref _tokenSource);
 
-            throw;
+            foreach (var v in videosCopy)
+            {
+                token.ThrowIfCancellationRequested();
+                await UpdateVideo(v, token);
+            }
+
+            CancelUpdateVideo();
+            snackbar.Add("Successfully updated.");
+        }
+        catch 
+        {
+            snackbar.Add($"An error occured while updating.", Severity.Error);
+        }
+    }
+
+    private async Task UpdateVideo(VideoModel video, CancellationToken token)
+    {
+        var newVideo = await youtube.GetVideoAsync(video.Url, token);
+
+        if (newVideo is null)
+        {
+            RemoveVideo(video);
+            snackbar.Add($"{video?.Title} no longer exists. It has been deleted", Severity.Error);
+            await videoData.DeleteVideoAsync(video);
+        }
+        else
+        {
+            await videoData.SetVideoAsync(video.Url, video.VideoId);
+        }
+    }
+
+    private async Task DeleteAllVideos()
+    {
+        CloseDialog();
+
+        var videosCopy = _videos?.ToList();
+
+        foreach (var v in videosCopy)
+        {
+            RemoveVideo(v);
+            await videoData.DeleteVideoAsync(v);
         }
     }
 
@@ -151,6 +191,27 @@ public partial class SavedMediaVideo
         tokenHelper.CancelRequest(ref _allVideosTokenSource);
         _videosProgress = 0;
         _currentDownloadingVideo = "";
+    }
+
+    private void CancelUpdateVideo()
+    {
+        tokenHelper.CancelRequest(ref _tokenSource);
+    }
+
+    private void RemoveVideo(VideoModel video)
+    {
+        _visibleVideos?.Remove(video);
+        _videos?.Remove(video);
+    }
+
+    private void OpenDialog()
+    {
+        _isVisible = true;
+    }
+
+    private void CloseDialog()
+    {
+        _isVisible = false;
     }
 
     private string GetSearchBarText()

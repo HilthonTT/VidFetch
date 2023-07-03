@@ -1,7 +1,9 @@
 ﻿@inject IVideoLibrary videoLibrary
 @inject IVideoLibraryHelper videoLibraryHelper
 @inject ISearchHelper searchHelper
+@inject ITokenHelper tokenHelper
 @inject IYoutube youtube
+@inject IPlaylistData playlistData
 @inject ISnackbar snackbar
 
 <MudGrid Spacing="5">
@@ -38,7 +40,8 @@
                                  ValueChanged="HandleSearchValueChanged"/>
             </div>
             <div class="mx-3">
-                <MudButton Color="Color.Success"
+                <MudButton @onclick="SaveAllPlaylist"
+                           Color="Color.Success"
                            Variant="Variant.Outlined">
                     Save Playlists
                 </MudButton>

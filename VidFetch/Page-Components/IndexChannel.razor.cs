@@ -10,6 +10,7 @@ public partial class IndexChannel
     [EditorRequired]
     public EventCallback<bool> OpenLoading { get; set; }
 
+    private CancellationTokenSource _tokenSource;
     private List<ChannelModel> _visibleChannels = new();
     private string _channelUrl = "";
     private string _searchText = "";
@@ -78,6 +79,28 @@ public partial class IndexChannel
         return await searchHelper.SearchAsync(videoLibrary.Channels, searchInput);
     }
 
+    private async Task SaveAllChannels()
+    {
+        try
+        {
+            var channelsCopy = videoLibrary.Channels.ToList();
+            var token = tokenHelper.InitializeToken(ref _tokenSource);
+
+            foreach (var c in channelsCopy)
+            {
+                token.ThrowIfCancellationRequested();
+                await channelData.SetChannelAsync(c.Url, c.ChannelId);
+            }
+
+            CancelSaveChannel();
+            snackbar.Add("Successfully saved all channels");
+        }
+        catch
+        {
+            snackbar.Add("An error occured while saving all channels", Severity.Error);
+        }
+    }
+
     private void HandleSearchValueChanged(string value)
     {
         _searchText = value;
@@ -105,6 +128,11 @@ public partial class IndexChannel
     {
         videoLibraryHelper.RemoveChannel(channel);
         _visibleChannels.Remove(channel);
+    }
+
+    private void CancelSaveChannel()
+    {
+        tokenHelper.CancelRequest(ref  _tokenSource);
     }
 
     private string GetSearchBarText()

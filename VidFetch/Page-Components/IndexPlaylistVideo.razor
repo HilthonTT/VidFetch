@@ -65,7 +65,8 @@
                                  ValueChanged="HandleSearchValueChanged"/>
             </div>
             <div class="mx-3">
-                <MudButton Color="Color.Success"
+                <MudButton @onclick="SaveAllVideos"
+                           Color="Color.Success"
                            Variant="Variant.Outlined">
                     Save Videos
                 </MudButton>

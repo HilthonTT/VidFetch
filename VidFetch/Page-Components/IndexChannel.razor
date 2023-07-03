@@ -2,7 +2,9 @@
 @inject IYoutube youtube
 @inject ISearchHelper searchHelper
 @inject IVideoLibraryHelper videoLibraryHelper
+@inject ITokenHelper tokenHelper
 @inject ISnackbar snackbar
+@inject IChannelData channelData
 
 
 <MudGrid Spacing="5">
@@ -39,7 +41,8 @@
                                  ValueChanged="HandleSearchValueChanged"/>
             </div>
             <div class="mx-3">
-                <MudButton Color="Color.Success"
+                <MudButton @onclick="SaveAllChannels"
+                           Color="Color.Success"
                            Variant="Variant.Outlined">
                     Save Channels
                 </MudButton>

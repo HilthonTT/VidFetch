@@ -10,6 +10,7 @@ public partial class IndexPlaylist
     [EditorRequired]
     public EventCallback<bool> OpenLoading { get; set; }
 
+    private CancellationTokenSource _tokenSource;
     private List<PlaylistModel> _visiblePlaylists = new();
     private string _playlistSearchText = "";
     private string _playlistUrl = "";
@@ -78,6 +79,29 @@ public partial class IndexPlaylist
         return await searchHelper.SearchAsync(videoLibrary.Playlists, searchInput);
     }
 
+    private async Task SaveAllPlaylist()
+    {
+        try
+        {
+            var playlistsCopy = videoLibrary.Playlists.ToList();
+            var token = tokenHelper.InitializeToken(ref _tokenSource);
+
+            foreach (var p in playlistsCopy)
+            {
+                token.ThrowIfCancellationRequested();
+                await playlistData.SetPlaylistAsync(p.Url, p.PlaylistId);
+            }
+
+
+            CancelSavePlaylist();
+            snackbar.Add("Successfully saved playlists.");
+        }
+        catch
+        {
+            snackbar.Add($"An error occured while saving playlists", Severity.Error);
+        }
+    }
+
     private void HandleSearchValueChanged(string value)
     {
         _playlistSearchText = value;
@@ -105,6 +129,11 @@ public partial class IndexPlaylist
     {
         videoLibraryHelper.RemovePlaylist(playlist);
         _visiblePlaylists.Remove(playlist);
+    }
+
+    private void CancelSavePlaylist()
+    {
+        tokenHelper.CancelRequest(ref _tokenSource);
     }
 
     private string GetSearchBarText()

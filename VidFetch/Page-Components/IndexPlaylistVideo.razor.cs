@@ -17,6 +17,7 @@ public partial class IndexPlaylistVideo
 
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
     private SettingsLibrary _settings;
+    private CancellationTokenSource _saveAllTokenSource;
     private CancellationTokenSource _playlistTokenSource;
     private CancellationTokenSource _videoTokenSource;
     private PlaylistModel _playlist = new();
@@ -193,6 +194,28 @@ public partial class IndexPlaylistVideo
         return await searchHelper.SearchAsync(videoLibrary.PlaylistVideos, searchInput);
     }
 
+    private async Task SaveAllVideos()
+    {
+        try
+        {
+            var videosCopy = videoLibrary.PlaylistVideos.ToList();
+            var token = tokenHelper.InitializeToken(ref _saveAllTokenSource);
+
+            foreach (var v in videosCopy)
+            {
+                token.ThrowIfCancellationRequested();
+                await videoData.SetVideoAsync(v.Url, v.VideoId);
+            }
+
+            CancelVideoDownload();
+            snackbar.Add($"Successfully saved all videos.");
+        } 
+        catch
+        {
+            snackbar.Add($"An error occured while saving.", Severity.Error);
+        }
+    }
+
     private void HandleSearchValueChanged(string value)
     {
         _searchText = value;
@@ -228,6 +251,11 @@ public partial class IndexPlaylistVideo
     private void CancelVideoDownload()
     {
         tokenHelper.CancelRequest(ref _videoTokenSource);
+    }
+
+    private void CancelSaveVideo()
+    {
+        tokenHelper.CancelRequest(ref _saveAllTokenSource);
     }
 
     private void AddSnackbar(string title)

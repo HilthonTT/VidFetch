@@ -36,7 +36,8 @@
 
         <div class="justify-content-between d-flex align-items-center">
             <div class="mx-3">
-                <MudButton Color="Color.Error"
+                <MudButton @onclick="OpenDialog"
+                           Color="Color.Error"
                            Variant="Variant.Outlined">
                     Delete Videos
                 </MudButton>
@@ -54,8 +55,8 @@
             <div class="mx-3">
                 <MudButton Color="Color.Warning"
                            Variant="Variant.Outlined"
-                @onclick="OpenFileLocation">
-                    Open Folder Location
+                @onclick="UpdateAllVideos">
+                    Update Data
                 </MudButton>
             </div>
         </div>
@@ -89,7 +90,7 @@
 </MudGrid>
 
 
-@*<MudDialog IsVisible="_isVisible">
+<MudDialog IsVisible="_isVisible">
     <TitleContent>
         <MudText Typo="Typo.h6">
             Delete all videos
@@ -104,4 +105,4 @@
         <MudButton Color="Color.Primary" OnClick="DeleteAllVideos">Confirm</MudButton>
     </DialogActions>
 </MudDialog>
-*@
+
