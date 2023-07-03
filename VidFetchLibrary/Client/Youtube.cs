@@ -21,7 +21,7 @@ public class Youtube : IYoutube
         CancellationToken token,
         bool isPlaylist = false,
         string playlistTitle = "")
-    { 
+    {
         await _downloaderHelper.DownloadVideoAsync(
             url,
             progress,
@@ -30,33 +30,43 @@ public class Youtube : IYoutube
             playlistTitle);
     }
 
-    public async Task<List<VideoModel>> GetPlayListVideosAsync(string url)
+    public async Task<List<VideoModel>> GetPlayListVideosAsync(
+        string url,
+        CancellationToken token = default)
     {
-        var playlistVideos = await _cachingHelper.GetPlayListVideosAsync(url);
+        var playlistVideos = await _cachingHelper.GetPlayListVideosAsync(url, token);
         return playlistVideos;
     }
 
-    public async Task<List<VideoModel>> GetChannelVideosAsync(string url)
+    public async Task<List<VideoModel>> GetChannelVideosAsync(
+        string url,
+        CancellationToken token = default)
     {
-        var channelVideos = await _cachingHelper.GetChannelVideosAsync(url);
+        var channelVideos = await _cachingHelper.GetChannelVideosAsync(url, token);
         return channelVideos;
     }
 
-    public async Task<VideoModel> GetVideoAsync(string url)
+    public async Task<VideoModel> GetVideoAsync(
+        string url,
+        CancellationToken token = default)
     {
-        var video = await _cachingHelper.GetVideoAsync(url);
+        var video = await _cachingHelper.GetVideoAsync(url, token);
         return video;
     }
 
-    public async Task<ChannelModel> GetChannelAsync(string url)
+    public async Task<ChannelModel> GetChannelAsync(
+        string url,
+        CancellationToken token = default)
     {
-        var channel = await _cachingHelper.GetChannelAsync(url);
+        var channel = await _cachingHelper.GetChannelAsync(url, token);
         return channel;
     }
 
-    public async Task<PlaylistModel> GetPlaylistAsync(string url)
+    public async Task<PlaylistModel> GetPlaylistAsync(
+        string url,
+        CancellationToken token = default)
     {
-        var playlist = await _cachingHelper.GetPlaylistAsync(url);
+        var playlist = await _cachingHelper.GetPlaylistAsync(url, token);
         return playlist;
     }
 

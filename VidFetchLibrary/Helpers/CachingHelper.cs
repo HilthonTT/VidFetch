@@ -30,7 +30,9 @@ public class CachingHelper : ICachingHelper
         _youtube = new();
     }
 
-    public async Task<VideoModel> GetVideoAsync(string url)
+    public async Task<VideoModel> GetVideoAsync(
+        string url,
+        CancellationToken token = default)
     {
         string primaryKey = CachePrimaryVideoKey(url);
         string secondaryKey = CacheSecondaryVideoKey(url);
@@ -39,7 +41,7 @@ public class CachingHelper : ICachingHelper
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            var video = await _youtube.Videos.GetAsync(url);
+            var video = await _youtube.Videos.GetAsync(url, token);
 
             _cache.Set(secondaryKey, video, TimeSpan.FromHours(CacheTime));
             return new VideoModel(video);
@@ -56,7 +58,7 @@ public class CachingHelper : ICachingHelper
 
     public async Task<Video> LoadYoutubeExplodeVideoAsync(
         string url,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         string key = CacheSecondaryVideoKey(url);
 
@@ -74,7 +76,9 @@ public class CachingHelper : ICachingHelper
         return output;
     }
 
-    public async Task<ChannelModel> GetChannelAsync(string url)
+    public async Task<ChannelModel> GetChannelAsync(
+        string url,
+        CancellationToken token = default)
     {
         string key = CacheChannelKey(url);
 
@@ -84,22 +88,22 @@ public class CachingHelper : ICachingHelper
 
             if (url.Contains("https://www.youtube.com/@"))
             {
-                var channel = await _youtube.Channels.GetByHandleAsync(url);
+                var channel = await _youtube.Channels.GetByHandleAsync(url, token);
                 return new ChannelModel(channel);
             }
             else if (url.Contains("https://youtube.com/user/"))
             {
-                var channel = await _youtube.Channels.GetByUserAsync(url);
+                var channel = await _youtube.Channels.GetByUserAsync(url, token);
                 return new ChannelModel(channel);
             }
             else if (url.Contains("https://youtube.com/c/"))
             {
-                var channel = await _youtube.Channels.GetBySlugAsync(url);
+                var channel = await _youtube.Channels.GetBySlugAsync(url, token);
                 return new ChannelModel(channel);
             }
             else
             {
-                var channel = await _youtube.Channels.GetAsync(url);
+                var channel = await _youtube.Channels.GetAsync(url, token);
                 return new ChannelModel(channel);
             }
         });
@@ -112,7 +116,9 @@ public class CachingHelper : ICachingHelper
         return output;
     }
 
-    public async Task<List<VideoModel>> GetPlayListVideosAsync(string url)
+    public async Task<List<VideoModel>> GetPlayListVideosAsync(
+        string url,
+        CancellationToken token = default)
     {
         string key = CacheVideoList(url);
 
@@ -121,7 +127,7 @@ public class CachingHelper : ICachingHelper
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
             string playlistId = GetPlaylistId(url) ?? throw new Exception("Invalid playlist URL.");
-            var playlistVideos = await _youtube.Playlists.GetVideosAsync(playlistId)
+            var playlistVideos = await _youtube.Playlists.GetVideosAsync(playlistId, token)
                 .CollectAsync(MaxDataCount);
 
             return playlistVideos
@@ -137,7 +143,9 @@ public class CachingHelper : ICachingHelper
         return output;
     }
 
-    public async Task<List<VideoModel>> GetChannelVideosAsync(string url)
+    public async Task<List<VideoModel>> GetChannelVideosAsync(
+        string url,
+        CancellationToken token = default)
     {
         string key = CacheVideoList(url);
 
@@ -145,7 +153,7 @@ public class CachingHelper : ICachingHelper
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            var channelVideos = await _youtube.Channels.GetUploadsAsync(url)
+            var channelVideos = await _youtube.Channels.GetUploadsAsync(url, token)
                 .CollectAsync(MaxDataCount);
 
             return channelVideos
@@ -161,7 +169,9 @@ public class CachingHelper : ICachingHelper
         return output;
     }
 
-    public async Task<PlaylistModel> GetPlaylistAsync(string url)
+    public async Task<PlaylistModel> GetPlaylistAsync(
+        string url,
+        CancellationToken token = default)
     {
         string key = CachePlaylistKey(url);
 
@@ -169,7 +179,7 @@ public class CachingHelper : ICachingHelper
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            var playlist = await _youtube.Playlists.GetAsync(url);
+            var playlist = await _youtube.Playlists.GetAsync(url, token);
             return new PlaylistModel(playlist);
         });
 
@@ -183,7 +193,7 @@ public class CachingHelper : ICachingHelper
 
     public async Task<List<VideoModel>> GetVideosBySearchAsync(
         string searchInput,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         string key = $"VideoSearch-{searchInput}";
 
@@ -208,7 +218,7 @@ public class CachingHelper : ICachingHelper
 
     public async Task<List<ChannelModel>> GetChannelBySearchAsync(
         string searchInput,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         string key = $"ChannelSearch-{searchInput}";
 
@@ -233,7 +243,7 @@ public class CachingHelper : ICachingHelper
 
     public async Task<List<PlaylistModel>> GetPlaylistsBySearchAsync(
         string searchInput,
-        CancellationToken token)
+        CancellationToken token = default)
     {
         string key = $"PlaylistSearch-{searchInput}";
 
