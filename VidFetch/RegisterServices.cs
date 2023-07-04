@@ -34,7 +34,7 @@ public static class RegisterServices
 #endif
         builder.Services.AddMudServices();
 
-        // YoutubeExplode clients
+        // YoutubeExplode client
         builder.Services.AddTransient<YoutubeClient>();
 
         // Caching
@@ -44,9 +44,9 @@ public static class RegisterServices
         builder.Services.AddTransient<IChannelCache, ChannelCache>();
         builder.Services.AddTransient<IPlaylistCache, PlaylistCache>();
         builder.Services.AddTransient<IStreamInfoCache, StreamInfoCache>();
+        builder.Services.AddTransient<ILoadedItemsCache,  LoadedItemsCache>();
 
         // Video Library (Keeps the loaded data in)
-
         builder.Services.AddSingleton<IVideoLibrary, VideoLibrary>();
 
         // Helpers
