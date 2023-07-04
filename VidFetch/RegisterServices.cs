@@ -8,6 +8,11 @@ using VidFetchLibrary.Client;
 using VidFetchLibrary.Helpers;
 using VidFetchLibrary.Library;
 using YoutubeExplode;
+using YoutubeExplode.Videos;
+using YoutubeExplode.Channels;
+using YoutubeExplode.Playlists;
+using YoutubeExplode.Search;
+using VidFetchLibrary.Cache;
 
 namespace VidFetch;
 public static class RegisterServices
@@ -28,8 +33,23 @@ public static class RegisterServices
         builder.Logging.AddDebug();
 #endif
         builder.Services.AddMudServices();
-        builder.Services.AddMemoryCache();
+        
+        // YoutubeExplode clients
         builder.Services.AddTransient<YoutubeClient>();
+        builder.Services.AddTransient<VideoClient>();
+        builder.Services.AddTransient<ChannelClient>();
+        builder.Services.AddTransient<PlaylistClient>();
+        builder.Services.AddTransient<SearchClient>();
+
+        // Caching
+        builder.Services.AddMemoryCache();
+
+        builder.Services.AddTransient<IVideoCache, VideoCache>();
+        builder.Services.AddTransient<IChannelCache, ChannelCache>();
+        builder.Services.AddTransient<IPlaylistCache, PlaylistCache>();
+        builder.Services.AddTransient<IStreamInfoCache, StreamInfoCache>();
+
+        // Video Library (Keeps the loaded data in)
 
         builder.Services.AddSingleton<IVideoLibrary, VideoLibrary>();
 
