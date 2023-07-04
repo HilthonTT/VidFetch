@@ -127,7 +127,9 @@
                                               HelperText="Input your ffmpeg file path to the .exe"
                                               RequiredError="You must input your ffmpeg file path to the .exe"
                                               Label="Ffmpeg File Path"
-                                              FullWidth="true" />
+                                              FullWidth="true"
+                                              Clearable="true"
+                                              OnClearButtonClick="ClearFfmpegPath" />
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudSelect @bind-Value="_ffmpegSettingsModel.SelectedResolution"

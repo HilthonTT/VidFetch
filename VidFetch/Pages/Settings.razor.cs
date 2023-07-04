@@ -109,6 +109,18 @@ public partial class Settings
         }
     }
 
+    private async Task ClearFfmpegPath()
+    {
+        _ffmpegSettingsModel.FfmpegPath = "";
+
+        var settings = await settingsData.GetSettingsAsync();
+        settings.FfmpegPath = "";
+
+        await settingsData.SetSettingsAsync(settings);
+
+        snackbar.Add("Cleared your Ffmpeg path.");
+    }
+
     private string GetSpacedString(string path)
     {
         return pathHelper.GetSpacedString(path);
