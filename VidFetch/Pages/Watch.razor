@@ -36,12 +36,5 @@
     </MudCard>
 }
 
-<MudDialog Options="((new DialogOptions() { NoHeader = true }))"
-            IsVisible="IsVideoNull()"
-            Class="backdrop-blur">
-    <DialogContent>
-        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
-    </DialogContent>
-</MudDialog>
-
+<LoadingDialog IsVisible="IsVideoNull()"/>
 

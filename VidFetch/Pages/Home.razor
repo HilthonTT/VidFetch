@@ -68,9 +68,9 @@
                         </BulletTemplate>
                         <ItemTemplate>
                             <MudImage Class="mud-width-full"
-                                      Style="height: 100%;"
-                                      Src="@v.ThumbnailUrl" @onclick="(() => LoadVideoPage(v))"
-                                      title="@v.Title"></MudImage>
+                                        Style="height: 100%;"
+                                        Src="@v.ThumbnailUrl" @onclick="(() => LoadVideoPage(v))"
+                                        title="@v.Title"></MudImage>
                         </ItemTemplate>
                     </MudCarousel>
                 }
@@ -128,12 +128,10 @@
                             </div>
                         </BulletTemplate>
                         <ItemTemplate>
-                            <MudCarouselItem Transition="Transition.Slide">
-                                <MudImage Class="mud-width-full"
-                                          Style="height: 100%"
-                                          Src="@c.ThumbnailUrl" @onclick="(() => LoadChannelPage(c))"
-                                          title="@c.Title"></MudImage>
-                            </MudCarouselItem>
+                            <MudImage Class="mud-width-full"
+                                        Style="height: 100%"
+                                        Src="@c.ThumbnailUrl" @onclick="(() => LoadChannelPage(c))"
+                                        title="@c.Title"></MudImage>
                         </ItemTemplate>
                     </MudCarousel>
                 }

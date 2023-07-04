@@ -8,7 +8,7 @@
 @inject NavigationManager navManager
 
 <MudItem xs="CardSize">
-    <MudCard Class="mb-4 h-100">
+    <MudCard Class="mb-4 h-100 d-flex flex-column">
         <MudCardHeader>
             <CardHeaderAvatar>
                 @if (string.IsNullOrWhiteSpace(Video.AuthorThumbnailUrl))
@@ -43,6 +43,7 @@
                 @onclick="Remove"></MudIconButton>
             </CardHeaderActions>
         </MudCardHeader>
+        <div class="mt-auto"></div>
         <MudCardMedia Image="@Video.ThumbnailUrl" Height="200"></MudCardMedia>
         <MudCardContent Class="text-start">
             <MudLink @onclick="(() => OpenUrl(Video.AuthorUrl))"
@@ -54,11 +55,6 @@
             <MudText title="@Video.Duration">
                 @Video.Duration
             </MudText>
-            <MudLink Class="text-break"
-                     title="@Video.Url"
-            @onclick="(() => OpenUrl(Video.Url))">
-                @Video.Url
-            </MudLink>
             @if (Index is not 0)
             {
                 <MudText title="@Index">Index: @Index</MudText>
@@ -71,6 +67,7 @@
                                Class="my-7"
                                Buffer="true" />
         </MudCardContent>
+        <div class="mt-auto"></div>
         <MudCardActions Class="justify-content-between">
             @if (_isDownloading is false)
             {
@@ -88,6 +85,11 @@
                     Cancel Download
                 </MudButton>
             }
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Warning"
+            @onclick="(() => OpenUrl(Video.Url))">
+                Open Url
+            </MudButton>
             <MudButton Variant="Variant.Outlined"
                        Color="Color.Secondary"
             @onclick="LoadWatchPage">

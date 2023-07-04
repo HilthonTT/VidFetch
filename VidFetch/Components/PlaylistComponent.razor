@@ -5,7 +5,7 @@
 @inject NavigationManager navManager
 
 <MudItem xs="CardSize">
-    <MudCard Class="mb-4 h-100">
+    <MudCard Class="mb-4 h-100 d-flex flex-column">
         <MudCardHeader>
             <CardHeaderAvatar>       
                 @if (string.IsNullOrWhiteSpace(Playlist.AuthorThumbnailUrl))
@@ -42,12 +42,13 @@
             </CardHeaderActions>
         </MudCardHeader>
         <MudCardMedia Image="@Playlist.ThumbnailUrl" Height="200"></MudCardMedia>
+        <div class="mt-auto"></div>
         <MudCardContent Class="text-start">
-            <MudLink Typo="Typo.h5" Color="Color.Default" title="@Playlist.Title" @onclick="(() => OpenUrl(Playlist.Url))">
+            <MudLink Color="Color.Default" title="@Playlist.Title" @onclick="(() => OpenUrl(Playlist.Url))">
                 @Playlist.Title
             </MudLink>
         </MudCardContent>
-        <MudCardActions>
+        <MudCardActions Class="justify-content-between">
             <MudButton Variant="Variant.Outlined" Color="Color.Secondary" @onclick="LoadPlaylistPage">
                 Open Details
             </MudButton>

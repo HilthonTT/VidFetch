@@ -43,7 +43,7 @@
         </MudCardHeader>
         <MudCardMedia Image="@Channel.ThumbnailUrl" Height="200"></MudCardMedia>
         <MudCardContent Class="text-start">
-            <MudLink Typo="Typo.h5" Color="Color.Default" title="@Channel.Title" @onclick="(() => OpenUrl(Channel.Url))">
+            <MudLink Color="Color.Default" title="@Channel.Title" @onclick="(() => OpenUrl(Channel.Url))">
                 @Channel.Title
             </MudLink>
         </MudCardContent>

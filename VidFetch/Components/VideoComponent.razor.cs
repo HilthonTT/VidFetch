@@ -144,6 +144,19 @@ public partial class VideoComponent
         snackbar.Add($"Successfully downloaded {Video.Title}", Severity.Normal);
     }
 
+    private string GetShortenedTitle()
+    {
+        const int maxLength = 25;
+        string videoTitle = Video.Title;
+
+        if (videoTitle.Length > maxLength)
+        {
+            videoTitle = videoTitle[..maxLength] + "...";
+        }
+
+        return videoTitle;
+    }
+
     private bool IsFFmpegInvalid()
     {
         bool isFFmpegEmpty = string.IsNullOrWhiteSpace(_settings.FfmpegPath) is false;
