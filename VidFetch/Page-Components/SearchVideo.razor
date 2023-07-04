@@ -50,11 +50,14 @@
                                  ValueChanged="HandleVideoSearchValueChanged" />
             </div>
             <div class="mx-3">
-                <MudButton Color="Color.Warning"
-                           Variant="Variant.Outlined"
-                @onclick="OpenFileLocation">
-                    Open Folder Location
-                </MudButton>
+                <MudButtonGroup Color="Color.Warning" Variant="Variant.Outlined">
+                    <MudButton @onclick="OpenFileLocation">
+                        Open Folder Location
+                    </MudButton>
+                    <MudButton @onclick="ClearVideos">
+                        Clear Videos
+                    </MudButton>
+                </MudButtonGroup>
             </div>
         </div>
         @if (_visibleVideos?.Count > 0 || videoLibrary.VideoResults?.Count > 0)
