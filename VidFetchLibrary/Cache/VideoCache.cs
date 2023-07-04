@@ -2,10 +2,8 @@
 using System.Web;
 using VidFetchLibrary.DataAccess;
 using VidFetchLibrary.Models;
-using YoutubeExplode.Channels;
+using YoutubeExplode;
 using YoutubeExplode.Common;
-using YoutubeExplode.Playlists;
-using YoutubeExplode.Search;
 using YoutubeExplode.Videos;
 
 namespace VidFetchLibrary.Cache;
@@ -14,22 +12,13 @@ public class VideoCache : IVideoCache
     private const int CacheTime = 5;
     private const int MaxDataCount = 200;
     private readonly IMemoryCache _cache;
-    private readonly VideoClient _videoClient;
-    private readonly SearchClient _searchClient;
-    private readonly PlaylistClient _playlistClient;
-    private readonly ChannelClient _channelClient;
+    private readonly YoutubeClient _youtube;
 
     public VideoCache(IMemoryCache cache,
-                      VideoClient videoClient,
-                      SearchClient searchClient,
-                      PlaylistClient playlistClient,
-                      ChannelClient channelClient)
+                      YoutubeClient youtube)
     {
         _cache = cache;
-        _videoClient = videoClient;
-        _searchClient = searchClient;
-        _playlistClient = playlistClient;
-        _channelClient = channelClient;
+        _youtube = youtube;
     }
 
     public async Task<VideoModel> GetVideoAsync(
@@ -43,7 +32,7 @@ public class VideoCache : IVideoCache
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            var video = await _videoClient.GetAsync(url, token);
+            var video = await _youtube.Videos.GetAsync(url, token);
 
             _cache.Set(secondaryKey, video, TimeSpan.FromHours(CacheTime));
             return new VideoModel(video);
@@ -68,7 +57,7 @@ public class VideoCache : IVideoCache
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
             
-            return await _videoClient.GetAsync(url, token);
+            return await _youtube.Videos.GetAsync(url, token);
         });
 
         if (output is null)
@@ -90,7 +79,7 @@ public class VideoCache : IVideoCache
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
             string playlistId = GetPlaylistId(url) ?? throw new Exception("Invalid playlist URL.");
-            var playlistVideos = await _playlistClient.GetVideosAsync(playlistId, token)
+            var playlistVideos = await _youtube.Playlists.GetVideosAsync(playlistId, token)
                 .CollectAsync(MaxDataCount);
 
             return playlistVideos
@@ -116,7 +105,7 @@ public class VideoCache : IVideoCache
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            var channelVideos = await _channelClient.GetUploadsAsync(url, token)
+            var channelVideos = await _youtube.Channels.GetUploadsAsync(url, token)
                 .CollectAsync(MaxDataCount);
 
             return channelVideos
@@ -142,7 +131,7 @@ public class VideoCache : IVideoCache
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            var results = await _searchClient.GetVideosAsync(searchInput, token)
+            var results = await _youtube.Search.GetVideosAsync(searchInput, token)
                .CollectAsync(MaxDataCount);
 
             return results.Select(v => new VideoModel(v))

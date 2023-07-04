@@ -1,17 +1,24 @@
-﻿using VidFetchLibrary.Helpers;
+﻿using VidFetchLibrary.Cache;
+using VidFetchLibrary.Helpers;
 using VidFetchLibrary.Models;
 
 namespace VidFetchLibrary.Client;
 public class Youtube : IYoutube
 {
     private readonly IDownloadHelper _downloaderHelper;
-    private readonly ICachingHelper _cachingHelper;
+    private readonly IPlaylistCache _playlistCache;
+    private readonly IVideoCache _videoCache;
+    private readonly IChannelCache _channelCache;
 
     public Youtube(IDownloadHelper downloaderHelper,
-                   ICachingHelper cachingHelper)
+                   IPlaylistCache playlistCache,
+                   IVideoCache videoCache,
+                   IChannelCache channelCache)
     {
         _downloaderHelper = downloaderHelper;
-        _cachingHelper = cachingHelper;
+        _playlistCache = playlistCache;
+        _videoCache = videoCache;
+        _channelCache = channelCache;
     }
 
 
@@ -34,7 +41,7 @@ public class Youtube : IYoutube
         string url,
         CancellationToken token = default)
     {
-        var playlistVideos = await _cachingHelper.GetPlayListVideosAsync(url, token);
+        var playlistVideos = await _videoCache.GetPlayListVideosAsync(url, token);
         return playlistVideos;
     }
 
@@ -42,7 +49,7 @@ public class Youtube : IYoutube
         string url,
         CancellationToken token = default)
     {
-        var channelVideos = await _cachingHelper.GetChannelVideosAsync(url, token);
+        var channelVideos = await _videoCache.GetChannelVideosAsync(url, token);
         return channelVideos;
     }
 
@@ -50,7 +57,7 @@ public class Youtube : IYoutube
         string url,
         CancellationToken token = default)
     {
-        var video = await _cachingHelper.GetVideoAsync(url, token);
+        var video = await _videoCache.GetVideoAsync(url, token);
         return video;
     }
 
@@ -58,7 +65,7 @@ public class Youtube : IYoutube
         string url,
         CancellationToken token = default)
     {
-        var channel = await _cachingHelper.GetChannelAsync(url, token);
+        var channel = await _channelCache.GetChannelAsync(url, token);
         return channel;
     }
 
@@ -66,7 +73,7 @@ public class Youtube : IYoutube
         string url,
         CancellationToken token = default)
     {
-        var playlist = await _cachingHelper.GetPlaylistAsync(url, token);
+        var playlist = await _playlistCache.GetPlaylistAsync(url, token);
         return playlist;
     }
 
@@ -74,7 +81,7 @@ public class Youtube : IYoutube
         string searchInput,
         CancellationToken token)
     {
-        var videos = await _cachingHelper.GetVideosBySearchAsync(searchInput, token);
+        var videos = await _videoCache.GetVideosBySearchAsync(searchInput, token);
         return videos;
     }
 
@@ -82,7 +89,7 @@ public class Youtube : IYoutube
         string searchInput,
         CancellationToken token)
     {
-        var channels = await _cachingHelper.GetChannelBySearchAsync(searchInput, token);
+        var channels = await _channelCache.GetChannelBySearchAsync(searchInput, token);
         return channels;
     }
 
@@ -90,7 +97,7 @@ public class Youtube : IYoutube
         string searchInput,
         CancellationToken token)
     {
-        var playlists = await _cachingHelper.GetPlaylistsBySearchAsync(searchInput, token);
+        var playlists = await _playlistCache.GetPlaylistsBySearchAsync(searchInput, token);
         return playlists;
     }
 }

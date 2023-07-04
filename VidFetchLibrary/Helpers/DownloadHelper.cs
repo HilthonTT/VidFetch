@@ -1,34 +1,29 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using VidFetchLibrary.Library;
-using YoutubeExplode;
+﻿using VidFetchLibrary.Library;
 using YoutubeExplode.Common;
 using YoutubeExplode.Videos;
-using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
 using YoutubeExplode.Converter;
 using VidFetchLibrary.Data;
 using VidFetchLibrary.DataAccess;
+using VidFetchLibrary.Cache;
+using YoutubeExplode;
 
 namespace VidFetchLibrary.Helpers;
 public class DownloadHelper : IDownloadHelper
 {
-    private const int CacheTime = 5;
     private readonly IPathHelper _pathHelper;
-    private readonly IMemoryCache _cache;
-    private readonly ICachingHelper _cachingHelper;
     private readonly ISettingsData _settingsData;
+    private readonly IStreamInfoCache _streamInfoCache;
     private readonly YoutubeClient _youtube;
 
     public DownloadHelper(IPathHelper pathHelper,
-                          IMemoryCache cache,
-                          ICachingHelper cachingHelper,
                           ISettingsData settingsData,
+                          IStreamInfoCache streamInfoCache,
                           YoutubeClient youtube)
     {
         _pathHelper = pathHelper;
-        _cache = cache;
-        _cachingHelper = cachingHelper;
         _settingsData = settingsData;
+        _streamInfoCache = streamInfoCache;
         _youtube = youtube;
     }
 
@@ -41,7 +36,7 @@ public class DownloadHelper : IDownloadHelper
     {
         try
         {
-            var video = await LoadVideoAsync(videoUrl, token)
+            var video = await _youtube.Videos.GetAsync(videoUrl, token)
                 ?? throw new NullReferenceException("Video not found.");
 
             var settings = await _settingsData.GetSettingsAsync();
@@ -92,7 +87,7 @@ public class DownloadHelper : IDownloadHelper
         IProgress<double> progress, 
         CancellationToken token)
     {
-        var streamInfos = await LoadStreamInfosAsync(_youtube, video, settings, token);
+        var streamInfos = await LoadStreamInfosAsync(video, settings, token);
         var conversionRequest = await GetRequestBuilder(settings, video, isPlaylist, playlistTitle);
 
         await _youtube.Videos.DownloadAsync(streamInfos, conversionRequest, progress, token);
@@ -108,7 +103,8 @@ public class DownloadHelper : IDownloadHelper
         CancellationToken token)
     {
         var streamManifest = await _youtube.Videos.Streams
-                    .GetManifestAsync(videoUrl, token);
+            .GetManifestAsync(videoUrl, token);
+
         var streamInfo = GetVideoStream(streamManifest, settings);
 
         string downloadFolder = await _pathHelper.GetVideoDownloadPath(
@@ -124,7 +120,7 @@ public class DownloadHelper : IDownloadHelper
         Video video,
         CancellationToken token)
     {
-        var subtitleinfo = await LoadSubtitleInfoAsync(_youtube, video, token);
+        var subtitleinfo = await _streamInfoCache.GetSubtitlesInfoAsync(video, token);
 
         if (subtitleinfo is null || subtitleinfo.Count <= 0)
         {
@@ -149,66 +145,23 @@ public class DownloadHelper : IDownloadHelper
         }
     }
 
-    private async Task<Video> LoadVideoAsync(string url, CancellationToken token)
-    {
-        var video = await _cachingHelper.LoadYoutubeExplodeVideoAsync(url, token);
-        return video;
-    }
-
     private async Task<IStreamInfo[]> LoadStreamInfosAsync(
-        YoutubeClient client,
         Video video,
         SettingsLibrary settings,
         CancellationToken token)
     {
-        string key = _cachingHelper.CacheStreamManifest(video.Url);
-        IVideoStreamInfo videoStreamInfo;
-
-        var streamManifest = await _cache.GetOrCreateAsync(key, async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
-            return await client.Videos.Streams.GetManifestAsync(video.Id, token);
-        });
-
-        if (streamManifest is null)
-        {
-            _cache.Remove(key);
-        }
+        var streamManifest = await _streamInfoCache.GetStreamManifestAsync(video, token);
 
         var audioStreamInfo = streamManifest
             .GetAudioStreams()
             .Where(s => s.Container == Container.Mp4)
             .GetWithHighestBitrate();
 
-        videoStreamInfo = GetFfmpegVideoStream(streamManifest, settings);
+        var videoStreamInfo = GetFfmpegVideoStream(streamManifest, settings);
 
         return new IStreamInfo[] { audioStreamInfo, videoStreamInfo };
     }
 
-    private async Task<List<ClosedCaptionTrackInfo>> LoadSubtitleInfoAsync(
-        YoutubeClient client,
-        Video video,
-        CancellationToken token)
-    {
-        string key = _cachingHelper.CacheSubtitlesInfoKey(video.Url);
-
-        var output = await _cache.GetOrCreateAsync(key, async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
-
-            var subtitleManifest = await client.Videos.ClosedCaptions.GetManifestAsync(video.Id, token);
-            var subtitleinfo = subtitleManifest.Tracks;
-
-            return subtitleinfo.ToList();
-        });
-
-        if (output is null)
-        {
-            _cache.Remove(key);
-        }
-
-        return output;
-    }
 
     private async Task<ConversionRequest> GetRequestBuilder(
         SettingsLibrary settings,

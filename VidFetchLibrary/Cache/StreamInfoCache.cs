@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using YoutubeExplode;
 using YoutubeExplode.Videos;
 using YoutubeExplode.Videos.ClosedCaptions;
 using YoutubeExplode.Videos.Streams;
@@ -8,12 +9,12 @@ public class StreamInfoCache : IStreamInfoCache
 {
     private const int CacheTime = 5;
     private readonly IMemoryCache _cache;
-    private readonly VideoClient _client;
+    private readonly YoutubeClient _youtube;
 
-    public StreamInfoCache(IMemoryCache cache, VideoClient client)
+    public StreamInfoCache(IMemoryCache cache, YoutubeClient youtube)
     {
         _cache = cache;
-        _client = client;
+        _youtube = youtube;
     }
 
     public async Task<StreamManifest> GetStreamManifestAsync(Video video, CancellationToken token)
@@ -24,7 +25,7 @@ public class StreamInfoCache : IStreamInfoCache
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            return await _client.Streams.GetManifestAsync(video.Id, token);
+            return await _youtube.Videos.Streams.GetManifestAsync(video.Id, token);
         });
 
         if (streamManifest is null)
@@ -44,7 +45,8 @@ public class StreamInfoCache : IStreamInfoCache
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            var subtitleManifest = await _client
+            var subtitleManifest = await _youtube
+                .Videos
                 .ClosedCaptions
                 .GetManifestAsync(video.Id, token);
 

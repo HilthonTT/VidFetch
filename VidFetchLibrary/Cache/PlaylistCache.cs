@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using VidFetchLibrary.DataAccess;
 using VidFetchLibrary.Models;
+using YoutubeExplode;
 using YoutubeExplode.Common;
-using YoutubeExplode.Playlists;
-using YoutubeExplode.Search;
 
 namespace VidFetchLibrary.Cache;
 public class PlaylistCache : IPlaylistCache
@@ -11,16 +10,12 @@ public class PlaylistCache : IPlaylistCache
     private const int CacheTime = 5;
     private const int MaxDataCount = 200;
     private readonly IMemoryCache _cache;
-    private readonly PlaylistClient _playlistClient;
-    private readonly SearchClient _searchClient;
+    private readonly YoutubeClient _youtube;
 
-    public PlaylistCache(IMemoryCache cache,
-                         PlaylistClient playlistClient,
-                         SearchClient searchClient)
+    public PlaylistCache(IMemoryCache cache, YoutubeClient youtube)
     {
         _cache = cache;
-        _playlistClient = playlistClient;
-        _searchClient = searchClient;
+        _youtube = youtube;
     }
 
     public async Task<PlaylistModel> GetPlaylistAsync(
@@ -33,7 +28,7 @@ public class PlaylistCache : IPlaylistCache
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            var playlist = await _playlistClient.GetAsync(url, token);
+            var playlist = await _youtube.Playlists.GetAsync(url, token);
             return new PlaylistModel(playlist);
         });
 
@@ -55,7 +50,7 @@ public class PlaylistCache : IPlaylistCache
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            var results = await _searchClient.GetPlaylistsAsync(searchInput, token)
+            var results = await _youtube.Search.GetPlaylistsAsync(searchInput, token)
                .CollectAsync(MaxDataCount);
 
             return results.Select(v => new PlaylistModel(v))

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using VidFetchLibrary.DataAccess;
 using VidFetchLibrary.Models;
+using YoutubeExplode;
 using YoutubeExplode.Channels;
 using YoutubeExplode.Common;
-using YoutubeExplode.Search;
 
 namespace VidFetchLibrary.Cache;
 public class ChannelCache : IChannelCache
@@ -11,16 +11,13 @@ public class ChannelCache : IChannelCache
     private const int CacheTime = 5;
     private const int MaxDataCount = 200;
     private readonly IMemoryCache _cache;
-    private readonly ChannelClient _channelClient;
-    private readonly SearchClient _searchClient;
+    private readonly YoutubeClient _youtube;
 
     public ChannelCache(IMemoryCache cache,
-                        ChannelClient channelClient,
-                        SearchClient searchClient)
+                        YoutubeClient youtube)
     {
         _cache = cache;
-        _channelClient = channelClient;
-        _searchClient = searchClient;
+        _youtube = youtube;
     }
 
     public async Task<ChannelModel> GetChannelAsync(
@@ -35,10 +32,16 @@ public class ChannelCache : IChannelCache
             
             Channel channel = true switch
             {
-                bool _ when url.Contains("https://www.youtube.com/@") => await _channelClient.GetByHandleAsync(url, token),
-                bool _ when url.Contains("https://youtube.com/user/") => await _channelClient.GetByUserAsync(url, token),
-                bool _ when url.Contains("https://youtube.com/c/") => await _channelClient.GetBySlugAsync(url, token),
-                _ => await _channelClient.GetAsync(url, token),
+                bool _ when url.Contains("https://www.youtube.com/@") => await _youtube.Channels
+                    .GetByHandleAsync(url, token),
+
+                bool _ when url.Contains("https://youtube.com/user/") => await _youtube.Channels
+                .GetByUserAsync(url, token),
+
+                bool _ when url.Contains("https://youtube.com/c/") => await _youtube.Channels
+                .GetBySlugAsync(url, token),
+
+                _ => await _youtube.Channels.GetAsync(url, token),
             };
             
             return new ChannelModel(channel);
@@ -62,7 +65,8 @@ public class ChannelCache : IChannelCache
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
-            var results = await _searchClient.GetChannelsAsync(searchInput, token)
+            var results = await _youtube.Search
+               .GetChannelsAsync(searchInput, token)
                .CollectAsync(MaxDataCount);
 
             return results.Select(v => new ChannelModel(v))

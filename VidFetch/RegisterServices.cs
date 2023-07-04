@@ -33,13 +33,9 @@ public static class RegisterServices
         builder.Logging.AddDebug();
 #endif
         builder.Services.AddMudServices();
-        
+
         // YoutubeExplode clients
         builder.Services.AddTransient<YoutubeClient>();
-        builder.Services.AddTransient<VideoClient>();
-        builder.Services.AddTransient<ChannelClient>();
-        builder.Services.AddTransient<PlaylistClient>();
-        builder.Services.AddTransient<SearchClient>();
 
         // Caching
         builder.Services.AddMemoryCache();
@@ -70,7 +66,6 @@ public static class RegisterServices
         builder.Services.AddSingleton<IYoutube, Youtube>();
         builder.Services.AddSingleton<IDownloadHelper, DownloadHelper>();
         builder.Services.AddSingleton<IPathHelper, PathHelper>();
-        builder.Services.AddSingleton<ICachingHelper, CachingHelper>();
 
         builder.Services.AddSingleton<ILauncher, LauncherWrapper>();
     }
