@@ -7,10 +7,13 @@
     <MudItem xs="12" sm="6" md="4">
         <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Past A Link">
             <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Primary" @onclick="LoadPasteLinkPage">
-                <div class="d-flex" style="height: 100%">
-                    <MudIcon Class="mx-auto my-auto"
-                             Icon="@Icons.Material.Filled.Link"
-                             Size="Size.Large"></MudIcon>
+                <div class="d-flex align-items-center flex-column">
+                    <div class="d-flex justify-content-center">
+                        <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Link" Size="Size.Large"></MudIcon>
+                    </div>
+                    <div class="text-center">
+                        <MudText Class="text-uppercase fw-bold">Paste A Link</MudText>
+                    </div>
                 </div>
             </MudButton>
         </MudPaper>
@@ -18,10 +21,13 @@
     <MudItem xs="12" sm="6" md="4">
         <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Saved Medias">
             <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Secondary" @onclick="LoadSavedMediaPage">
-                <div class="d-flex" style="height: 100%">
-                    <MudIcon Class="mx-auto my-auto"
-                             Icon="@Icons.Material.Filled.PersonalVideo"
-                             Size="Size.Large"></MudIcon>
+                <div class="d-flex align-items-center flex-column">
+                    <div class="d-flex justify-content-center">
+                        <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.PersonalVideo" Size="Size.Large"></MudIcon>
+                    </div>
+                    <div class="text-center">
+                        <MudText Class="text-uppercase fw-bold">Saved Medias</MudText>
+                    </div>
                 </div>
             </MudButton>
         </MudPaper>
@@ -29,10 +35,13 @@
     <MudItem xs="12" sm="12" md="4">
         <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Search">
             <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Tertiary" @onclick="LoadSearchPage">
-                <div class="d-flex" style="height: 100%">
-                    <MudIcon Class="mx-auto my-auto"
-                             Icon="@Icons.Material.Filled.Search"
-                             Size="Size.Large"></MudIcon>
+                <div class="d-flex align-items-center flex-column">
+                    <div class="d-flex justify-content-center">
+                        <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Search" Size="Size.Large"></MudIcon>
+                    </div>
+                    <div class="text-center">
+                        <MudText Class="text-uppercase fw-bold">Search Media</MudText>
+                    </div>
                 </div>
             </MudButton>
         </MudPaper>
@@ -50,6 +59,13 @@
                                  ShowBullets="true"
                                  EnableSwipeGesture="true"
                                  AutoCycle="true">
+                        <BulletTemplate Context="selected">
+                            <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
+                                <span class="mud-icon-button-label">
+                                    <MudIcon Icon="@GetIcon(selected)" Color=GetIconColor(selected) />
+                                </span>
+                            </div>
+                        </BulletTemplate>
                         <ItemTemplate>
                             <MudImage Class="mud-width-full"
                                       Style="height: 100%;"
@@ -67,16 +83,25 @@
                                  EnableSwipeGesture="true"
                                  AutoCycle="true"
                                  TData="object">
-                        <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
-                            <div class="d-flex" style="height: 100%">
-                                <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.YouTube" Size="Size.Large"></MudIcon>
+                        <BulletTemplate Context="selected">
+                            <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
+                                <span class="mud-icon-button-label">
+                                    <MudIcon Icon="@GetIcon(selected)" Color="GetIconColor(selected)" />
+                                </span>
                             </div>
-                        </MudCarouselItem>
-                        <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
-                            <div class="d-flex" style="height: 100%">
-                                <MudIcon Class="mx-auto my-auto" Icon="@Icons.Material.Filled.MusicVideo" Size="Size.Large"></MudIcon>
-                            </div>
-                        </MudCarouselItem>
+                        </BulletTemplate>
+                        <ChildContent>
+                            <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
+                                <div class="d-flex" style="height: 100%">
+                                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.YouTube" Size="Size.Large"></MudIcon>
+                                </div>
+                            </MudCarouselItem>
+                            <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
+                                <div class="d-flex" style="height: 100%">
+                                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Material.Filled.MusicVideo" Size="Size.Large"></MudIcon>
+                                </div>
+                            </MudCarouselItem>
+                        </ChildContent>
                     </MudCarousel>
                 }
             </MudItem>
@@ -95,11 +120,20 @@
                                  ShowBullets="true"
                                  EnableSwipeGesture="true"
                                  AutoCycle="true">
+                        <BulletTemplate Context="selected">
+                            <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
+                                <span class="mud-icon-button-label">
+                                    <MudIcon Icon="@GetIcon(selected)" Color="GetIconColor(selected)" />
+                                </span>
+                            </div>
+                        </BulletTemplate>
                         <ItemTemplate>
-                            <MudImage Class="mud-width-full"
-                                      Style="height: 100%"
-                                      Src="@c.ThumbnailUrl" @onclick="(() => LoadChannelPage(c))"
-                                      title="@c.Title"></MudImage>
+                            <MudCarouselItem Transition="Transition.Slide">
+                                <MudImage Class="mud-width-full"
+                                          Style="height: 100%"
+                                          Src="@c.ThumbnailUrl" @onclick="(() => LoadChannelPage(c))"
+                                          title="@c.Title"></MudImage>
+                            </MudCarouselItem>
                         </ItemTemplate>
                     </MudCarousel>
                 }
@@ -112,16 +146,25 @@
                                  EnableSwipeGesture="true"
                                  AutoCycle="true"
                                  TData="object">
-                        <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
+                        <BulletTemplate Context="selected">
+                            <div Class="mud-button-root mud-icon-button mud-icon-button-color-inherit mud-ripple mud-ripple-icon">
+                                <span class="mud-icon-button-label">
+                                    <MudIcon Icon="@GetIcon(selected)" Color="GetIconColor(selected)" />
+                                </span>
+                            </div>
+                        </BulletTemplate>
+                        <ChildContent>
                             <MudCarouselItem Transition="Transition.Slide" Color="Color.Primary">
+                                <div class="d-flex" style="height: 100%">
+                                    <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.YouTube" Size="Size.Large"></MudIcon>
+                                </div>
+                            </MudCarouselItem>
+                            <MudCarouselItem Transition="Transition.Slide" Color="Color.Secondary">
                                 <div class="d-flex" style="height: 100%">
                                     <MudIcon Class="mx-auto my-auto" Icon="@Icons.Material.Filled.Person" Size="Size.Large"></MudIcon>
                                 </div>
                             </MudCarouselItem>
-                            <div class="d-flex" style="height: 100%">
-                                <MudIcon Class="mx-auto my-auto" Icon="@Icons.Custom.Brands.YouTube" Size="Size.Large"></MudIcon>
-                            </div>
-                        </MudCarouselItem>
+                        </ChildContent>
                     </MudCarousel>
                 }
             </MudItem>
@@ -130,10 +173,13 @@
     <MudItem xs="12">
         <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Settings">
             <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Error" @onclick="LoadSettingsPage">
-                <div class="d-flex" style="height: 100%">
-                    <MudIcon Class="mx-auto my-auto"
-                             Icon="@Icons.Material.Filled.Settings"
-                             Size="Size.Large"></MudIcon>
+                <div class="d-flex align-items-center flex-column">
+                    <div class="d-flex justify-content-center">
+                        <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Settings" Size="Size.Large"></MudIcon>
+                    </div>
+                    <div class="text-center">
+                        <MudText Class="text-uppercase fw-bold">Settings</MudText>
+                    </div>
                 </div>
             </MudButton>
         </MudPaper>

@@ -1,15 +1,37 @@
+using MudBlazor;
 using VidFetchLibrary.Models;
+using Color = MudBlazor.Color;
 
 namespace VidFetch.Pages;
 
 public partial class Home
 {
+    private const int MaxItem = 10;
     private List<VideoModel> _savedVideos;
     private List<ChannelModel> _savedChannels;
+
     protected override async Task OnInitializedAsync()
     {
+        await LoadVideos();
+        await LoadChannels();
+    }
+
+    private async Task LoadVideos()
+    {
         _savedVideos = await videoData.GetAllVideosAsync();
+
+        _savedVideos = _savedVideos
+            .Take(MaxItem)
+            .ToList();
+    }
+
+    private async Task LoadChannels()
+    {
         _savedChannels = await channelData.GetAllChannelsAsync();
+
+        _savedChannels = _savedChannels
+            .Take(MaxItem)
+            .ToList();
     }
 
     private void LoadPasteLinkPage()
@@ -42,5 +64,29 @@ public partial class Home
     {
         string encodedUrl = Uri.EscapeDataString(channel.Url);
         navManager.NavigateTo($"/Channel/{encodedUrl}");
+    }
+
+    private static string GetIcon(bool selected)
+    {
+        if (selected)
+        {
+            return Icons.Material.Filled.CheckCircle;
+        }
+        else
+        {
+            return Icons.Material.Filled.Circle;
+        }
+    }
+
+    private static Color GetIconColor(bool selected)
+    {
+        if (selected)
+        {
+            return Color.Success;
+        }
+        else
+        {
+            return Color.Inherit;
+        }
     }
 }
