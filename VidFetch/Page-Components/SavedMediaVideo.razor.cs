@@ -12,6 +12,7 @@ public partial class SavedMediaVideo
     public EventCallback<bool> OpenLoading { get; set; }
 
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
+    private const int ItemsPerPage = 6;
     private SettingsLibrary _settings;
     private CancellationTokenSource _allVideosTokenSource;
     private CancellationTokenSource _tokenSource;
@@ -25,22 +26,26 @@ public partial class SavedMediaVideo
 
     protected override async Task OnInitializedAsync()
     {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(nameof(SavedMediaVideo), ItemsPerPage);
+
         _settings = await settingsData.GetSettingsAsync();
         await LoadVideos();
     }
 
     private void LoadMoreVideos()
     {
-        int itemsPerPage = 6;
         int videosCount = _videos.Count;
-        _loadedItems += itemsPerPage;
+        _loadedItems += ItemsPerPage;
+
         if (_loadedItems > videosCount)
         {
             _loadedItems = videosCount;
         }
 
         _visibleVideos = _videos.Take(_loadedItems).ToList();
+        loadedItemsCache.SetLoadedItemsCount(nameof(SavedMediaVideo), _loadedItems);
     }
+
 
     private async Task LoadVideos()
     {
