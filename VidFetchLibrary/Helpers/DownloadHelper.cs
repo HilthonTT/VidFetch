@@ -47,7 +47,7 @@ public class DownloadHelper : IDownloadHelper
             var settings = await _settingsData.GetSettingsAsync();
 
             string path = settings.FfmpegPath;
-            if (File.Exists(path))
+            if (File.Exists(path) && string.IsNullOrWhiteSpace(path) is false)
             {
                 await DownloadWithFfmpeg(
                     video,
@@ -232,18 +232,14 @@ public class DownloadHelper : IDownloadHelper
         SettingsLibrary settings)
     {
         var highestVideoResolutionStream = streamManifest.GetVideoStreams()
-                    .Where(s => s.Container == Container.Mp4)
                     .GetWithHighestVideoQuality();
         try
         {
-            IVideoStreamInfo videoStreamInfo = null;
-
-            videoStreamInfo = settings.SelectedResolution switch
+            var videoStreamInfo = settings.SelectedResolution switch
             {
                 VideoResolution.HighestResolution => highestVideoResolutionStream,
 
                 _ => streamManifest.GetVideoStreams()
-                    .Where(s => s.Container == Container.Mp4)
                     .First(s => s.VideoQuality.Label == GetVideoQualityLabel(settings)),
             };
 
@@ -260,18 +256,14 @@ public class DownloadHelper : IDownloadHelper
         SettingsLibrary settings)
     {
         var highestResolutionStream = streamManifest.GetMuxedStreams()
-                .Where(s => s.Container == Container.Mp4)
                 .GetWithHighestVideoQuality();
         try
         {
-            IVideoStreamInfo videoStreamInfo = null;
-
-            videoStreamInfo = settings.SelectedResolution switch
+            var videoStreamInfo = settings.SelectedResolution switch
             {
                 VideoResolution.HighestResolution => highestResolutionStream,
 
                 _ => streamManifest.GetMuxedStreams()
-                    .Where(s => s.Container == Container.Mp4)
                     .First(s => s.VideoQuality.Label == GetVideoQualityLabel(settings)),
             };
 
