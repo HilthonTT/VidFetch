@@ -53,11 +53,22 @@
                                  ValueChanged="HandleSearchValueChanged"/>
             </div>
             <div class="mx-3">
-                <MudButton Color="Color.Warning"
-                           Variant="Variant.Outlined"
-                @onclick="UpdateAllVideos">
-                    Update Data
-                </MudButton>
+                @if (_tokenSource is null)
+                {
+                    <MudButton @onclick="UpdateAllVideos"
+                               Color="Color.Warning"
+                               Variant="Variant.Outlined">
+                        Update Data
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton @onclick="CancelUpdateVideo"
+                               Color="Color.Error"
+                               Variant="Variant.Outlined">
+                        Cancel Data
+                    </MudButton>
+                }
             </div>
         </div>
         @if (_visibleVideos?.Count > 0 || _videos?.Count > 0)

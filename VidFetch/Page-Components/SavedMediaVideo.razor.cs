@@ -125,9 +125,13 @@ public partial class SavedMediaVideo
             CancelUpdateVideo();
             snackbar.Add("Successfully updated.");
         }
+        catch (OperationCanceledException)
+        {
+            snackbar.Add("Update canceled.", Severity.Error);
+        }
         catch 
         {
-            snackbar.Add($"An error occured while updating.", Severity.Error);
+            snackbar.Add("An error occured while updating.", Severity.Error);
         }
     }
 

@@ -71,6 +71,10 @@ public partial class SavedMediaChannel
             CancelUpdateChannel();
             snackbar.Add("Successfully updated.");
         }
+        catch (OperationCanceledException)
+        {
+            snackbar.Add("Update canceled.", Severity.Error);
+        }
         catch
         {
             snackbar.Add("An error occured while updating.", Severity.Error);

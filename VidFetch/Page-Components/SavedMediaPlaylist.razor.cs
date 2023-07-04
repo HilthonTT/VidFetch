@@ -71,11 +71,15 @@ public partial class SavedMediaPlaylist
             }
 
             CancelUpdatePlaylist();
-            snackbar.Add($"Successfully updated.");
+            snackbar.Add("Successfully updated playlists.");
+        }
+        catch (OperationCanceledException)
+        {
+            snackbar.Add("Update canceled.", Severity.Error);
         }
         catch
         {
-            snackbar.Add($"An error occured while updating.", Severity.Error);
+            snackbar.Add("An error occured while updating.", Severity.Error);
         }
     }
 

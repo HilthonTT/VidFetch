@@ -25,11 +25,22 @@
                                  ValueChanged="HandleSearchValueChanged"/>
             </div>
             <div class="mx-3">
-                <MudButton @onclick="UpdateAllPlaylists"
-                           Color="Color.Warning"
-                           Variant="Variant.Outlined">
-                    Update Data
-                </MudButton>
+                @if (_tokenSource is null)
+                {
+                    <MudButton @onclick="UpdateAllPlaylists"
+                               Color="Color.Warning"
+                               Variant="Variant.Outlined">
+                        Update Data
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton @onclick="CancelUpdatePlaylist"
+                               Color="Color.Error"
+                               Variant="Variant.Outlined">
+                        Cancel Data
+                    </MudButton>
+                }
             </div>
         </div>
         @if (_visiblePlaylists?.Count > 0 || _playlists?.Count > 0)
