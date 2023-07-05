@@ -203,7 +203,7 @@ public partial class SearchData<TData>
         }
     }
 
-    private string GetDataTypeName()
+    private static string GetDataTypeName()
     {
         string typeName = typeof(TData).Name;
         string trimmedName;

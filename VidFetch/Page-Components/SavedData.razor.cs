@@ -359,10 +359,20 @@ public partial class SavedData<TData>
         }
     }
 
-    private string GetDataTypeName()
+    private static string GetDataTypeName()
     {
         string typeName = typeof(TData).Name;
-        string trimmedName = typeName.EndsWith("Model") ? typeName.Substring(0, typeName.Length - "Model".Length) : typeName;
+        string trimmedName;
+
+        if (typeName.EndsWith("Model"))
+        {
+            trimmedName = typeName[..^"Model".Length];
+        }
+        else
+        {
+            trimmedName = typeName;
+        }
+
         return trimmedName;
     }
 
