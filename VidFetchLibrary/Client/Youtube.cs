@@ -85,7 +85,7 @@ public class Youtube : IYoutube
         return videos;
     }
 
-    public async Task<List<ChannelModel>> GetChannelBySearchAsync(
+    public async Task<List<ChannelModel>> GetChannelsBySearchAsync(
         string searchInput,
         CancellationToken token)
     {
