@@ -1,0 +1,149 @@
+﻿@typeparam TData
+
+@inject IVideoData videoData
+@inject IPlaylistData playlistData
+@inject IChannelData channelData
+@inject ISettingsData settingsData
+@inject IYoutube youtube
+@inject ITokenHelper tokenHelper
+@inject ISearchHelper searchHelper
+@inject IFolderHelper folderHelper
+@inject ILoadedItemsCache loadedItemsCache
+@inject ISnackbar snackbar
+
+<MudGrid Spacing="5">
+    <MudItem xs="12" Class="text-center">
+        @if (_allVideosTokenSource is null && typeof(TData) == typeof(VideoModel))
+        {
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       Class="w-100 mb-3"
+            @onclick="DownloadVideos">
+                @GetDownloadVideoText()
+            </MudButton>
+        }
+        else if (_allVideosTokenSource is not null && typeof(TData) == typeof(VideoModel))
+        {
+            <MudButton Color="Color.Error"
+                       Variant="Variant.Filled"
+                       Class="w-100 mb-3"
+            @onclick="CancelDownload">
+                Cancel
+            </MudButton>
+        }
+        @if (typeof(TData) == typeof(VideoModel))
+        {
+            <MudProgressLinear Color="Color.Primary"
+                               Striped="true"
+                               Size="Size.Medium"
+                               Max="1"
+                               Value="@_videosProgress"
+                               Class="my-7"
+                               Buffer="true" />
+        }
+        <div class="justify-content-between d-flex align-items-center">
+            <div class="mx-3">
+                <MudButton @onclick="OpenDialog"
+                           Color="Color.Error"
+                           Variant="Variant.Outlined">
+                    Delete @GetDataTypeName()
+                </MudButton>
+            </div>
+            <div class="w-100">
+                <MudAutocomplete T="string"
+                                 Label="@GetSearchBarText()"
+                                 Variant="Variant.Outlined"
+                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                                 OnAdornmentClick="FilterData"
+                                 SearchFunc="FilterSearchData"
+                                 ResetValueOnEmptyText="true"
+                                 ValueChanged="HandleSearchValueChanged" />
+            </div>
+            <div class="mx-3">
+                @if (_updateTokenSource is null)
+                {
+                    <MudButton @onclick="UpdateAllDatas"
+                               Color="Color.Warning"
+                               Variant="Variant.Outlined">
+                        Update Data
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton @onclick="CancelUpdateData"
+                               Color="Color.Error"
+                               Variant="Variant.Outlined">
+                        Cancel Data
+                    </MudButton>
+                }
+            </div>
+        </div>
+        @if (_visibleData?.Count > 0 || _datas?.Count > 0)
+        {
+            <MudDivider Class="mb-6 mt-6"></MudDivider>
+            @if (string.IsNullOrWhiteSpace(_downloadingVideoText) is false)
+            {
+                <MudAlert Class="mb-4" Severity="Severity.Warning">@_downloadingVideoText</MudAlert>
+            }
+            <MudGrid>
+                @if (typeof(TData) == typeof(VideoModel))
+                {
+                    <MudVirtualize Items="GetVideos()" Context="v" OverscanCount="ItemsPerPage">
+                        <VideoComponent @key="v.VideoId"
+                                        Video="v"
+                                        CardSize="4"
+                                        RemoveEvent="(() => DeleteData((TData)(dynamic)v))" />
+                    </MudVirtualize>
+                }
+                else if (typeof(TData) == typeof(ChannelModel))
+                {
+                    <MudVirtualize Items="GetChannels()" Context="c" OverscanCount="ItemsPerPage">
+                        <ChannelComponent @key="c.ChannelId"
+                                          Channel="c"
+                                          CardSize="4"
+                                          RemoveEvent="(() => DeleteData((TData)(dynamic)c))" />
+                    </MudVirtualize>
+                }
+                else
+                {
+                    <MudVirtualize Items="GetPlaylists()" Context="p" OverscanCount="ItemsPerPage">
+                        <PlaylistComponent @key="p.PlaylistId"
+                                           Playlist="p"
+                                           CardSize="4"
+                                           RemoveEvent="(() => RemoveData((TData)(dynamic)p))" />
+                    </MudVirtualize>
+                }
+            </MudGrid>
+            @if (_loadedItems < _datas.Count)
+            {
+                <div class="text-center mt-4">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                    @onclick="LoadMoreData">
+                        Load More
+                    </MudButton>
+                </div>
+            }
+        }
+    </MudItem>
+</MudGrid>
+
+
+<MudDialog IsVisible="_isVisible">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            Delete all videos
+            <MudIcon Icon="@Icons.Material.Filled.Dangerous"></MudIcon>
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        Deleting all of your videos is irreversible!
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseDialog" Color="Color.Error">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="DeleteAllData">Confirm</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+

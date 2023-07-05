@@ -5,23 +5,25 @@
     <MudIcon Icon="@Icons.Material.Filled.PersonalVideo"></MudIcon>
 </MudText>
 
-<MudDialog Options="((new DialogOptions() { NoHeader = true }))"
-           IsVisible="_isVisible"
-           Class="backdrop-blur">
-    <DialogContent>
-        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
-    </DialogContent>
-</MudDialog>
+@if (_isVisible)
+{
+    <MudDialog Options="((new DialogOptions() { NoHeader = true }))"
+               Class="backdrop-blur">
+        <DialogContent>
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        </DialogContent>
+    </MudDialog>
+}
 
 
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
     <MudTabPanel Text="Videos">
-        <SavedMediaVideo OpenLoading="ToggleLoadingOverlay" />
+        <SavedData TData="VideoModel" OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
     <MudTabPanel Text="Channels">
-        <SavedMediaChannel OpenLoading="ToggleLoadingOverlay" />
+        <SavedData TData="ChannelModel" OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
     <MudTabPanel Text="Playlists">
-        <SavedMediaPlaylist OpenLoading="ToggleLoadingOverlay" />
+        <SavedData TData="PlaylistModel" OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
 </MudTabs>
