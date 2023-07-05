@@ -1,0 +1,113 @@
+﻿@typeparam TData
+
+@inject IVideoLibrary videoLibrary
+@inject IYoutube youtube
+@inject ITokenHelper tokenHelper
+@inject ISearchHelper searchHelper
+@inject IFolderHelper folderHelper
+@inject ILoadedItemsCache loadedItemsCache
+
+<MudGrid Spacing="5">
+    <MudItem xs="12" Class="text-center">
+        <MudTextField @bind-Value="_url"
+                      Class="mb-4"
+                      Label="@(($"Input the {GetDataTypeName()}'s title"))"
+                      HelperText="@($"This is where you input {GetDataTypeName()}'s title.")"
+                      Variant="Variant.Outlined"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Download"
+                      OnAdornmentClick="SearchTData"
+                      Required="true"
+                      Clearable="true" />
+    </MudItem>
+</MudGrid>
+<MudGrid Spacing="5">
+    <MudItem xs="12">
+        <div class="justify-content-between d-flex align-items-center">
+            <div class="mx-3">
+                @if (_tokenSource is not null)
+                {
+                    <MudButton @onclick="CancelDataSearch"
+                               Color="Color.Error"
+                               Variant="Variant.Outlined">
+                        Cancel Search
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton @onclick="SearchTData"
+                               Color="Color.Success"
+                               Variant="Variant.Outlined">
+                        Search @GetDataTypeName()
+                    </MudButton>
+                }
+            </div>
+            <div class="w-100">
+                <MudAutocomplete T="string"
+                                 Label="@GetSearchBarText()"
+                                 Variant="Variant.Outlined"
+                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                                 OnAdornmentClick="FilterData"
+                                 SearchFunc="FilterSearchData"
+                                 ResetValueOnEmptyText="true"
+                                 ValueChanged="HandleSearchValueChanged" />
+            </div>
+            <div class="mx-3">
+                <MudButtonGroup Color="Color.Warning" Variant="Variant.Outlined">
+                    <MudButton @onclick="OpenFileLocation">
+                        Open Folder Location
+                    </MudButton>
+                    <MudButton @onclick="ClearData">
+                        Clear @GetDataTypeName()
+                    </MudButton>
+                </MudButtonGroup>
+            </div>
+        </div>
+        @if (_visibleData?.Count > 0)
+        {
+            <MudDivider Class="mb-6 mt-6"></MudDivider>
+            <MudGrid>
+                @if (typeof(TData) == typeof(VideoModel))
+                {
+                    <MudVirtualize Items="GetVideos()" Context="v" OverscanCount="ItemsPerPage">
+                        <VideoComponent @key="v.VideoId"
+                                        Video="v"
+                                        CardSize="4"
+                                        RemoveEvent="(() => RemoveData((TData)(dynamic)v))" />
+                    </MudVirtualize>
+                }
+                else if (typeof(TData) == typeof(ChannelModel))
+                {
+                    <MudVirtualize Items="GetChannels()" Context="c" OverscanCount="ItemsPerPage">
+                        <ChannelComponent @key="c.ChannelId"
+                                        Channel="c"
+                                        CardSize="4"
+                                        RemoveEvent="(() => RemoveData((TData)(dynamic)c))" />
+                    </MudVirtualize>
+                }
+                else
+                {
+                    <MudVirtualize Items="GetPlaylists()" Context="p" OverscanCount="ItemsPerPage">
+                        <PlaylistComponent @key="p.PlaylistId"
+                                          Playlist="p"
+                                          CardSize="4"
+                                          RemoveEvent="(() => RemoveData((TData)(dynamic)p))" />
+                    </MudVirtualize>
+                }
+            </MudGrid>
+            @if (_loadedItems < GetDataResults().Count)
+            {
+                <div class="text-center mt-4">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                    @onclick="LoadMoreData">
+                        Load More
+                    </MudButton>
+                </div>
+            }
+        }
+    </MudItem>
+</MudGrid>
+
+
+
