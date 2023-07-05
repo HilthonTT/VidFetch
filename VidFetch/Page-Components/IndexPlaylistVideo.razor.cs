@@ -16,6 +16,9 @@ public partial class IndexPlaylistVideo
     public EventCallback<bool> OpenLoading { get; set; }
 
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
+    private const string PageName = nameof(IndexPlaylistVideo);
+    private const int ItemsPerPage = 6;
+
     private SettingsLibrary _settings;
     private CancellationTokenSource _saveAllTokenSource;
     private CancellationTokenSource _playlistTokenSource;
@@ -33,8 +36,15 @@ public partial class IndexPlaylistVideo
 
     protected override async Task OnInitializedAsync()
     {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
+
         _settings = await settingsData.GetSettingsAsync();
 
+        await LoadPlaylistData();
+    }
+
+    private async Task LoadPlaylistData()
+    {
         if (string.IsNullOrWhiteSpace(PlaylistUrl) is false)
         {
             _playlist = await youtube.GetPlaylistAsync(PlaylistUrl);
@@ -45,17 +55,20 @@ public partial class IndexPlaylistVideo
 
     private void LoadMoreVideos()
     {
-        int itemsPerPage = 6;
         int videosCount = videoLibrary.PlaylistVideos.Count;
 
-        _loadedItems += itemsPerPage;
+        _loadedItems += ItemsPerPage;
 
         if (_loadedItems > videosCount)
         {
             _loadedItems = videosCount;
         }
 
-        _visibleVideos = videoLibrary.PlaylistVideos.Take(_loadedItems).ToList();
+        _visibleVideos = videoLibrary.PlaylistVideos
+            .Take(_loadedItems)
+            .ToList();
+
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
 

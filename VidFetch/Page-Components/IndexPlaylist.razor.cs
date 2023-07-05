@@ -10,6 +10,9 @@ public partial class IndexPlaylist
     [EditorRequired]
     public EventCallback<bool> OpenLoading { get; set; }
 
+    private const string PageName = nameof(IndexPlaylist);
+    private const int ItemsPerPage = 6;
+
     private CancellationTokenSource _tokenSource;
     private List<PlaylistModel> _visiblePlaylists = new();
     private string _playlistSearchText = "";
@@ -18,22 +21,27 @@ public partial class IndexPlaylist
 
     protected override void OnInitialized()
     {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
+
         _visiblePlaylists = videoLibrary.Playlists.Take(_loadedItems).ToList();
     }
 
     private void LoadMorePlaylists()
     {
-        int itemsPerPage = 6;
         int playlistCount = videoLibrary.Playlists.Count;
 
-        _loadedItems += itemsPerPage;
+        _loadedItems += ItemsPerPage;
 
         if (_loadedItems > playlistCount)
         {
             _loadedItems = playlistCount;
         }
 
-        _visiblePlaylists = videoLibrary.Playlists.Take(_loadedItems).ToList();
+        _visiblePlaylists = videoLibrary.Playlists
+            .Take(_loadedItems)
+            .ToList();
+
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
     private async Task LoadPlaylist()

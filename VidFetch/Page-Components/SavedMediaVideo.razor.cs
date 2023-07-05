@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using System.Xml.Linq;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
 
@@ -12,7 +13,9 @@ public partial class SavedMediaVideo
     public EventCallback<bool> OpenLoading { get; set; }
 
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
+    private const string PageName = nameof(SavedMediaVideo);
     private const int ItemsPerPage = 6;
+
     private SettingsLibrary _settings;
     private CancellationTokenSource _allVideosTokenSource;
     private CancellationTokenSource _tokenSource;
@@ -26,7 +29,7 @@ public partial class SavedMediaVideo
 
     protected override async Task OnInitializedAsync()
     {
-        _loadedItems = loadedItemsCache.GetLoadedItemsCount(nameof(SavedMediaVideo), ItemsPerPage);
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
 
         _settings = await settingsData.GetSettingsAsync();
         await LoadVideos();
@@ -42,16 +45,21 @@ public partial class SavedMediaVideo
             _loadedItems = videosCount;
         }
 
-        _visibleVideos = _videos.Take(_loadedItems).ToList();
-        loadedItemsCache.SetLoadedItemsCount(nameof(SavedMediaVideo), _loadedItems);
+        _visibleVideos = _videos
+            .Take(_loadedItems)
+            .ToList();
+
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
 
     private async Task LoadVideos()
     {
         await OpenLoading.InvokeAsync(true);
+
         _videos = await videoData.GetAllVideosAsync();
         _visibleVideos = _videos.Take(_loadedItems).ToList();
+
         await OpenLoading.InvokeAsync(false);
     }
 
@@ -71,10 +79,12 @@ public partial class SavedMediaVideo
             }
 
             var token = tokenHelper.InitializeToken(ref _allVideosTokenSource);
+
             var progress = new Progress<double>(value =>
             {
                 UpdateProgress(ref _videosProgress, value);
             });
+
             foreach (var v in _videos)
             {
                 await DownloadVideo(v, progress, token);
@@ -93,6 +103,7 @@ public partial class SavedMediaVideo
     {
         token.ThrowIfCancellationRequested();
         _currentDownloadingVideo = video.Title;
+
         await youtube.DownloadVideoAsync(video.Url, progress, token);
         snackbar.Add($"Successfully downloaded {video.Title}");
     }
@@ -147,6 +158,7 @@ public partial class SavedMediaVideo
         if (newVideo is null)
         {
             RemoveVideo(video);
+
             snackbar.Add($"{video?.Title} no longer exists. It has been deleted", Severity.Error);
             await videoData.DeleteVideoAsync(video);
         }
@@ -189,7 +201,9 @@ public partial class SavedMediaVideo
     private void UpdateProgress(ref double progressVariable, double value)
     {
         if (Math.Abs(value - progressVariable) < 0.1)
+        {
             return;
+        }
 
         progressVariable = value;
         StateHasChanged();

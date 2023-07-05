@@ -10,6 +10,9 @@ public partial class SavedMediaChannel
     [EditorRequired]
     public EventCallback<bool> OpenLoading { get; set; }
 
+    private const string PageName = nameof(SavedMediaChannel);
+    private const int ItemsPerPage = 6;
+
     private CancellationTokenSource _tokenSource;
     private List<ChannelModel> _channels = new();
     private List<ChannelModel> _visibleChannels = new();
@@ -19,20 +22,22 @@ public partial class SavedMediaChannel
 
     protected override async Task OnInitializedAsync()
     {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
         await LoadChannels();
     }
 
     private void LoadMoreChannels()
     {
-        int itemsPerPage = 6;
         int channelCount = _channels.Count;
-        _loadedItems += itemsPerPage;
+        _loadedItems += ItemsPerPage;
+
         if (_loadedItems > channelCount)
         {
             _loadedItems = channelCount;
         }
 
         _visibleChannels = _channels.Take(_loadedItems).ToList();
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
     private async Task LoadChannels()

@@ -4,6 +4,9 @@ namespace VidFetch.Page_Components;
 
 public partial class SearchPlaylist
 {
+    private const string PageName = nameof(SearchPlaylist);
+    private const int ItemsPerPage = 6;
+
     private List<PlaylistModel> _visiblePlaylists = new();
     private CancellationTokenSource _playlistTokenSource;
     private string _playlistUrl = "";
@@ -12,6 +15,8 @@ public partial class SearchPlaylist
 
     protected override void OnInitialized()
     {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
+
         _visiblePlaylists = videoLibrary.PlaylistResults
             .Take(_loadedItems)
             .ToList();
@@ -19,10 +24,9 @@ public partial class SearchPlaylist
 
     private void LoadMorePlaylists()
     {
-        int itemsPerPage = 6;
         int playlistCount = videoLibrary.PlaylistResults.Count;
 
-        _loadedItems += itemsPerPage;
+        _loadedItems += ItemsPerPage;
 
         if (_loadedItems > playlistCount)
         {
@@ -32,6 +36,8 @@ public partial class SearchPlaylist
         _visiblePlaylists = videoLibrary.PlaylistResults
             .Take(_loadedItems)
             .ToList();
+
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
     private async Task SearchPlaylists()

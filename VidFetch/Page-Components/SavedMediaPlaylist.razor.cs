@@ -10,6 +10,9 @@ public partial class SavedMediaPlaylist
     [EditorRequired]
     public EventCallback<bool> OpenLoading { get; set; }
 
+    private const string PageName = nameof(SavedMediaPlaylist);
+    private const int ItemsPerPage = 6;
+
     private CancellationTokenSource _tokenSource;
     private List<PlaylistModel> _playlists = new();
     private List<PlaylistModel> _visiblePlaylists = new();
@@ -19,6 +22,7 @@ public partial class SavedMediaPlaylist
 
     protected override async Task OnInitializedAsync()
     {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
         await LoadPlaylists();
     }
 
@@ -33,7 +37,11 @@ public partial class SavedMediaPlaylist
             _loadedItems = playlistCount;
         }
 
-        _visiblePlaylists = _playlists.Take(_loadedItems).ToList();
+        _visiblePlaylists = _playlists
+            .Take(_loadedItems)
+            .ToList();
+
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
 
@@ -41,7 +49,11 @@ public partial class SavedMediaPlaylist
     {
         await OpenLoading.InvokeAsync(true);
         _playlists = await playlistData.GetAllPlaylistsAsync();
-        _visiblePlaylists = _playlists.Take(_loadedItems).ToList();
+
+        _visiblePlaylists = _playlists
+            .Take(_loadedItems)
+            .ToList();
+        
         await OpenLoading.InvokeAsync(false);
     }
 

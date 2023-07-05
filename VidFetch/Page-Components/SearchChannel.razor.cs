@@ -4,6 +4,9 @@ namespace VidFetch.Page_Components;
 
 public partial class SearchChannel
 {
+    private const int ItemsPerPage = 6;
+    private const string PageName = nameof(SearchChannel);
+
     private List<ChannelModel> _visibleChannels = new();
     private CancellationTokenSource _tokenSource;
     private string _channelUrl = "";
@@ -12,6 +15,8 @@ public partial class SearchChannel
 
     protected override void OnInitialized()
     {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
+
         _visibleChannels = videoLibrary.ChannelResults
             .Take(_loadedItems)
             .ToList();
@@ -19,10 +24,9 @@ public partial class SearchChannel
 
     private void LoadMoreChannels()
     {
-        int itemsPerPage = 6;
         int channelCount = videoLibrary.ChannelResults.Count;
 
-        _loadedItems += itemsPerPage;
+        _loadedItems += ItemsPerPage;
         if (_loadedItems > channelCount)
         {
             _loadedItems = channelCount;
@@ -31,6 +35,8 @@ public partial class SearchChannel
         _visibleChannels = videoLibrary.ChannelResults
             .Take(_loadedItems)
             .ToList();
+
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
     private async Task SearchChannels()

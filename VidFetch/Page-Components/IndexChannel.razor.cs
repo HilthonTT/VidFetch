@@ -10,6 +10,9 @@ public partial class IndexChannel
     [EditorRequired]
     public EventCallback<bool> OpenLoading { get; set; }
 
+    private const string PageName = nameof(IndexChannel);
+    private const int ItemsPerPage = 6;
+
     private CancellationTokenSource _tokenSource;
     private List<ChannelModel> _visibleChannels = new();
     private string _channelUrl = "";
@@ -18,15 +21,15 @@ public partial class IndexChannel
 
     protected override void OnInitialized()
     {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
         _visibleChannels = videoLibrary.Channels.Take(_loadedItems).ToList();
     }
 
     private void LoadMoreChannels()
     {
-        int itemsPerPage = 6;
         int channelsCount = videoLibrary.Channels.Count;
 
-        _loadedItems += itemsPerPage;
+        _loadedItems += ItemsPerPage;
 
         if (_loadedItems > channelsCount)
         {
@@ -34,6 +37,7 @@ public partial class IndexChannel
         }
 
         _visibleChannels = videoLibrary.Channels.Take(_loadedItems).ToList();
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
     private async Task LoadChannel()

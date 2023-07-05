@@ -25,6 +25,9 @@ public partial class IndexVideo
 
 
     private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
+    private const string PageName = nameof(IndexVideo);
+    private const int ItemsPerPage = 6;
+
     private SettingsLibrary _settings;
     private CancellationTokenSource _allVideosTokenSource;
     private List<VideoModel> _visibleVideos = new();
@@ -36,23 +39,29 @@ public partial class IndexVideo
 
     protected override async Task OnInitializedAsync()
     {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
+
         _visibleVideos = videoLibrary.Videos.Take(_loadedItems).ToList();
+
         _settings = await settingsData.GetSettingsAsync();
     }
 
     private void LoadMoreVideos()
     {
-        int itemsPerPage = 6;
         int videosCount = videoLibrary.Videos.Count;
 
-        _loadedItems += itemsPerPage;
+        _loadedItems += ItemsPerPage;
  
         if (_loadedItems > videosCount)
         {
             _loadedItems = videosCount;
         }
 
-        _visibleVideos = videoLibrary.Videos.Take(_loadedItems).ToList();
+        _visibleVideos = videoLibrary.Videos.
+            Take(_loadedItems)
+            .ToList();
+
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
     private async Task LoadVideoOrPlaylistVideos()

@@ -4,6 +4,9 @@ namespace VidFetch.Page_Components;
 
 public partial class SearchVideo
 {
+    private const int ItemsPerPage = 6;
+    private const string PageName = nameof(SearchVideo);
+
     private List<VideoModel> _visibleVideos = new();
     private CancellationTokenSource _tokenSource;
     private string _videoUrl = "";
@@ -11,6 +14,8 @@ public partial class SearchVideo
     private int _loadedItems = 6;
     protected override void OnInitialized()
     {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
+
         _visibleVideos = videoLibrary.VideoResults
             .Take(_loadedItems)
             .ToList();
@@ -30,6 +35,8 @@ public partial class SearchVideo
         _visibleVideos = videoLibrary.VideoResults
             .Take(_loadedItems)
             .ToList();
+
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
     private async Task SearchVideos()
