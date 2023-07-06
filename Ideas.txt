@@ -4,17 +4,4 @@ Ideas
 
 https://github.com/Tyrrrz/YoutubeExplode/tree/master/YoutubeExplode.Converter
 
-
-Implement settings: 
-	* Remove downloaded items from list.
-	(Forgot to implement the actual code for it.)
-
-
-* Better use experience:
-	- Modify the loading.
-	- Have the last saved media to be on top and not at the bottom.
-
-	- Have the user be able to update the data.
-	- Have the user be able to delete the data.
-	- Have the user be able to select saved videos/playlist/channels to delete them or update their data.
 	
