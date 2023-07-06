@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using VidFetchLibrary.Library;
 using MudBlazor;
 using VidFetchLibrary.Models;
+using VidFetchLibrary.Language;
 
 namespace VidFetch.Page_Components;
 
@@ -20,7 +21,6 @@ public partial class IndexData<TData> where TData : class
     [Parameter]
     public EventCallback<string> AddVideos { get; set; }
 
-    private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
     private const string PageName = nameof(IndexData<TData>);
     private const int ItemsPerPage = 6;
 
@@ -93,7 +93,8 @@ public partial class IndexData<TData> where TData : class
         {
             if (IsFFmpegInvalid())
             {
-                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+                string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
+                snackbar.Add(errorMessage, Severity.Warning);
             }
 
             var token = tokenHelper.InitializeToken(ref _downloadTokenSource);
@@ -396,7 +397,7 @@ public partial class IndexData<TData> where TData : class
         FilterData();
     }
 
-    private static string GetDataTypeName()
+    private string GetDataTypeName()
     {
         string typeName = typeof(TData).Name;
         string trimmedName;
@@ -410,37 +411,48 @@ public partial class IndexData<TData> where TData : class
             trimmedName = typeName;
         }
 
-        return trimmedName;
+        return trimmedName switch
+        {
+            "Video" => GetDictionary()[KeyWords.Video].ToLower(),
+            "Channel" => GetDictionary()[KeyWords.Channel].ToLower(),
+            "Playlist" => GetDictionary()[KeyWords.Playlist].ToLower(),
+            _ => "",
+        };
     }
 
     private string GetDownloadText()
     {
+        string downloadText = GetDictionary()[KeyWords.Download];
+        string videoText = GetDictionary()[KeyWords.Video];
+
         if (videoLibrary.Videos?.Count <= 0)
         {
-            return "Download Video";
+            return $"{downloadText} {videoText}";
         }
 
         if (videoLibrary.Videos?.Count == 1)
         {
-            return "Download 1 Video";
+            return $"{downloadText} 1 {videoText}";
         }
 
-        return $"Download {videoLibrary.Videos?.Count} Videos";
+        return $"{downloadText} {videoLibrary.Videos?.Count} {videoText}";
     }
 
     private string GetSearchBarText()
     {
+        string searchText = GetDictionary()[KeyWords.Search];
+
         if (GetDataResults().Count <= 0)
         {
-            return $"Search {GetDataTypeName()}";
+            return $"{searchText} {GetDataTypeName()}";
         }
 
         if (GetDataResults().Count == 1)
         {
-            return $"Search 1 {GetDataTypeName()}";
+            return $"{searchText} 1 {GetDataTypeName()}";
         }
 
-        return $"Search {GetDataResults().Count} {GetDataTypeName()}";
+        return $"{searchText} {GetDataResults().Count} {GetDataTypeName()}";
     }
 
     private bool IsDataNotLoaded(string dataId)
@@ -487,6 +499,12 @@ public partial class IndexData<TData> where TData : class
         }
 
         return false;
+    }
+
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
     }
 
     private List<VideoModel> GetVideos()

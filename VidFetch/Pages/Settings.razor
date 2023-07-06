@@ -3,15 +3,16 @@
 @inject IDefaultData defaultData
 @inject ISnackbar snackbar
 @inject IPathHelper pathHelper
+@inject ILanguageExtension languageExtension
 @inject NavigationManager navManager
 
 <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
-    Settings
+    @GetDictionary()[KeyWords.Settings]
     <MudIcon Icon="@Icons.Material.Filled.Settings" />
 </MudText>
 
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6" Centered="true">
-    <MudTabPanel Text="App Settings">
+    <MudTabPanel Text="@GetDictionary()[KeyWords.AppSettings]">
         <MudCard>
             <MudCardContent>
                 <EditForm Model="_settingsModel" OnValidSubmit="SaveAppSettings">
@@ -20,27 +21,27 @@
                     <MudGrid Spacing="5">
                         <MudItem xs="6" Class="text-center">
                             <div class="d-flex align-items-center mb-3">
-                                <MudText class="mr-2">Dark Mode:</MudText>
+                                <MudText class="mr-2">@GetDictionary()[KeyWords.DarkMode]</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.IsDarkMode"
                                            Color="MudBlazor.Color.Primary" />
                             </div>
                             <div class="d-flex align-items-center mb-3">
-                                <MudText class="mr-2">Download Subtitles included with video:</MudText>
+                                <MudText class="mr-2">@GetDictionary()[KeyWords.DownloadSubtitles]</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.DownloadSubtitles"
                                            Color="MudBlazor.Color.Primary" />
                             </div>
                             <div class="d-flex align-items-center mb-3">
-                                <MudText class="mr-2">Automatically Save Videos:</MudText>
+                                <MudText class="mr-2">@GetDictionary()[KeyWords.AutoSaveVideo]</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.SaveVideos"
                                            Color="MudBlazor.Color.Primary" />
                             </div>
                             <div class="d-flex align-items-center mb-3">
-                                <MudText class="mr-2">Create Sub Directory for playlist:</MudText>
+                                <MudText class="mr-2">@GetDictionary()[KeyWords.CreateSubdirectory]</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.CreateSubDirectoryPlaylist"
                                            Color="MudBlazor.Color.Primary" />
                             </div>
                             <div class="d-flex align-items-center mb-3">
-                                <MudText class="mr-2">Remove Video After Download</MudText>
+                                <MudText class="mr-2">@GetDictionary()[KeyWords.RemoveVideoDownload]</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.RemoveAfterDownload"
                                            Color="MudBlazor.Color.Primary" />
                             </div>
@@ -50,7 +51,7 @@
                                 <MudSelect @bind-Value="_settingsModel.SelectedPath"
                                            Label="Download Path:"
                                            Class="mud-input-root text-start"
-                                           HelperText="Pick your preferred download path."
+                                           HelperText="@GetDictionary()[KeyWords.SelectedPath]"
                                            Required="true">
                                     @foreach (var p in _paths)
                                     {
@@ -62,7 +63,7 @@
                                 <MudSelect @bind-Value="_settingsModel.SelectedFormat"
                                            Label="Video Format:"
                                            Class="mud-input-root text-start"
-                                           HelperText="Pick your preferred format."
+                                           HelperText="@GetDictionary()[KeyWords.SelectedFormat]"
                                            Required="true">
                                     @foreach (var f in _formats)
                                     {
@@ -74,7 +75,7 @@
                                 <MudSelect @bind-Value="_settingsModel.SelectedResolution"
                                            Label="Selected Resolution:"
                                            Class="mud-input-root text-start"
-                                           HelperText="Pick your preferred resolution."
+                                           HelperText="@GetDictionary()[KeyWords.SelectedResolution]"
                                            Required="true"
                                            FullWidth="true">
                                     @foreach (var f in _resolutions)
@@ -93,7 +94,7 @@
                                            StartIcon="@Icons.Material.Filled.Save"
                                            Class="w-50"
                                            ButtonType="ButtonType.Submit">
-                                    Save
+                                    @GetDictionary()[KeyWords.Save]
                                 </MudButton>
                             </div>
                         </MudItem>

@@ -1,7 +1,8 @@
 ﻿@page "/SavedMedias"
+@inject ILanguageExtension languageExtension
 
 <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
-    Saved Medias
+    @GetDictionary()[KeyWords.SavedMedias]
     <MudIcon Icon="@Icons.Material.Filled.PersonalVideo"></MudIcon>
 </MudText>
 

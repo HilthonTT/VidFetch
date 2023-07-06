@@ -1,4 +1,5 @@
 using MudBlazor;
+using VidFetchLibrary.Language;
 using VidFetchLibrary.Models;
 using Color = MudBlazor.Color;
 
@@ -88,5 +89,11 @@ public partial class Home
         {
             return Color.Inherit;
         }
+    }
+
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
     }
 }

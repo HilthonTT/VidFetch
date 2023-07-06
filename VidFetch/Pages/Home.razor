@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject IVideoData videoData
 @inject IChannelData channelData
+@inject ILanguageExtension languageExtension
 @inject NavigationManager navManager
 
 <MudGrid>
@@ -12,7 +13,7 @@
                         <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Link" Size="Size.Large"></MudIcon>
                     </div>
                     <div class="text-center">
-                        <MudText Class="text-uppercase fw-bold">Paste A Link</MudText>
+                        <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.PasteALink]</MudText>
                     </div>
                 </div>
             </MudButton>
@@ -26,7 +27,7 @@
                         <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.PersonalVideo" Size="Size.Large"></MudIcon>
                     </div>
                     <div class="text-center">
-                        <MudText Class="text-uppercase fw-bold">Saved Medias</MudText>
+                        <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.SavedMedias]</MudText>
                     </div>
                 </div>
             </MudButton>
@@ -40,7 +41,7 @@
                         <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Search" Size="Size.Large"></MudIcon>
                     </div>
                     <div class="text-center">
-                        <MudText Class="text-uppercase fw-bold">Search Media</MudText>
+                        <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.SearchMedias]</MudText>
                     </div>
                 </div>
             </MudButton>
@@ -176,7 +177,9 @@
                         <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Settings" Size="Size.Large"></MudIcon>
                     </div>
                     <div class="text-center">
-                        <MudText Class="text-uppercase fw-bold">Settings</MudText>
+                        <MudText Class="text-uppercase fw-bold">
+                            @GetDictionary()[KeyWords.Settings]
+                        </MudText>
                     </div>
                 </div>
             </MudButton>

@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using VidFetchLibrary.Language;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
+using YoutubeExplode.Videos;
 
 namespace VidFetch.Page_Components;
 
@@ -15,7 +17,6 @@ public partial class IndexPlaylistVideo
     [EditorRequired]
     public EventCallback<bool> OpenLoading { get; set; }
 
-    private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
     private const string PageName = nameof(IndexPlaylistVideo);
     private const int ItemsPerPage = 6;
 
@@ -137,7 +138,8 @@ public partial class IndexPlaylistVideo
         {
             if (IsFFmpegInvalid())
             {
-                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+                string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
+                snackbar.Add(errorMessage, Severity.Warning);
             }
 
             var token = tokenHelper.InitializeToken(ref _playlistTokenSource);
@@ -185,14 +187,17 @@ public partial class IndexPlaylistVideo
         {
             if (File.Exists(_settings.FfmpegPath)is false)
             {
-                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+                string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
+                snackbar.Add(errorMessage, Severity.Warning);
             }
 
             var cancellationToken = tokenHelper.InitializeToken(ref _videoTokenSource);
+
             var progressReport = new Progress<double>(value =>
             {
                 UpdateProgress(ref _videoProgress, value);
             });
+
             await youtube.DownloadVideoAsync(url, progressReport, cancellationToken);
             CancelVideoDownload();
         }
@@ -306,32 +311,44 @@ public partial class IndexPlaylistVideo
 
     private string GetDownloadText()
     {
+        string downloadText = GetDictionary()[KeyWords.Download];
+        string videoText = GetDictionary()[KeyWords.Video];
+
         if (videoLibrary.PlaylistVideos?.Count <= 0)
         {
-            return "Download Video";
+            return $"{downloadText} {videoText}";
         }
 
         if (videoLibrary.PlaylistVideos?.Count == 1)
         {
-            return "Download 1 Video";
+            return $"{downloadText} 1 {videoText}";
         }
 
-        return $"Download {videoLibrary.PlaylistVideos?.Count} Videos";
+        return $"{downloadText} {videoLibrary.PlaylistVideos?.Count} {videoText}";
     }
 
     private string GetSearchBarText()
     {
+        string searchText = GetDictionary()[KeyWords.Search];
+        string videoText = GetDictionary()[KeyWords.Video];
+
         if (videoLibrary?.PlaylistVideos.Count <= 0)
         {
-            return "Search Video";
+            return $"{searchText} {videoText}";
         }
 
         if (videoLibrary.PlaylistVideos?.Count == 1)
         {
-            return "Search 1 Video";
+            return $"{searchText} 1 {videoText}";
         }
 
-        return $"Search {videoLibrary.PlaylistVideos?.Count} Videos";
+        return $"{searchText} {videoLibrary.PlaylistVideos?.Count} {videoText}";
+    }
+
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
     }
 
     private bool IsFFmpegInvalid()

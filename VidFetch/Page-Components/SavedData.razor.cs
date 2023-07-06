@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using VidFetchLibrary.Library;
 using MudBlazor;
 using VidFetchLibrary.Models;
+using VidFetchLibrary.Language;
 
 namespace VidFetch.Page_Components;
 
@@ -13,7 +14,6 @@ public partial class SavedData<TData> where TData : class
 
     private const int ItemsPerPage = 6;
     private const string PageName = nameof(SavedData<TData>);
-    private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
 
     private List<TData> _visibleData = new();
     private List<TData> _datas = new();
@@ -85,7 +85,8 @@ public partial class SavedData<TData> where TData : class
         {
             if (IsFFmpegInvalid())
             {
-                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+                string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
+                snackbar.Add(errorMessage, Severity.Warning);
             }
 
             var token = tokenHelper.InitializeToken(ref _allVideosTokenSource);
@@ -312,32 +313,37 @@ public partial class SavedData<TData> where TData : class
 
     private string GetSearchBarText()
     {
+        string searchText = GetDictionary()[KeyWords.Search];
+
         if (_datas?.Count <= 0)
         {
-            return $"Search {GetDataTypeName()}";
+            return $"{searchText} {GetDataTypeName()}";
         }
 
         if (_datas?.Count == 1)
         {
-            return $"Search 1 {GetDataTypeName()}";
+            return $"{searchText} 1 {GetDataTypeName()}";
         }
 
-        return $"Search {_datas?.Count} {GetDataTypeName()}";
+        return $"{searchText} {_datas?.Count} {GetDataTypeName()}";
     }
 
     private string GetDownloadVideoText()
     {
+        string videoText = GetDictionary()[KeyWords.Video];
+        string downloadText = GetDictionary()[KeyWords.Download];
+
         if (_datas?.Count <= 0)
         {
-            return "Download Video";
+            return $"{downloadText} {videoText}";
         }
 
         if (_datas?.Count == 1)
         {
-            return "Download 1 Video";
+            return $"{downloadText} 1 {videoText}";
         }
 
-        return $"Download {_datas?.Count} Videos";
+        return $"{downloadText} {_datas?.Count} {videoText}s";
     }
 
     private string GetPageName()
@@ -359,7 +365,7 @@ public partial class SavedData<TData> where TData : class
         }
     }
 
-    private static string GetDataTypeName()
+    private string GetDataTypeName()
     {
         string typeName = typeof(TData).Name;
         string trimmedName;
@@ -373,19 +379,31 @@ public partial class SavedData<TData> where TData : class
             trimmedName = typeName;
         }
 
-        return trimmedName;
+        return trimmedName switch
+        {
+            "Video" => GetDictionary()[KeyWords.Video].ToLower(),
+            "Channel" => GetDictionary()[KeyWords.Channel].ToLower(),
+            "Playlist" => GetDictionary()[KeyWords.Playlist].ToLower(),
+            _ => "",
+        };
     }
 
     private bool IsFFmpegInvalid()
     {
-        bool isFFmpegEmpty = string.IsNullOrWhiteSpace(_settings.FfmpegPath)is false;
-        bool ffmpPegDoesNotExist = File.Exists(_settings.FfmpegPath)is false;
+        bool isFFmpegEmpty = string.IsNullOrWhiteSpace(_settings.FfmpegPath) is false;
+        bool ffmpPegDoesNotExist = File.Exists(_settings.FfmpegPath) is false;
         if (isFFmpegEmpty && ffmpPegDoesNotExist)
         {
             return true;
         }
 
         return false;
+    }
+
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
     }
 
     private List<VideoModel> GetVideos()

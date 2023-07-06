@@ -1,4 +1,5 @@
 using MudBlazor;
+using VidFetchLibrary.Language;
 
 namespace VidFetch.Pages;
 
@@ -39,5 +40,11 @@ public partial class Index
     private void GetPlaylistUrl(string url)
     {
         _playlistUrl = url;
+    }
+
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
     }
 }

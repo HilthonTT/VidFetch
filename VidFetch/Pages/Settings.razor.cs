@@ -2,6 +2,7 @@ using MudBlazor;
 using VidFetch.Models;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Data;
+using VidFetchLibrary.Language;
 
 namespace VidFetch.Pages;
 
@@ -124,6 +125,12 @@ public partial class Settings
     private string GetSpacedString(string path)
     {
         return pathHelper.GetSpacedString(path);
+    }
+
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
     }
 
     private bool IsValidPath()

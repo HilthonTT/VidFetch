@@ -1,4 +1,4 @@
-﻿
+﻿@inject ILanguageExtension languageExtension
 
 <MudDialog IsVisible="IsVisible" Class="backdrop-blur">
     <TitleContent>
@@ -11,8 +11,12 @@
         @Content
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Error">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Confirm">Confirm</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Error">
+            @GetDictionary()[KeyWords.Cancel]
+        </MudButton>
+        <MudButton Color="Color.Primary" OnClick="Confirm">
+            @GetDictionary()[KeyWords.Confirm]
+        </MudButton>
     </DialogActions>
 </MudDialog>
 

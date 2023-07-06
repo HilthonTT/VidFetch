@@ -11,6 +11,7 @@
 @inject ISearchHelper searchHelper
 @inject ITokenHelper tokenHelper
 @inject IFolderHelper folderHelper
+@inject ILanguageExtension languageExtension
 
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
@@ -42,7 +43,7 @@
                         Variant="Variant.Filled"
                         Class="w-100 mb-3"
             @onclick="CancelVideosDownload">
-                Cancel
+                @GetDictionary()[KeyWords.Cancel]
             </MudButton>
         }
         @if (IsVideoModel())
@@ -60,7 +61,8 @@
                 <MudButton Color="Color.Error"
                            Variant="Variant.Outlined"
                 @onclick="ClearDatas">
-                    Clear @GetDataTypeName()s
+                    @GetDictionary()[KeyWords.Clear] 
+                    @GetDataTypeName()s
                 </MudButton>
             </div>
             <div class="w-100">
@@ -78,10 +80,11 @@
                 {
                     <MudButtonGroup Color="Color.Warning" Variant="Variant.Outlined">
                         <MudButton @onclick="OpenFileLocation">
-                            Open Folder Location
+                            @GetDictionary()[KeyWords.OpenFolderLocation]
                         </MudButton>
                         <MudButton @onclick="SaveData">
-                            Save @GetDataTypeName()s
+                            @GetDictionary()[KeyWords.Save] 
+                            @GetDataTypeName()s
                         </MudButton>
                     </MudButtonGroup>
                 }
@@ -90,7 +93,8 @@
                     <MudButton @onclick="SaveData"
                                Color="Color.Success"
                                Variant="Variant.Outlined">
-                        Save @GetDataTypeName()s
+                        @GetDictionary()[KeyWords.Save] 
+                        @GetDataTypeName()s
                     </MudButton>
                 }
             </div>
@@ -137,7 +141,7 @@
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
                     @onclick="LoadMoreData">
-                        Load More
+                        @GetDictionary()[KeyWords.LoadMore]
                     </MudButton>
                 </div>
             }

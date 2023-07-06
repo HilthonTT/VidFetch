@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using VidFetchLibrary.Language;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Components;
@@ -78,5 +79,19 @@ public partial class ChannelComponent
     {
         string encodedUrl = Uri.EscapeDataString(Channel.Url);
         navManager.NavigateTo($"/Channel/{encodedUrl}");
+    }
+
+    private string SaveChannelText()
+    {
+        string channelText = GetDictionary()[KeyWords.Channel];
+        string saveText = GetDictionary()[KeyWords.Save];
+
+        return $"{saveText} {channelText}";
+    }
+
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
     }
 }

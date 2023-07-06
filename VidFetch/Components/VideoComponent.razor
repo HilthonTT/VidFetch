@@ -4,6 +4,7 @@
 @inject ITokenHelper tokenHelper
 @inject ISnackbar snackbar
 @inject ILauncher launcher
+@inject ILanguageExtension languageExtension
 @inject NavigationManager navManager
 
 <MudItem xs="CardSize">
@@ -33,12 +34,12 @@
                 {
                     <MudIconButton Icon="@Icons.Material.Filled.Save"
                                    Color="Color.Default"
-                                   Title="Save Video"
+                                   Title="@GetSaveVideoText()"
                     @onclick="SaveVideo"></MudIconButton>
                 }
                 <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
                                Color="Color.Default"
-                               Title="Remove"
+                               Title="@GetDictionary()[KeyWords.Remove]"
                 @onclick="Remove"></MudIconButton>
             </CardHeaderActions>
         </MudCardHeader>
@@ -73,7 +74,7 @@
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Primary"
                 @onclick="DownloadVideo">
-                    Download
+                    @GetDictionary()[KeyWords.Download]
                 </MudButton>
             }
             else
@@ -81,18 +82,19 @@
                 <MudButton Variant="Variant.Filled"
                            Color="Color.Error"
                 @onclick="CancelVideoDownload">
-                    Cancel Download
+                    @GetDictionary()[KeyWords.Cancel]
+                    @GetDictionary()[KeyWords.Download]
                 </MudButton>
             }
             <MudButton Variant="Variant.Outlined"
                        Color="Color.Warning"
             @onclick="(() => OpenUrl(Video.Url))">
-                Open Url
+                @GetDictionary()[KeyWords.OpenUrl]
             </MudButton>
             <MudButton Variant="Variant.Outlined"
                        Color="Color.Secondary"
             @onclick="LoadWatchPage">
-                Watch
+                @GetDictionary()[KeyWords.Watch]
             </MudButton>
         </MudCardActions>
     </MudCard>

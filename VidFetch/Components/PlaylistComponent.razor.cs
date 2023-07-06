@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using VidFetchLibrary.Language;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Components;
@@ -103,5 +104,19 @@ public partial class PlaylistComponent
         {
             StateHasChanged();
         }
+    }
+
+    private string GetSavePlaylistText()
+    {
+        string saveText = GetDictionary()[KeyWords.Save];
+        string playlistText = GetDictionary()[KeyWords.Playlist];
+
+        return $"{saveText} {playlistText}";
+    }
+
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
     }
 }

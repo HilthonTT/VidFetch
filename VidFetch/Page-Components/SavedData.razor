@@ -10,6 +10,7 @@
 @inject IFolderHelper folderHelper
 @inject ILoadedItemsCache loadedItemsCache
 @inject ISnackbar snackbar
+@inject ILanguageExtension languageExtension
 
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
@@ -28,7 +29,7 @@
                        Variant="Variant.Filled"
                        Class="w-100 mb-3"
             @onclick="CancelDownload">
-                Cancel
+                @GetDictionary()[KeyWords.Cancel]
             </MudButton>
         }
         @if (typeof(TData) == typeof(VideoModel))
@@ -46,7 +47,7 @@
                 <MudButton @onclick="OpenDialog"
                            Color="Color.Error"
                            Variant="Variant.Outlined">
-                    Delete @GetDataTypeName()
+                    @GetDictionary()[KeyWords.Delete] @GetDataTypeName()
                 </MudButton>
             </div>
             <div class="w-100">
@@ -65,7 +66,7 @@
                     <MudButton @onclick="UpdateAllDatas"
                                Color="Color.Warning"
                                Variant="Variant.Outlined">
-                        Update Data
+                        @GetDictionary()[KeyWords.UpdateData]
                     </MudButton>
                 }
                 else
@@ -73,7 +74,7 @@
                     <MudButton @onclick="CancelUpdateData"
                                Color="Color.Error"
                                Variant="Variant.Outlined">
-                        Cancel Data
+                        @GetDictionary()[KeyWords.CancelUpdateData]
                     </MudButton>
                 }
             </div>
@@ -120,7 +121,7 @@
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
                     @onclick="LoadMoreData">
-                        Load More
+                        @GetDictionary()[KeyWords.LoadMore]
                     </MudButton>
                 </div>
             }
@@ -132,16 +133,17 @@
 <MudDialog IsVisible="_isVisible">
     <TitleContent>
         <MudText Typo="Typo.h6">
-            Delete all videos
+            @GetDictionary()[KeyWords.DeleteAllWarningTitle] 
+            @GetDictionary()[KeyWords.Videos].ToLower()
             <MudIcon Icon="@Icons.Material.Filled.Dangerous"></MudIcon>
         </MudText>
     </TitleContent>
     <DialogContent>
-        Deleting all of your videos is irreversible!
+        @GetDictionary()[KeyWords.DeleteAllWarningText]
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="CloseDialog" Color="Color.Error">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="DeleteAllData">Confirm</MudButton>
+        <MudButton OnClick="CloseDialog" Color="Color.Error">@GetDictionary()[KeyWords.Cancel]</MudButton>
+        <MudButton Color="Color.Primary" OnClick="DeleteAllData">@GetDictionary()[KeyWords.Confirm]</MudButton>
     </DialogActions>
 </MudDialog>
 

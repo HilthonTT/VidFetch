@@ -8,11 +8,8 @@ using VidFetchLibrary.Client;
 using VidFetchLibrary.Helpers;
 using VidFetchLibrary.Library;
 using YoutubeExplode;
-using YoutubeExplode.Videos;
-using YoutubeExplode.Channels;
-using YoutubeExplode.Playlists;
-using YoutubeExplode.Search;
 using VidFetchLibrary.Cache;
+using VidFetchLibrary.Language;
 
 namespace VidFetch;
 public static class RegisterServices
@@ -36,6 +33,9 @@ public static class RegisterServices
 
         // YoutubeExplode client
         builder.Services.AddTransient<YoutubeClient>();
+
+        // Language
+        builder.Services.AddSingleton<ILanguageExtension, LanguageExtension>();
 
         // Caching
         builder.Services.AddMemoryCache();

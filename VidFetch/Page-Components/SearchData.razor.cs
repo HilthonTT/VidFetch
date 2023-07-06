@@ -1,3 +1,4 @@
+using VidFetchLibrary.Language;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Page_Components;
@@ -203,7 +204,7 @@ public partial class SearchData<TData> where TData : class
         }
     }
 
-    private static string GetDataTypeName()
+    private string GetDataTypeName()
     {
         string typeName = typeof(TData).Name;
         string trimmedName;
@@ -217,23 +218,54 @@ public partial class SearchData<TData> where TData : class
             trimmedName = typeName;
         }
 
-        return trimmedName;
+
+        return trimmedName switch
+        {
+            "Video" => GetDictionary()[KeyWords.Video].ToLower(),
+            "Channel" => GetDictionary()[KeyWords.Channel].ToLower(),
+            "Playlist" => GetDictionary()[KeyWords.Playlist].ToLower(),
+            _ => "",
+        };
     }
 
     private string GetSearchBarText()
     {
         string dataTypeName = GetDataTypeName();
+        string searchText = GetDictionary()[KeyWords.Search];
+
         if (GetDataResults()?.Count <= 0)
         {
-            return $"Search {dataTypeName}";
+            return $"{searchText} {dataTypeName}";
         }
 
         if (GetDataResults()?.Count == 1)
         {
-            return $"Search 1 {dataTypeName}";
+            return $"{searchText} 1 {dataTypeName}";
         }
 
-        return $"Search {GetDataResults()?.Count} {dataTypeName}";
+        return $"{searchText} {GetDataResults()?.Count} {dataTypeName}";
+    }
+
+    private string GetInputBarHelperText()
+    {
+        string helperText = GetDictionary()[KeyWords.SearchHelperText];
+
+        string completeHelperText = helperText + GetDataTypeName();
+        return completeHelperText;
+    }
+
+    private string GetInputBarLabelText()
+    {
+        string labelText = GetDictionary()[KeyWords.SearchLabelText];
+
+        string completedLabelText = labelText + GetDataTypeName();
+        return completedLabelText;
+    }
+
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
     }
 
     private List<VideoModel> GetVideos()

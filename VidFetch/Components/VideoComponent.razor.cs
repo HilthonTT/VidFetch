@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using VidFetchLibrary.Language;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
 
@@ -21,7 +22,6 @@ public partial class VideoComponent
     [Parameter]
     public int Index { get; set; }
 
-    private const string FfmpegErrorMessage = "Your ffmpeg path is invalid: Your video resolution might be lower.";
     private SettingsLibrary _settings;
     private CancellationTokenSource _tokenSource;
     private bool _isDownloading = false;
@@ -74,7 +74,8 @@ public partial class VideoComponent
 
             if (IsFFmpegInvalid())
             {
-                snackbar.Add(FfmpegErrorMessage, Severity.Warning);
+                string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
+                snackbar.Add(errorMessage, Severity.Warning);
             }
 
             var token = tokenHelper.InitializeToken(ref _tokenSource);
@@ -144,17 +145,18 @@ public partial class VideoComponent
         snackbar.Add($"Successfully downloaded {Video.Title}", Severity.Normal);
     }
 
-    private string GetShortenedTitle()
+    private string GetSaveVideoText()
     {
-        const int maxLength = 25;
-        string videoTitle = Video.Title;
+        string saveText = GetDictionary()[KeyWords.Save];
+        string videoText = GetDictionary()[KeyWords.Video];
 
-        if (videoTitle.Length > maxLength)
-        {
-            videoTitle = videoTitle[..maxLength] + "...";
-        }
+        return $"{saveText} {videoText}";
+    }
 
-        return videoTitle;
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
     }
 
     private bool IsFFmpegInvalid()

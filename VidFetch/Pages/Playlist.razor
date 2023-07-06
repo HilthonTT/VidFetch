@@ -3,6 +3,7 @@
 @inject IPlaylistData playlistData
 @inject ISnackbar snackbar
 @inject ILauncher launcher
+@inject ILanguageExtension languageExtensions
 @inject NavigationManager navManager
 
 @if (IsPlaylistNull() is false)
@@ -23,19 +24,19 @@
                 <MudCardMedia Image="@_playlist.ThumbnailUrl"/>
                 <MudCardContent>
                     <MudLink Typo="Typo.h5" @onclick="OpenUrl">@_playlist.Url</MudLink>
-                    <MudText Typo="Typo.body2">Uploaded @_videos?.Count videos</MudText>
+                    <MudText Typo="Typo.body2">@_videos?.Count @GetDictionary()[KeyWords.Videos].ToLower()</MudText>
                 </MudCardContent>
                 <MudCardActions>
                     @if (_isSaved)
                     {
                         <MudButton Variant="Variant.Text" Color="Color.Error" @onclick="DeletePlaylist">
-                            Delete
+                            @GetDictionary()[KeyWords.Delete]
                         </MudButton>
                     }
                     else
                     {
                         <MudButton Variant="Variant.Text" Color="Color.Primary" @onclick="SavePlaylist">
-                            Save
+                            @GetDictionary()[KeyWords.Save]
                         </MudButton>
                     }
                 </MudCardActions>
@@ -44,7 +45,9 @@
         <MudItem xs="12">
             <MudDivider />
             <MudText Typo="Typo.h5" Class="mb-4 mt-4">Videos</MudText>
-            <MudAlert Severity="Severity.Warning">Warning: Only shows 50 videos for performance.</MudAlert>
+            <MudAlert Severity="Severity.Warning">
+                @GetDictionary()[KeyWords.PlaylistWarning]
+            </MudAlert>
             <MudGrid>
                 <MudVirtualize Items="_visibleVideos" Context="v" OverscanCount="6">
                     <VideoComponent @key="v.VideoId"
@@ -59,7 +62,7 @@
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
                     @onclick="LoadMoreVideos">
-                        Load More
+                        @GetDictionary()[KeyWords.LoadMore]
                     </MudButton>
                 </div>
             }

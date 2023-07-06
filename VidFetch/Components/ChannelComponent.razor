@@ -2,6 +2,7 @@
 @inject ISnackbar snackbar
 @inject IYoutube youtube
 @inject ILauncher launcher
+@inject ILanguageExtension languageExtension
 @inject NavigationManager navManager
 
 <MudItem xs="CardSize">
@@ -32,12 +33,12 @@
                 {
                     <MudIconButton Icon="@Icons.Material.Filled.Save"
                                    Color="Color.Default"
-                                   Title="Save Channel"
+                                   Title="@SaveChannelText()"
                     @onclick="SaveChannel"></MudIconButton>
                 }
                 <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
                                Color="Color.Default"
-                               Title="Remove"
+                               Title="@GetDictionary()[KeyWords.Remove]"
                 @onclick="Remove"></MudIconButton>
             </CardHeaderActions>
         </MudCardHeader>
@@ -49,7 +50,7 @@
         </MudCardContent>
         <MudCardActions>
             <MudButton Variant="Variant.Outlined" Color="Color.Secondary" @onclick="LoadChannelPage">
-                Open Details
+                @GetDictionary()[KeyWords.OpenDetails]
             </MudButton>
         </MudCardActions>
     </MudCard>

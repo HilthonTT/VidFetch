@@ -7,11 +7,12 @@
 @inject ISearchHelper searchHelper
 @inject IVideoLibraryHelper videoLibraryHelper
 @inject ILoadedItemsCache loadedItemsCache
+@inject ILanguageExtension languageExtension
 
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
         <MudTextField @bind-Value="_playlistUrl"
-                      Label="Enter Playlist Url"
+                      Label="Enter playlist Url"
                       Variant="Variant.Outlined"
                       Adornment="Adornment.End"
                       AdornmentIcon="@Icons.Material.Filled.Download"
@@ -37,7 +38,7 @@
                        Variant="Variant.Filled"
                        Class="w-100 mb-3"
             @onclick="CancelPlaylistDownload">
-                Cancel
+                @GetDictionary()[KeyWords.Cancel]
             </MudButton>
         }
         <MudProgressLinear Color="Color.Primary"
@@ -52,7 +53,8 @@
                 <MudButton Color="Color.Error"
                            Variant="Variant.Outlined"
                 @onclick="ClearPlaylistVideos">
-                    Clear Videos
+                    @GetDictionary()[KeyWords.Clear] 
+                    @GetDictionary()[KeyWords.Videos]
                 </MudButton>
             </div>
             <div class="w-100">
@@ -69,7 +71,8 @@
                 <MudButton @onclick="SaveAllVideos"
                            Color="Color.Success"
                            Variant="Variant.Outlined">
-                    Save Videos
+                    @GetDictionary()[KeyWords.Save]
+                    @GetDictionary()[KeyWords.Videos]
                 </MudButton>
             </div>
         </div>
@@ -95,7 +98,7 @@
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
                     @onclick="LoadMoreVideos">
-                        Load More
+                        @GetDictionary()[KeyWords.LoadMore]
                     </MudButton>
                 </div>
             }
@@ -105,8 +108,12 @@
 
 <MudDialog IsVisible="_showDialog" Class="backdrop-blur">
     <DialogContent>
-        <MudText Typo="Typo.subtitle1">It appears your URL is a playlist.</MudText>
-        <MudText Typo="Typo.body1">Would you like to download your video's Url?</MudText>
+        <MudText Typo="Typo.subtitle1">
+            @GetDictionary()[KeyWords.UrlPlaylistTitle]
+        </MudText>
+        <MudText Typo="Typo.body1">
+            @GetDictionary()[KeyWords.UrlPlaylistText]
+        </MudText>
         <MudProgressLinear Color="Color.Primary"
                            Striped="true"
                            Size="Size.Medium"
@@ -116,8 +123,12 @@
                            Class="my-7" />
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="(() => DownloadFirstVideo(_firstVideoInPlaylistUrl))">Download</MudButton>
-        <MudButton OnClick="(() => _showDialog = !_showDialog)">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="(() => DownloadFirstVideo(_firstVideoInPlaylistUrl))">
+            @GetDictionary()[KeyWords.Download]
+        </MudButton>
+        <MudButton OnClick="(() => _showDialog = !_showDialog)">
+            @GetDictionary()[KeyWords.Cancel]
+        </MudButton>
     </DialogActions>
 </MudDialog>
 

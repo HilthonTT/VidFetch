@@ -1,9 +1,10 @@
 ﻿@page "/PasteLinkPage"
 @inject IYoutube youtube
 @inject IVideoLibrary videoLibrary
+@inject ILanguageExtension languageExtension
 
 <MudText Typo="Typo.h4" Class="text-center text-uppercase mb-4">
-    Paste A Link
+    @GetDictionary()[KeyWords.PasteALink]
     <MudIcon Icon="@Icons.Custom.Brands.YouTube" Title="Paste A Link"></MudIcon>
 </MudText>
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using VidFetchLibrary.Language;
 
 namespace VidFetch.Components;
 
@@ -23,4 +24,10 @@ public partial class ConfirmDialog
     [Parameter]
     [EditorRequired]
     public EventCallback Confirm { get; set; }
+
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
+    }
 }
