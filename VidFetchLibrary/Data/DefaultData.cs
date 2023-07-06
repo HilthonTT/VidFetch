@@ -49,6 +49,16 @@ public class DefaultData : IDefaultData
                 VideoResolution.P2160
             };
     }
+
+    public List<Language> GetLanguages()
+    {
+        return new List<Language>()
+            {
+                Language.English,
+                Language.French,
+                Language.Indonesian,
+            };
+    }
 }
 
 public enum VideoExtension
@@ -88,4 +98,11 @@ public enum VideoResolution
     P1080,
     P1440,
     P2160
+}
+
+public enum Language
+{
+    English,
+    French,
+    Indonesian,
 }

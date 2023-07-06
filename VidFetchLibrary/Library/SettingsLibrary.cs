@@ -14,6 +14,7 @@ public class SettingsLibrary
     public DownloadPath SelectedPath { get; set; } = DownloadPath.DownloadFolder;
     public VideoExtension SelectedFormat { get; set; } = VideoExtension.Mp4;
     public VideoResolution SelectedResolution { get; set; } = VideoResolution.P1080;
+    public Data.Language SelectedLanguage { get; set; } = Data.Language.English;
     public string FfmpegPath { get; set; } = "";
 
 
