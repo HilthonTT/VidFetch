@@ -1,0 +1,148 @@
+﻿@typeparam TData
+
+@inject IVideoLibrary videoLibrary
+@inject ILoadedItemsCache loadedItemsCache
+@inject ISettingsData settingsData
+@inject ISnackbar snackbar
+@inject IVideoData videoData
+@inject IChannelData channelData
+@inject IPlaylistData playlistData
+@inject IYoutube youtube
+@inject ISearchHelper searchHelper
+@inject ITokenHelper tokenHelper
+@inject IFolderHelper folderHelper
+
+<MudGrid Spacing="5">
+    <MudItem xs="12" Class="text-center">
+        <MudTextField @bind-Value="_url"
+                      Label="@($"Enter {GetDataTypeName()} URL")"
+                      Variant="Variant.Outlined"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Download"
+                      OnAdornmentClick="LoadData"
+                      Required="true"
+                      Clearable="true" />
+
+    </MudItem>
+</MudGrid>
+<MudGrid Spacing="5">
+    <MudItem xs="12">
+        @if (_downloadTokenSource is null && IsVideoModel())
+        {
+            <MudButton Color="Color.Primary"
+                        Variant="Variant.Filled"
+                        Class="w-100 mb-3"
+            @onclick="DownloadAllVideos">
+                @GetDownloadText()
+            </MudButton>
+        }
+        else if (_downloadTokenSource is not null && IsVideoModel())
+        {
+            <MudButton Color="Color.Error"
+                        Variant="Variant.Filled"
+                        Class="w-100 mb-3"
+            @onclick="CancelVideosDownload">
+                Cancel
+            </MudButton>
+        }
+        @if (IsVideoModel())
+        {
+            <MudProgressLinear Color="Color.Primary"
+                               Striped="true"
+                               Size="Size.Medium"
+                               Max="1"
+                               Value="@_progress"
+                               Class="my-7"
+                               Buffer="true" />
+        }
+        <div class="justify-content-between d-flex align-items-center">
+            <div class="mx-3">
+                <MudButton Color="Color.Error"
+                           Variant="Variant.Outlined"
+                @onclick="ClearDatas">
+                    Clear @GetDataTypeName()s
+                </MudButton>
+            </div>
+            <div class="w-100">
+                <MudAutocomplete T="string"
+                                    Label="@GetSearchBarText()"
+                                    Variant="Variant.Outlined"
+                                    AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                                    OnAdornmentClick="FilterData"
+                                    SearchFunc="FilterSearchData"
+                                    ResetValueOnEmptyText="true"
+                                    ValueChanged="HandleSearchValueChanged" />
+            </div>
+            <div class="mx-3">
+                @if (IsVideoModel())
+                {
+                    <MudButtonGroup Color="Color.Warning" Variant="Variant.Outlined">
+                        <MudButton @onclick="OpenFileLocation">
+                            Open Folder Location
+                        </MudButton>
+                        <MudButton @onclick="SaveData">
+                            Save @GetDataTypeName()s
+                        </MudButton>
+                    </MudButtonGroup>
+                }
+                else
+                {
+                    <MudButton @onclick="SaveData"
+                               Color="Color.Success"
+                               Variant="Variant.Outlined">
+                        Save @GetDataTypeName()s
+                    </MudButton>
+                }
+            </div>
+        </div>
+        @if (_visibleData?.Count > 0 || GetDataResults()?.Count > 0)
+        {
+            <MudDivider Class="mb-6 mt-6"></MudDivider>
+            @if (string.IsNullOrWhiteSpace(_downloadingVideoText) is false)
+            {
+                <MudAlert Class="mb-4" Severity="Severity.Warning">@_downloadingVideoText</MudAlert>
+            }
+            <MudGrid>
+                @if (typeof(TData) == typeof(VideoModel))
+                {
+                    <MudVirtualize Items="GetVideos()" Context="v" OverscanCount="ItemsPerPage">
+                        <VideoComponent @key="v.VideoId"
+                                        Video="v"
+                                        CardSize="4"
+                                        RemoveEvent="(() => RemoveData((TData)(dynamic)v))" />
+                    </MudVirtualize>
+                }
+                else if (typeof(TData) == typeof(ChannelModel))
+                {
+                    <MudVirtualize Items="GetChannels()" Context="c" OverscanCount="ItemsPerPage">
+                        <ChannelComponent @key="c.ChannelId"
+                                          Channel="c"
+                                          CardSize="4"
+                                          RemoveEvent="(() => RemoveData((TData)(dynamic)c))" />
+                    </MudVirtualize>
+                }
+                else
+                {
+                    <MudVirtualize Items="GetPlaylists()" Context="p" OverscanCount="ItemsPerPage">
+                        <PlaylistComponent @key="p.PlaylistId"
+                                           Playlist="p"
+                                           CardSize="4"
+                                           RemoveEvent="(() => RemoveData((TData)(dynamic)p))" />
+                    </MudVirtualize>
+                }
+            </MudGrid>
+            @if (_loadedItems < GetDataResults()?.Count)
+            {
+                <div class="text-center mt-4">
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                    @onclick="LoadMoreData">
+                        Load More
+                    </MudButton>
+                </div>
+            }
+        }
+    </MudItem>
+</MudGrid>
+
+

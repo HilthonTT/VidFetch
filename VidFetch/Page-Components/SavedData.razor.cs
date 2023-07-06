@@ -5,7 +5,7 @@ using VidFetchLibrary.Models;
 
 namespace VidFetch.Page_Components;
 
-public partial class SavedData<TData>
+public partial class SavedData<TData> where TData : class
 {
     [Parameter]
     [EditorRequired]
@@ -89,10 +89,8 @@ public partial class SavedData<TData>
             }
 
             var token = tokenHelper.InitializeToken(ref _allVideosTokenSource);
-            var progress = new Progress<double>(val =>
-            {
-                UpdateProgress(val);
-            });
+            var progress = new Progress<double>(UpdateProgress);
+
             foreach (var d in _datas)
             {
                 var video = d as VideoModel;

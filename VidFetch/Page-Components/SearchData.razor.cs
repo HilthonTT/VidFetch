@@ -2,7 +2,7 @@ using VidFetchLibrary.Models;
 
 namespace VidFetch.Page_Components;
 
-public partial class SearchData<TData>
+public partial class SearchData<TData> where TData : class
 {
     private const int ItemsPerPage = 6;
     private const string PageName = nameof(SearchData<TData>);
