@@ -144,8 +144,10 @@ public partial class SavedData<TData> where TData : class
     private async Task DownloadVideo(VideoModel video, Progress<double> progress, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
+
         _downloadingVideoText = video.Title;
         await youtube.DownloadVideoAsync(video.Url, progress, token);
+
         snackbar.Add($"Successfully downloaded {video.Title}");
     }
 

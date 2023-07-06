@@ -101,10 +101,15 @@ public partial class IndexData<TData> where TData : class
 
             var dataCopy = _visibleData.ToList();
 
-            foreach (var v in dataCopy)
+            foreach (var d in dataCopy)
             {
-                var video = v as VideoModel;
+                var video = d as VideoModel;
                 await DownloadVideo(video, progressReport, token);
+
+                if (_settings.RemoveAfterDownload)
+                {
+                    RemoveData(d);
+                }
             }
 
             CancelVideosDownload();
