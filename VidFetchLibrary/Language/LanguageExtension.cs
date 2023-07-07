@@ -1,5 +1,4 @@
 ﻿using VidFetchLibrary.DataAccess;
-using VidFetchLibrary.Library;
 
 namespace VidFetchLibrary.Language;
 public class LanguageExtension : ILanguageExtension
@@ -13,8 +12,7 @@ public class LanguageExtension : ILanguageExtension
 
     public Dictionary<KeyWords, string> GetDictionary()
     {
-        var settings = new SettingsLibrary();
-        // temporary solution
+        var settings = _settingsData.GetSettings();
 
         return settings.SelectedLanguage switch
         {
