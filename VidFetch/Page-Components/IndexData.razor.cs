@@ -35,9 +35,17 @@ public partial class IndexData<TData> where TData : class
 
     protected override async Task OnInitializedAsync()
     {
-        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
-        _visibleData = GetDataResults().Take(_loadedItems).ToList();
+        InitializeVisibleData();
         _settings = await settingsData.GetSettingsAsync();
+    }
+
+    private void InitializeVisibleData()
+    {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
+
+        _visibleData = GetDataResults()
+            .Take(_loadedItems)
+            .ToList();
     }
 
     private List<TData> GetDataResults()
@@ -75,13 +83,9 @@ public partial class IndexData<TData> where TData : class
     {
         try
         {
-            if (IsFFmpegInvalid())
-            {
-                string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
-                snackbar.Add(errorMessage, Severity.Warning);
-            }
+            await ShowFFmpegWarningIfNeeded();
 
-            var token = tokenHelper.InitializeToken(ref _downloadTokenSource);
+            var token = InitializeTokenDownload();
             var progressReport = new Progress<double>(UpdateProgress);
 
             var dataCopy = _visibleData.ToList();
@@ -91,10 +95,7 @@ public partial class IndexData<TData> where TData : class
                 var video = d as VideoModel;
                 await DownloadVideo(video, progressReport, token);
 
-                if (_settings.RemoveAfterDownload)
-                {
-                    RemoveData(d);
-                }
+                RemoveDataIfRemoveAfterDownload(d);
             }
         }
         catch (OperationCanceledException)
@@ -111,6 +112,33 @@ public partial class IndexData<TData> where TData : class
         }
     }
 
+    private void RemoveDataIfRemoveAfterDownload(TData data)
+    {
+        if (_settings.RemoveAfterDownload)
+        {
+            RemoveData(data);
+        }
+    }
+
+    private async Task ShowFFmpegWarningIfNeeded()
+    {
+        if (IsFFmpegInvalid() is false)
+        {
+            return;
+        }
+
+        await InvokeAsync(() =>
+        {
+            string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
+            snackbar.Add(errorMessage, Severity.Warning);
+        });
+    }
+
+    private CancellationToken InitializeTokenDownload()
+    {
+        return tokenHelper.InitializeToken(ref _downloadTokenSource);
+    }
+
     private async Task DownloadVideo(VideoModel video, Progress<double> progress, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
@@ -118,10 +146,7 @@ public partial class IndexData<TData> where TData : class
         _downloadingVideoText = video.Title;
         await youtube.DownloadVideoAsync(video.Url, progress, token);
 
-        string successMessage = GetDictionary(video.Title)
-            [KeyWords.SuccessfullyDownloaded];
-
-        snackbar.Add(successMessage);
+        await AddSuccessfullyDownloadedSnackbar(video.Title);
     }
 
     private void CancelVideosDownload()
@@ -150,16 +175,21 @@ public partial class IndexData<TData> where TData : class
                 await LoadSingleData();
             }
 
-            _url = "";
+            ResetUrl();
         }
         catch
         {
-            string errorMessage = GetDictionary()
-                [KeyWords.ErrorWhileLoadingData];
-
-            snackbar.Add(errorMessage, Severity.Error);
-            await OpenLoading.InvokeAsync(false);
+            await AddErrorWhileLoadingDataSnackbar();
         }
+        finally
+        {
+            ResetUrl();
+        }
+    }
+
+    private void ResetUrl()
+    {
+        _url = "";
     }
 
     private async Task LoadSingleData()
@@ -292,6 +322,28 @@ public partial class IndexData<TData> where TData : class
                 [KeyWords.DownloadingErrorMessage];
 
             snackbar.Add(message, Severity.Error);
+        });
+    }
+
+    private async Task AddErrorWhileLoadingDataSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+                [KeyWords.ErrorWhileLoadingData];
+
+            snackbar.Add(message, Severity.Error);
+        });
+    }
+
+    private async Task AddSuccessfullyDownloadedSnackbar(string text)
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary(text)
+                [KeyWords.SuccessfullyDownloaded];
+
+            snackbar.Add(message);
         });
     }
 

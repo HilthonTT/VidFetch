@@ -74,31 +74,25 @@ public partial class SavedData<TData> where TData : class
 
     private async Task DownloadVideos()
     {
-        bool isVideoModel = typeof(TData) == typeof(VideoModel);
-
-        if (isVideoModel is false || _datas?.Count <= 0)
+        if (IsVideoModel() is false || _datas == null || _datas.Count == 0)
         {
-            string errorMessage = GetDictionary()[KeyWords.NoVideoErrorMessage];
-            snackbar.Add(errorMessage, Severity.Error);
-
+            await ShowNoVideoErrorMessage();
             return;
         }
 
         try
         {
-            if (IsFFmpegInvalid())
-            {
-                string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
-                snackbar.Add(errorMessage, Severity.Warning);
-            }
+            await ShowFFmpegWarningIfNeeded();
 
-            var token = tokenHelper.InitializeToken(ref _allVideosTokenSource);
+            var token = InitializeToken();
             var progress = new Progress<double>(UpdateProgress);
 
-            foreach (var d in _datas)
+            foreach (var data in _datas)
             {
-                var video = d as VideoModel;
-                await DownloadVideo(video, progress, token);
+                if (data is VideoModel video)
+                {
+                    await DownloadVideo(video, progress, token);
+                }
             }
         }
         catch (OperationCanceledException)
@@ -113,6 +107,39 @@ public partial class SavedData<TData> where TData : class
         {
             CancelDownload();
         }
+    }
+
+    private static bool IsVideoModel()
+    {
+        return typeof(TData) == typeof(VideoModel);
+    }
+
+    private async Task ShowNoVideoErrorMessage()
+    {
+        await InvokeAsync(() =>
+        {
+            string errorMessage = GetDictionary()[KeyWords.NoVideoErrorMessage];
+            snackbar.Add(errorMessage, Severity.Error);
+        });
+    }
+
+    private async Task ShowFFmpegWarningIfNeeded()
+    {
+        if (IsFFmpegInvalid() is false)
+        {
+            return;
+        }
+
+        await InvokeAsync(() =>
+        {
+            string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
+            snackbar.Add(errorMessage, Severity.Warning);
+        });
+    }
+
+    private CancellationToken InitializeToken()
+    {
+        return tokenHelper.InitializeToken(ref _allVideosTokenSource);
     }
 
     private void FilterData()

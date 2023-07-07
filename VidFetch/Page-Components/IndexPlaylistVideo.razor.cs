@@ -74,39 +74,62 @@ public partial class IndexPlaylistVideo
 
     private async Task LoadPlaylist()
     {
+        if (string.IsNullOrWhiteSpace(_playlistUrl))
+        {
+            return;
+        }
+
         try
         {
-            if (string.IsNullOrWhiteSpace(_playlistUrl))
-            {
-                return;
-            }
-
             if (IsUrlPlaylist())
             {
                 await LoadPlaylistVideos();
-
-                _showDialog = true;
-                _firstVideoInPlaylistUrl = _playlistUrl;
-
-                _visibleVideos = videoLibrary.PlaylistVideos
-                    .Take(_loadedItems)
-                    .ToList();
+                PreparePlaylistDisplay();
             }
             else
             {
-                string message = GetDictionary()[KeyWords.EnterPlaylistUrl];
-                snackbar.Add(message);
+                await ShowEnterPlaylistUrlMessage();
             }
 
-            _playlistUrl = "";
+            ResetPlaylistUrl();
         }
         catch
         {
-            string errorMessage = GetDictionary()
-                [KeyWords.ErrorWhileLoadingPlaylist];
-
-            snackbar.Add(errorMessage, Severity.Error);
+            await ShowErrorLoadingPlaylistMessage();
         }
+    }
+
+    private void PreparePlaylistDisplay()
+    {
+        _showDialog = true;
+        _firstVideoInPlaylistUrl = _playlistUrl;
+
+        _visibleVideos = videoLibrary.PlaylistVideos
+            .Take(_loadedItems)
+            .ToList();
+    }
+
+    private async Task ShowEnterPlaylistUrlMessage()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()[KeyWords.EnterPlaylistUrl];
+            snackbar.Add(message);
+        });
+    }
+
+    private void ResetPlaylistUrl()
+    {
+        _playlistUrl = "";
+    }
+
+    private async Task ShowErrorLoadingPlaylistMessage()
+    {
+        await InvokeAsync(() =>
+        {
+            string errorMessage = GetDictionary()[KeyWords.ErrorWhileLoadingPlaylist];
+            snackbar.Add(errorMessage, Severity.Error);
+        });
     }
 
     private async Task LoadPlaylistVideos()
@@ -141,24 +164,16 @@ public partial class IndexPlaylistVideo
     {
         try
         {
-            if (IsFFmpegInvalid())
-            {
-                string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
-                snackbar.Add(errorMessage, Severity.Warning);
-            }
+            await ShowFFmpegWarningIfNeeded();
 
-            var token = tokenHelper.InitializeToken(ref _playlistTokenSource);
-
-            var progress = new Progress<double>(value =>
-            {
-                UpdateProgress(ref _playlistProgress, value);
-            });
+            var token = InitializeTokenForPlaylists();
+            var progress = new Progress<double>(UpdatePlaylistProgress);
 
             var videosCopy = _visibleVideos.ToList();
 
-            foreach (var v in videosCopy)
+            foreach (var video in videosCopy)
             {
-                await DownloadVideo(v, progress, token);
+                await DownloadVideo(video, progress, token);
             }
 
             await AddSuccessSaveVideosSnackbar();
@@ -178,6 +193,30 @@ public partial class IndexPlaylistVideo
         }
     }
 
+    private async Task ShowFFmpegWarningIfNeeded()
+    {
+        if (IsFFmpegInvalid() is false)
+        {
+            return;
+        }
+
+        await InvokeAsync(() =>
+        {
+            string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
+            snackbar.Add(errorMessage, Severity.Warning);
+        });  
+    }
+
+    private CancellationToken InitializeTokenForPlaylists()
+    {
+        return tokenHelper.InitializeToken(ref _playlistTokenSource);
+    }
+
+    private void UpdatePlaylistProgress(double value)
+    {
+        UpdateProgress(ref _playlistProgress, value);
+    }
+
     private async Task DownloadVideo(VideoModel video, Progress<double> progress, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
@@ -185,7 +224,7 @@ public partial class IndexPlaylistVideo
 
         await youtube.DownloadVideoAsync(video.Url, progress, token, true, _playlist.Title);
 
-        AddSnackbar(video.Title);
+        await AddSnackbar(video.Title);
 
         if (_settings.RemoveAfterDownload)
         {
@@ -198,11 +237,7 @@ public partial class IndexPlaylistVideo
     {
         try
         {
-            if (File.Exists(_settings.FfmpegPath)is false)
-            {
-                string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
-                snackbar.Add(errorMessage, Severity.Warning);
-            }
+            await ShowFFmpegWarningIfNeeded();
 
             var cancellationToken = tokenHelper.InitializeToken(ref _videoTokenSource);
 
@@ -224,6 +259,7 @@ public partial class IndexPlaylistVideo
         }
     }
 
+
     private async Task<IEnumerable<string>> SearchPlaylistVideos(string searchInput)
     {
         return await searchHelper.SearchAsync(videoLibrary.PlaylistVideos, searchInput);
@@ -234,7 +270,7 @@ public partial class IndexPlaylistVideo
         try
         {
             var videosCopy = videoLibrary.PlaylistVideos.ToList();
-            var token = tokenHelper.InitializeToken(ref _saveAllTokenSource);
+            var token = InitializeSaveAllToken();
 
             foreach (var v in videosCopy)
             {
@@ -256,6 +292,11 @@ public partial class IndexPlaylistVideo
         {
             CancelVideoDownload();
         }
+    }
+
+    private CancellationToken InitializeSaveAllToken()
+    {
+        return tokenHelper.InitializeToken(ref _saveAllTokenSource);
     }
 
     private async Task AddOperationCancelSnackbar()
@@ -344,12 +385,15 @@ public partial class IndexPlaylistVideo
         tokenHelper.CancelRequest(ref _saveAllTokenSource);
     }
 
-    private void AddSnackbar(string title)
+    private async Task AddSnackbar(string title)
     {
-        string successMessage = GetDictionary(title)
+        await InvokeAsync(() =>
+        {
+            string successMessage = GetDictionary(title)
             [KeyWords.SuccessfullyDownloaded];
 
-        snackbar.Add(successMessage);
+            snackbar.Add(successMessage);
+        });
     }
 
     private void ClearPlaylistVideos()
