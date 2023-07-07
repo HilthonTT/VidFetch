@@ -398,13 +398,13 @@ public partial class IndexPlaylistVideo
 
     private void ClearPlaylistVideos()
     {
-        videoLibraryHelper.ClearPlaylistVideos(ref _playlistProgress);
+        videoLibrary.PlaylistVideos.Clear();
         _visibleVideos.Clear();
     }
 
     private void RemovePlaylistVideo(VideoModel video)
     {
-        videoLibraryHelper.RemovePlaylistVideo(video);
+        videoLibrary.PlaylistVideos.Remove(video);
         _visibleVideos.Remove(video);
     }
 
