@@ -24,6 +24,7 @@ public partial class Settings
     private async Task LoadSettings()
     {
         _settings = await settingsData.GetSettingsAsync();
+        
         if (_settings is not null)
         {
             _settingsModel = new(_settings);
@@ -61,16 +62,18 @@ public partial class Settings
 
             int exitCode = await settingsData.SetSettingsAsync(s);
 
-            if (exitCode == 1)
+            if (exitCode is 1)
             {
                 navManager.NavigateTo("/Settings", isReload);
             }
 
-            snackbar.Add("Successfully saved settings.");
+            string successMessage = GetDictionary()[KeyWords.SuccessfullySettings];
+            snackbar.Add(successMessage);
         }
         catch
         {
-            snackbar.Add("Failed to save settings.", Severity.Error);
+            string errorMessage = GetDictionary()[KeyWords.FailedSettings];
+            snackbar.Add(errorMessage, Severity.Error);
         }
     }
 
@@ -80,7 +83,9 @@ public partial class Settings
         {
             if (IsValidPath() is false)
             {
-                snackbar.Add("Your ffmpeg path doesn't exist.", Severity.Error);
+                string errorMessage = GetDictionary()[KeyWords.FfmpathNotExistError];
+                snackbar.Add(errorMessage, Severity.Error);
+                
                 _ffmpegSettingsModel.FfmpegPath = "";
                 return;
             }
@@ -98,15 +103,16 @@ public partial class Settings
             };
 
             await settingsData.SetSettingsAsync(s);
-            _settings = new SettingsLibrary(s);
 
             _settingsModel.SelectedResolution = _ffmpegSettingsModel.SelectedResolution;
 
-            snackbar.Add("Successfully saved settings.");
+            string successMessage = GetDictionary()[KeyWords.SuccessfullySettings];
+            snackbar.Add(successMessage);
         }
         catch
         {
-            snackbar.Add("Failed to save settings.", Severity.Error);
+            string errorMessage = GetDictionary()[KeyWords.FailedSettings];
+            snackbar.Add(errorMessage, Severity.Error);
         }
     }
 
@@ -119,7 +125,8 @@ public partial class Settings
 
         await settingsData.SetSettingsAsync(settings);
 
-        snackbar.Add("Cleared your Ffmpeg path.");
+        string successText = GetDictionary()[KeyWords.FfmpathCleared];
+        snackbar.Add(successText);
     }
 
     private string GetSpacedString(string path)

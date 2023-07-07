@@ -3,7 +3,6 @@ using MudBlazor;
 using VidFetchLibrary.Language;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
-using YoutubeExplode.Videos;
 
 namespace VidFetch.Page_Components;
 
@@ -89,18 +88,24 @@ public partial class IndexPlaylistVideo
                 _showDialog = true;
                 _firstVideoInPlaylistUrl = _playlistUrl;
 
-                _visibleVideos = videoLibrary.PlaylistVideos.Take(_loadedItems).ToList();
+                _visibleVideos = videoLibrary.PlaylistVideos
+                    .Take(_loadedItems)
+                    .ToList();
             }
             else
             {
-                snackbar.Add("Please enter a playlist url.");
+                string message = GetDictionary()[KeyWords.EnterPlaylistUrl];
+                snackbar.Add(message);
             }
 
             _playlistUrl = "";
         }
-        catch (Exception ex)
+        catch
         {
-            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            string errorMessage = GetDictionary()
+                [KeyWords.ErrorWhileLoadingPlaylist];
+
+            snackbar.Add(errorMessage, Severity.Error);
         }
     }
 
@@ -158,9 +163,23 @@ public partial class IndexPlaylistVideo
 
             CancelPlaylistDownload();
         }
+        catch (OperationCanceledException)
+        {
+            string message = GetDictionary()
+                [KeyWords.OperationCancelled];
+
+            snackbar.Add(message, Severity.Error);
+        }
         catch (Exception ex)
         {
-            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            string errorMessage = GetDictionary(ex.Message)
+                [KeyWords.DownloadingErrorMessage];
+
+            snackbar.Add(errorMessage, Severity.Error);
+
+        }
+        finally
+        {
             await OpenLoading.InvokeAsync(false);
         }
     }
@@ -226,11 +245,25 @@ public partial class IndexPlaylistVideo
             }
 
             CancelVideoDownload();
-            snackbar.Add($"Successfully saved all videos.");
-        } 
+
+            string successMessage = GetDictionary()
+                [KeyWords.SuccessfullySavedAllVideos];
+
+            snackbar.Add(successMessage);
+        }
+        catch (OperationCanceledException)
+        {
+            string message = GetDictionary()
+                [KeyWords.OperationCancelled];
+
+            snackbar.Add(message, Severity.Error);
+        }
         catch
         {
-            snackbar.Add($"An error occured while saving.", Severity.Error);
+            string errorMessage = GetDictionary()
+                [KeyWords.ErrorWhileSaving];
+
+            snackbar.Add(errorMessage, Severity.Error);
         }
     }
 
@@ -278,7 +311,10 @@ public partial class IndexPlaylistVideo
 
     private void AddSnackbar(string title)
     {
-        snackbar.Add($"Successfully downloaded {title}", Severity.Normal);
+        string successMessage = GetDictionary(title)
+            [KeyWords.SuccessfullyDownloaded];
+
+        snackbar.Add(successMessage);
     }
 
     private void ClearPlaylistVideos()
@@ -345,9 +381,9 @@ public partial class IndexPlaylistVideo
         return $"{searchText} {videoLibrary.PlaylistVideos?.Count} {videoText}";
     }
 
-    private Dictionary<KeyWords, string> GetDictionary()
+    private Dictionary<KeyWords, string> GetDictionary(string text = "")
     {
-        var dictionary = languageExtension.GetDictionary();
+        var dictionary = languageExtension.GetDictionary(text);
         return dictionary;
     }
 

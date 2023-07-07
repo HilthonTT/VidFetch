@@ -87,12 +87,24 @@ public partial class VideoComponent
 
             await youtube.DownloadVideoAsync(Video.Url, progress, token);
 
-            AddSnackbar();
+            SnackbarDownload();
             CancelVideoDownload();
         }
-        catch (Exception ex)
+        catch (OperationCanceledException)
         {
-            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            string message = GetDictionary()
+                [KeyWords.OperationCancelled];
+
+            snackbar.Add(message, Severity.Error);
+        }
+        catch
+        {
+            string errorMessage = GetDictionary()
+                [KeyWords.DownloadingErrorMessage];
+
+            string modifiedErrorMessage = errorMessage.Replace("s", "");
+
+            snackbar.Add(modifiedErrorMessage, Severity.Error);
         }
     }
 
@@ -111,7 +123,7 @@ public partial class VideoComponent
         {
             await videoData.SetVideoAsync(Video.Url, Video.VideoId);
 
-            snackbar.Add($"Successfully saved {Video.Title}");
+            AddSnackbar();
             _isSaved = true;
         }
     }
@@ -142,7 +154,18 @@ public partial class VideoComponent
 
     private void AddSnackbar()
     {
-        snackbar.Add($"Successfully downloaded {Video.Title}", Severity.Normal);
+        string successMessage = GetDictionary(Video.Title)
+                [KeyWords.SuccessfullySavedData];
+
+        snackbar.Add(successMessage, Severity.Normal);
+    }
+
+    private void SnackbarDownload()
+    {
+        string successMessage = GetDictionary(Video.Title)
+                [KeyWords.SuccessfullyDownloaded];
+
+        snackbar.Add(successMessage, Severity.Normal);
     }
 
     private string GetSaveVideoText()
@@ -153,9 +176,9 @@ public partial class VideoComponent
         return $"{saveText} {videoText}";
     }
 
-    private Dictionary<KeyWords, string> GetDictionary()
+    private Dictionary<KeyWords, string> GetDictionary(string text = "")
     {
-        var dictionary = languageExtension.GetDictionary();
+        var dictionary = languageExtension.GetDictionary(text);
         return dictionary;
     }
 

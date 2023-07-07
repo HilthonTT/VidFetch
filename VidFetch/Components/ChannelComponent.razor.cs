@@ -46,9 +46,18 @@ public partial class ChannelComponent
         if (_isSaved is false)
         {
             await channelData.SetChannelAsync(Channel.Url, Channel.ChannelId);
-            snackbar.Add($"Successfully saved {Channel.Title}");
+
+            AddSnackbar();
             _isSaved = true;
         }
+    }
+
+    private void AddSnackbar()
+    {
+        string successMessage = GetDictionary(Channel.Title)
+            [KeyWords.SuccessfullySavedData];
+
+        snackbar.Add(successMessage);
     }
 
     private async Task LoadThumbnail()
@@ -89,9 +98,9 @@ public partial class ChannelComponent
         return $"{saveText} {channelText}";
     }
 
-    private Dictionary<KeyWords, string> GetDictionary()
+    private Dictionary<KeyWords, string> GetDictionary(string text = "")
     {
-        var dictionary = languageExtension.GetDictionary();
+        var dictionary = languageExtension.GetDictionary(text);
         return dictionary;
     }
 }

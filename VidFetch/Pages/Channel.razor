@@ -3,6 +3,7 @@
 @inject IChannelData channelData
 @inject ISnackbar snackbar
 @inject ILauncher launcher
+@inject ILanguageExtension languageExtension
 @inject NavigationManager navManager
 
 @if (IsChannelNull() is false)
@@ -23,19 +24,21 @@
                 <MudCardMedia Image="@_channel.ThumbnailUrl" />
                 <MudCardContent>
                     <MudLink Typo="Typo.h5" @onclick="OpenUrl">@_channel.Url</MudLink>
-                    <MudText Typo="Typo.body2">Showing only @_videos?.Count videos</MudText>
+                    <MudText Typo="Typo.body2">
+                        @GetVideoCount()
+                    </MudText>
                 </MudCardContent>
                 <MudCardActions>
                     @if (_isSaved)
                     {
                         <MudButton Variant="Variant.Text" Color="Color.Error" @onclick="DeleteChannel">
-                            Delete
+                            @GetDictionary()[KeyWords.Delete]
                         </MudButton>
                     }
                     else
                     {
                         <MudButton Variant="Variant.Text" Color="Color.Primary" @onclick="SaveChannel">
-                            Save
+                            @GetDictionary()[KeyWords.Save]
                         </MudButton>
                     }
                 </MudCardActions>
@@ -60,7 +63,7 @@
                         <MudButton Variant="Variant.Filled"
                                    Color="Color.Primary"
                         @onclick="LoadMoreVideos">
-                            Load More
+                            @GetDictionary()[KeyWords.LoadMore]
                         </MudButton>
                     </div>
                 }

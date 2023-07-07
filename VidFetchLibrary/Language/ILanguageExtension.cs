@@ -2,5 +2,5 @@
 
 public interface ILanguageExtension
 {
-    Dictionary<KeyWords, string> GetDictionary();
+    Dictionary<KeyWords, string> GetDictionary(string text = "");
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using System.Text.RegularExpressions;
+using VidFetchLibrary.Language;
 using VidFetchLibrary.Models;
 
 namespace VidFetch.Pages;
@@ -71,6 +72,8 @@ public partial class Channel
         if (_isSaved)
         {
             await channelData.DeleteChannelAsync(_channel);
+
+            string deleteMessage;
             snackbar.Add($"Successfully deleted {_channel.Title}");
             _isSaved = false;
 
@@ -112,6 +115,20 @@ public partial class Channel
     private void RemoveVideo(VideoModel video)
     {
         _visibleVideos.Remove(video);
+    }
+
+    private Dictionary<KeyWords, string> GetDictionary(string text = "")
+    {
+        var dictionary = languageExtension.GetDictionary(text);
+        return dictionary;
+    }
+
+    private string GetVideoCount()
+    {
+        string videoCount = _videos?.Count.ToString();
+        string videoText = GetDictionary(videoCount)[KeyWords.ChannelVideoCount];
+
+        return videoText;
     }
 
     [GeneratedRegex("(?<=channel\\/)([\\w-]+)")]

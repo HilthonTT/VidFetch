@@ -50,9 +50,17 @@ public partial class PlaylistComponent
         {
             await playlistData.SetPlaylistAsync(Playlist.Url, Playlist.PlaylistId);
 
-            snackbar.Add($"Successfully saved {Playlist.Title}");
+            AddSnackbar();
             _isSaved = true;
         }
+    }
+
+    private void AddSnackbar()
+    {
+        string successMessage = GetDictionary(Playlist.Title)
+            [KeyWords.SuccessfullySavedData];
+
+        snackbar.Add(successMessage);
     }
 
     private async Task LoadAuthorThumbnail()
@@ -114,9 +122,9 @@ public partial class PlaylistComponent
         return $"{saveText} {playlistText}";
     }
 
-    private Dictionary<KeyWords, string> GetDictionary()
+    private Dictionary<KeyWords, string> GetDictionary(string text = "")
     {
-        var dictionary = languageExtension.GetDictionary();
+        var dictionary = languageExtension.GetDictionary(text);
         return dictionary;
     }
 }

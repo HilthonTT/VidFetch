@@ -115,9 +115,19 @@ public partial class IndexData<TData> where TData : class
 
             CancelVideosDownload();
         }
-        catch (Exception ex)
+        catch (OperationCanceledException)
         {
-            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            string message = GetDictionary()
+                [KeyWords.OperationCancelled];
+
+            snackbar.Add(message, Severity.Error);
+        }
+        catch
+        {
+            string errorMessage = GetDictionary()
+                [KeyWords.DownloadingErrorMessage];
+
+            snackbar.Add(errorMessage, Severity.Error);
         }
     }
 
@@ -128,7 +138,10 @@ public partial class IndexData<TData> where TData : class
         _downloadingVideoText = video.Title;
         await youtube.DownloadVideoAsync(video.Url, progress, token);
 
-        snackbar.Add($"Successfully downloaded {video.Title}");
+        string successMessage = GetDictionary(video.Title)
+            [KeyWords.SuccessfullyDownloaded];
+
+        snackbar.Add(successMessage);
     }
 
     private void CancelVideosDownload()
@@ -159,9 +172,12 @@ public partial class IndexData<TData> where TData : class
 
             _url = "";
         }
-        catch (Exception ex)
+        catch
         {
-            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            string errorMessage = GetDictionary()
+                [KeyWords.ErrorWhileLoadingData];
+
+            snackbar.Add(errorMessage, Severity.Error);
             await OpenLoading.InvokeAsync(false);
         }
     }
@@ -501,9 +517,9 @@ public partial class IndexData<TData> where TData : class
         return false;
     }
 
-    private Dictionary<KeyWords, string> GetDictionary()
+    private Dictionary<KeyWords, string> GetDictionary(string text = "")
     {
-        var dictionary = languageExtension.GetDictionary();
+        var dictionary = languageExtension.GetDictionary(text);
         return dictionary;
     }
 

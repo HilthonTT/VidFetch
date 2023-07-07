@@ -71,6 +71,7 @@ public partial class Playlist
         bool isThumbnailEmpty = string.IsNullOrWhiteSpace(_playlist.ThumbnailUrl);
         bool isAuthorThumbnailEmpty = string.IsNullOrWhiteSpace(_playlist.AuthorThumbnailUrl);
         string defaultUrl = "https://dummyimage.com/1200x900/000/ffffff&text=No+image+available.";
+        
         if (isThumbnailEmpty)
         {
             var p = await youtube.GetPlaylistAsync(_playlist.Url);

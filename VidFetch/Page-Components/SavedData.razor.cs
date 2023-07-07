@@ -77,7 +77,9 @@ public partial class SavedData<TData> where TData : class
         bool isVideoModel = typeof(TData) == typeof(VideoModel);
         if (isVideoModel is false || _datas?.Count <= 0)
         {
-            snackbar.Add("Error: You have no videos available.", Severity.Error);
+            string errorMessage = GetDictionary()[KeyWords.NoVideoErrorMessage];
+            snackbar.Add(errorMessage, Severity.Error);
+
             return;
         }
 
@@ -100,9 +102,19 @@ public partial class SavedData<TData> where TData : class
 
             CancelDownload();
         }
+        catch (OperationCanceledException)
+        {
+            string message = GetDictionary()
+                [KeyWords.OperationCancelled];
+
+            snackbar.Add(message, Severity.Error);
+        }
         catch (Exception ex)
         {
-            snackbar.Add($"There was an issue downloading your videos: {ex.Message}", Severity.Error);
+            string errorMessage = GetDictionary(ex.Message)
+                [KeyWords.DownloadingErrorMessage];
+
+            snackbar.Add(errorMessage, Severity.Error);
         }
     }
 
@@ -149,7 +161,10 @@ public partial class SavedData<TData> where TData : class
         _downloadingVideoText = video.Title;
         await youtube.DownloadVideoAsync(video.Url, progress, token);
 
-        snackbar.Add($"Successfully downloaded {video.Title}");
+        string successMessage = GetDictionary(video.Title)
+            [KeyWords.SuccessfullyDownloaded];
+
+        snackbar.Add(successMessage);
     }
 
     private async Task DeleteData(TData data)
@@ -185,15 +200,25 @@ public partial class SavedData<TData> where TData : class
             }
 
             CancelUpdateData();
-            snackbar.Add("Successfully updated.");
+
+            string successMessage = GetDictionary("")
+                [KeyWords.SuccessfullyUpdatedData];
+
+            snackbar.Add(successMessage);
         }
         catch (OperationCanceledException)
         {
-            snackbar.Add("Update canceled.", Severity.Error);
+            string message = GetDictionary()
+                [KeyWords.OperationCancelled];
+
+            snackbar.Add(message, Severity.Error);
         }
         catch
         {
-            snackbar.Add("An error occurred while updating.", Severity.Error);
+            string errorMessage = GetDictionary()
+                [KeyWords.ErrorWhileUpdating];
+
+            snackbar.Add(errorMessage, Severity.Error);
         }
     }
 
@@ -217,10 +242,16 @@ public partial class SavedData<TData> where TData : class
     {
         var convertedVideo = video as VideoModel;
         var newVideo = await youtube.GetVideoAsync(convertedVideo.Url, token);
+
         if (newVideo is null)
         {
             RemoveData(video);
-            snackbar.Add($"{convertedVideo?.Title} no longer exists. It has been deleted", Severity.Error);
+
+            string NoLongerExistsDelete = GetDictionary(convertedVideo?.Title)
+                [KeyWords.NoLongerExistsDelete];
+
+            snackbar.Add(NoLongerExistsDelete, Severity.Error);
+
             await videoData.DeleteVideoAsync(convertedVideo);
         }
         else
@@ -236,7 +267,12 @@ public partial class SavedData<TData> where TData : class
         if (newChannel is null)
         {
             RemoveData(channel);
-            snackbar.Add($"{convertedChannel.Title} no longer exists. It has been deleted", Severity.Error);
+
+            string NoLongerExistsDelete = GetDictionary(convertedChannel?.Title)
+                [KeyWords.NoLongerExistsDelete];
+
+            snackbar.Add(NoLongerExistsDelete, Severity.Error);
+
             await channelData.DeleteChannelAsync(convertedChannel);
         }
         else
@@ -252,7 +288,11 @@ public partial class SavedData<TData> where TData : class
         if (newPlaylist is null)
         {
             RemoveData(playlist);
-            snackbar.Add($"{convertedPlaylist.Title} no longer exists. It has been deleted", Severity.Error);
+
+            string NoLongerExistsDelete = GetDictionary(convertedPlaylist?.Title)
+                [KeyWords.NoLongerExistsDelete];
+
+            snackbar.Add(NoLongerExistsDelete, Severity.Error);
             await playlistData.DeletePlaylistAsync(convertedPlaylist);
         }
         else
@@ -400,9 +440,9 @@ public partial class SavedData<TData> where TData : class
         return false;
     }
 
-    private Dictionary<KeyWords, string> GetDictionary()
+    private Dictionary<KeyWords, string> GetDictionary(string text = "")
     {
-        var dictionary = languageExtension.GetDictionary();
+        var dictionary = languageExtension.GetDictionary(text);
         return dictionary;
     }
 
