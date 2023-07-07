@@ -53,28 +53,29 @@ public partial class SavedData<TData> where TData : class
     private async Task LoadDatas()
     {
         await OpenLoading.InvokeAsync(true);
-        if (typeof(TData) == typeof(ChannelModel))
+        switch (typeof(TData))
         {
-            _datas = await channelData.GetAllChannelsAsync() as List<TData>;
-            _visibleData = _datas.Take(_loadedItems).ToList();
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            _datas = await playlistData.GetAllPlaylistsAsync() as List<TData>;
-            _visibleData = _datas.Take(_loadedItems).ToList();
-        }
-        else
-        {
-            _datas = await videoData.GetAllVideosAsync() as List<TData>;
-            _visibleData = _datas.Take(_loadedItems).ToList();
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                _datas = await channelData.GetAllChannelsAsync() as List<TData>;
+                break;
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                _datas = await playlistData.GetAllPlaylistsAsync() as List<TData>;
+                break;
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                _datas = await videoData.GetAllVideosAsync() as List<TData>;
+                break;
+            default:
+                break;
         }
 
+        _visibleData = _datas.Take(_loadedItems).ToList();
         await OpenLoading.InvokeAsync(true);
     }
 
     private async Task DownloadVideos()
     {
         bool isVideoModel = typeof(TData) == typeof(VideoModel);
+
         if (isVideoModel is false || _datas?.Count <= 0)
         {
             string errorMessage = GetDictionary()[KeyWords.NoVideoErrorMessage];
@@ -129,17 +130,19 @@ public partial class SavedData<TData> where TData : class
 
     private async Task<IEnumerable<string>> FilterSearchData(string searchInput)
     {
-        if (typeof(TData) == typeof(VideoModel))
+        switch (typeof(TData))
         {
-            return await searchHelper.SearchAsync(_datas as List<VideoModel>, searchInput);
-        }
-        else if (typeof(TData) == typeof(ChannelModel))
-        {
-            return await searchHelper.SearchAsync(_datas as List<ChannelModel>, searchInput);
-        }
-        else
-        {
-            return await searchHelper.SearchAsync(_datas as List<PlaylistModel>, searchInput);
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                return await searchHelper.SearchAsync(_datas as List<VideoModel>, searchInput);
+
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                return await searchHelper.SearchAsync(_datas as List<ChannelModel>, searchInput);
+
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                return await searchHelper.SearchAsync(_datas as List<PlaylistModel>, searchInput);
+
+            default:
+                return default;
         }
     }
 
@@ -170,20 +173,22 @@ public partial class SavedData<TData> where TData : class
     private async Task DeleteData(TData data)
     {
         RemoveData(data);
-        if (typeof(TData) == typeof(ChannelModel))
+
+        switch (data)
         {
-            var channel = data as ChannelModel;
-            await channelData.DeleteChannelAsync(channel);
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            var playlist = data as PlaylistModel;
-            await playlistData.DeletePlaylistAsync(playlist);
-        }
-        else
-        {
-            var video = data as VideoModel;
-            await videoData.DeleteVideoAsync(video);
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                await videoData.DeleteVideoAsync(data as VideoModel);
+                break;
+
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                await channelData.DeleteChannelAsync(data as ChannelModel);
+                break;
+
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                await playlistData.DeletePlaylistAsync(data as PlaylistModel);
+                break;
+            default:
+                break;
         }
     }
 
@@ -224,19 +229,24 @@ public partial class SavedData<TData> where TData : class
 
     private async Task UpdateData(TData data, CancellationToken token)
     {
-        if (data.GetType() == typeof(VideoModel))
+        switch (data)
         {
-            await UpdateVideo(data, token);
-        }
-        else if (data.GetType() == typeof(ChannelModel))
-        {
-            await UpdateChannel(data, token);
-        }
-        else if (data.GetType() == typeof(PlaylistModel))
-        {
-            await UpdatePlaylist(data, token);
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                await UpdateVideo(data, token);
+                break;
+
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                await UpdateChannel(data, token);
+                break;
+
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                await UpdatePlaylist(data, token);
+                break;
+            default:
+                break;
         }
     }
+
 
     private async Task UpdateVideo(TData video, CancellationToken token)
     {
@@ -388,21 +398,28 @@ public partial class SavedData<TData> where TData : class
 
     private string GetPageName()
     {
-        if (typeof(TData) == typeof(ChannelModel))
+        string name;
+
+        switch (typeof(TData))
         {
-            string name = nameof(ChannelModel);
-            return $"{PageName}-{name}";
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                name = nameof(ChannelModel);
+                break;
+
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                name = nameof(PlaylistModel);
+                break;
+
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                name = nameof(VideoModel);
+                break;
+
+            default:
+                name = "";
+                break;
         }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            string name = nameof(PlaylistModel);
-            return $"{PageName}-{name}";
-        }
-        else
-        {
-            string name = nameof(VideoModel);
-            return $"{PageName}-{name}";
-        }
+
+        return $"{PageName}-{name}";
     }
 
     private string GetDataTypeName()

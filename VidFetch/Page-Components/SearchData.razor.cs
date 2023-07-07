@@ -25,21 +25,19 @@ public partial class SearchData<TData> where TData : class
 
     private List<TData> GetDataResults()
     {
-        if (typeof(TData) == typeof(VideoModel))
+        switch (typeof(TData))
         {
-            return videoLibrary.VideoResults as List<TData>;
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                return videoLibrary.VideoResults as List<TData>;
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                return videoLibrary.ChannelResults as List<TData>;
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                return videoLibrary.PlaylistResults as List<TData>;
+            default:
+                return new List<TData>();
         }
-        else if (typeof(TData) == typeof(ChannelModel))
-        {
-            return videoLibrary.ChannelResults as List<TData>;
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            return videoLibrary.PlaylistResults as List<TData>;
-        }
-
-        return new List<TData>();
     }
+
 
     private void LoadMoreData()
     {
@@ -67,20 +65,22 @@ public partial class SearchData<TData> where TData : class
 
         var token = tokenHelper.InitializeToken(ref _tokenSource);
 
-        if (typeof(TData) == typeof(VideoModel))
+        switch (typeof(TData))
         {
-            videoLibrary.VideoResults = await youtube.GetVideosBySearchAsync(_url, token);
-            _visibleData = videoLibrary.VideoResults as List<TData>;
-        }
-        else if (typeof(TData) == typeof(ChannelModel))
-        {
-            videoLibrary.ChannelResults = await youtube.GetChannelsBySearchAsync(_url, token);
-            _visibleData = videoLibrary.ChannelResults as List<TData>;
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            videoLibrary.PlaylistResults = await youtube.GetPlaylistsBySearchAsync(_url, token);
-            _visibleData = videoLibrary.PlaylistResults as List<TData>;
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                videoLibrary.VideoResults = await youtube.GetVideosBySearchAsync(_url, token);
+                _visibleData = videoLibrary.VideoResults as List<TData>;
+                break;
+
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                videoLibrary.ChannelResults = await youtube.GetChannelsBySearchAsync(_url, token);
+                _visibleData = videoLibrary.ChannelResults as List<TData>;
+                break;
+
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                videoLibrary.PlaylistResults = await youtube.GetPlaylistsBySearchAsync(_url, token);
+                _visibleData = videoLibrary.PlaylistResults as List<TData>;
+                break;
         }
 
         CancelDataSearch();
@@ -88,17 +88,16 @@ public partial class SearchData<TData> where TData : class
 
     private async Task<IEnumerable<string>> FilterSearchData(string searchInput)
     {
-        if (typeof(TData) == typeof(VideoModel))
+        switch (typeof(TData))
         {
-            return await searchHelper.SearchAsync(videoLibrary.VideoResults, searchInput);
-        }
-        else if (typeof(TData) == typeof(ChannelModel))
-        {
-            return await searchHelper.SearchAsync(videoLibrary.ChannelResults, searchInput);
-        }
-        else
-        {
-            return await searchHelper.SearchAsync(videoLibrary.PlaylistResults, searchInput);
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                return await searchHelper.SearchAsync(videoLibrary.VideoResults, searchInput);
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                return await searchHelper.SearchAsync(videoLibrary.ChannelResults, searchInput);
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                return await searchHelper.SearchAsync(videoLibrary.PlaylistResults, searchInput);
+            default:
+                return default;
         }
     }
 
@@ -115,48 +114,49 @@ public partial class SearchData<TData> where TData : class
 
     private void FilterData()
     {
-        if (typeof(TData) == typeof(ChannelModel))
+        switch (typeof(TData))
         {
-            videoLibrary.ChannelResults = searchHelper
-                .FilterList(videoLibrary.ChannelResults, _searchText);
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                videoLibrary.ChannelResults = searchHelper.FilterList(videoLibrary.ChannelResults, _searchText);
+                _visibleData = searchHelper.FilterList(videoLibrary.ChannelResults, _searchText)
+                    .Take(_loadedItems)
+                    .ToList() as List<TData>;
+                break;
 
-            _visibleData = searchHelper.FilterList(videoLibrary.ChannelResults, _searchText).
-                Take(_loadedItems)
-                .ToList() as List<TData>;
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            videoLibrary.PlaylistResults = searchHelper
-                .FilterList(videoLibrary.PlaylistResults, _searchText);
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                videoLibrary.PlaylistResults = searchHelper.FilterList(videoLibrary.PlaylistResults, _searchText);
+                _visibleData = searchHelper.FilterList(videoLibrary.PlaylistResults, _searchText)
+                    .Take(_loadedItems)
+                    .ToList() as List<TData>;
+                break;
 
-            _visibleData = searchHelper.FilterList(videoLibrary.PlaylistResults, _searchText)
-                .Take(_loadedItems)
-                .ToList() as List<TData>;
-        }
-        else
-        {
-            videoLibrary.VideoResults = searchHelper
-                .FilterList(videoLibrary.VideoResults, _searchText);
-
-            _visibleData = searchHelper.FilterList(videoLibrary.VideoResults, _searchText)
-                .Take(_loadedItems)
-                .ToList() as List<TData>;
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                videoLibrary.VideoResults = searchHelper.FilterList(videoLibrary.VideoResults, _searchText);
+                _visibleData = searchHelper.FilterList(videoLibrary.VideoResults, _searchText)
+                    .Take(_loadedItems)
+                    .ToList() as List<TData>;
+                break;
         }
     }
 
     private void ClearData()
     {
-        if (typeof(TData) == typeof(ChannelModel))
+        switch (typeof(TData))
         {
-            videoLibrary.ChannelResults.Clear();
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            videoLibrary.PlaylistResults.Clear();
-        }
-        else
-        {
-            videoLibrary.VideoResults.Clear();
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                videoLibrary.ChannelResults.Clear();
+                break;
+
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                videoLibrary.PlaylistResults.Clear();
+                break;
+
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                videoLibrary.VideoResults.Clear();
+                break;
+
+            default:
+                break;
         }
 
         _visibleData?.Clear();
@@ -164,17 +164,17 @@ public partial class SearchData<TData> where TData : class
 
     private void RemoveData(TData data)
     {
-        if (data is ChannelModel channel)
+        switch (data)
         {
-            videoLibrary.ChannelResults.Remove(channel);
-        }
-        else if (data is PlaylistModel playlist)
-        {
-            videoLibrary.PlaylistResults.Remove(playlist);
-        }
-        else if (data is VideoModel video)
-        {
-            videoLibrary.VideoResults.Remove(video);
+            case ChannelModel channel:
+                videoLibrary.ChannelResults.Remove(channel);
+                break;
+            case PlaylistModel playlist:
+                videoLibrary.PlaylistResults.Remove(playlist);
+                break;
+            case VideoModel video:
+                videoLibrary.VideoResults.Remove(video);
+                break;
         }
 
         _visibleData.Remove(data);
@@ -187,21 +187,28 @@ public partial class SearchData<TData> where TData : class
 
     private string GetPageName()
     {
-        if (typeof(TData) == typeof(ChannelModel))
+        string name;
+
+        switch (typeof(TData))
         {
-            string name = nameof(ChannelModel);
-            return $"{PageName}-{name}";
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                name = nameof(ChannelModel);
+                break;
+
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                name = nameof(PlaylistModel);
+                break;
+
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                name = nameof(VideoModel);
+                break;
+
+            default:
+                name = "";
+                break;
         }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            string name = nameof(PlaylistModel);
-            return $"{PageName}-{name}";
-        }
-        else
-        {
-            string name = nameof(VideoModel);
-            return $"{PageName}-{name}";
-        }
+
+        return $"{PageName}-{name}";
     }
 
     private string GetDataTypeName()

@@ -220,9 +220,12 @@ public partial class IndexPlaylistVideo
             await youtube.DownloadVideoAsync(url, progressReport, cancellationToken);
             CancelVideoDownload();
         }
-        catch (Exception ex)
+        catch
         {
-            snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            string errorMessage = GetDictionary()
+                [KeyWords.DownloadingErrorMessage];
+
+            snackbar.Add(errorMessage, Severity.Error);
         }
     }
 

@@ -3,6 +3,7 @@ using VidFetchLibrary.Library;
 using MudBlazor;
 using VidFetchLibrary.Models;
 using VidFetchLibrary.Language;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VidFetch.Page_Components;
 
@@ -42,35 +43,19 @@ public partial class IndexData<TData> where TData : class
 
     private List<TData> GetDataResults()
     {
-        if (typeof(TData) == typeof(VideoModel))
+        switch (typeof(TData))
         {
-            return videoLibrary.Videos as List<TData>;
-        }
-        else if (typeof(TData) == typeof(ChannelModel))
-        {
-            return videoLibrary.Channels as List<TData>;
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            return videoLibrary.Playlists as List<TData>;
-        }
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                return videoLibrary.Videos as List<TData>;
 
-        return new List<TData>();
-    }
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                return videoLibrary.Channels as List<TData>;
 
-    private void LoadDatas()
-    {
-        if (typeof(TData) == typeof(ChannelModel))
-        {
-            _visibleData = GetDataResults().Take(_loadedItems).ToList();
-        }
-        else if (typeof(TData) == typeof(VideoModel))
-        {
-            _visibleData = GetDataResults().Take(_loadedItems).ToList();
-        }
-        else
-        {
-            _visibleData = GetDataResults().Take(_loadedItems).ToList();
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                return videoLibrary.Playlists as List<TData>;
+
+            default:
+                return new List<TData>();
         }
     }
 
@@ -186,17 +171,17 @@ public partial class IndexData<TData> where TData : class
     {
         await OpenLoading.InvokeAsync(true);
 
-        if (typeof(TData) == typeof(ChannelModel))
+        switch (typeof(TData))
         {
-            await LoadChannel();
-        }
-        else if (typeof(TData) == typeof(VideoModel))
-        {
-            await LoadVideo();
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            await LoadPlaylist();
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                await LoadChannel();
+                break;
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                await LoadVideo();
+                break;
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                await LoadPlaylist();
+                break;
         }
 
         if (_settings.SaveVideos)
@@ -245,42 +230,46 @@ public partial class IndexData<TData> where TData : class
 
     private async Task SaveData()
     {
-        if (typeof(TData) == typeof(ChannelModel))
+        switch (typeof(TData))
         {
-            foreach (var channel in videoLibrary.Channels)
-            {
-                await channelData.SetChannelAsync(channel.Url, channel.ChannelId);
-            }
-        }
-        else if (typeof(TData) == typeof(VideoModel))
-        {
-            foreach (var video in videoLibrary.Videos)
-            {
-                await videoData.SetVideoAsync(video.Url, video.VideoId);
-            }
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            foreach (var playlist in videoLibrary.Playlists)
-            {
-                await playlistData.SetPlaylistAsync(playlist.Url, playlist.PlaylistId);
-            }
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                foreach (var channel in videoLibrary.Channels)
+                {
+                    await channelData.SetChannelAsync(channel.Url, channel.ChannelId);
+                }
+                break;
+
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                foreach (var video in videoLibrary.Videos)
+                {
+                    await videoData.SetVideoAsync(video.Url, video.VideoId);
+                }
+                break;
+
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                foreach (var playlist in videoLibrary.Playlists)
+                {
+                    await playlistData.SetPlaylistAsync(playlist.Url, playlist.PlaylistId);
+                }
+                break;
         }
     }
 
     private async Task<IEnumerable<string>> FilterSearchData(string searchInput)
     {
-        if (typeof(TData) == typeof(VideoModel))
+        switch (typeof(TData))
         {
-            return await searchHelper.SearchAsync(videoLibrary.Videos, searchInput);
-        }
-        else if (typeof(TData) == typeof(ChannelModel))
-        {
-            return await searchHelper.SearchAsync(videoLibrary.Channels, searchInput);
-        }
-        else
-        {
-            return await searchHelper.SearchAsync(videoLibrary.Playlists, searchInput);
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                return await searchHelper.SearchAsync(videoLibrary.Videos, searchInput);
+
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                return await searchHelper.SearchAsync(videoLibrary.Channels, searchInput);
+
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                return await searchHelper.SearchAsync(videoLibrary.Playlists, searchInput);
+
+            default:
+                return default;
         }
     }
 
@@ -291,35 +280,28 @@ public partial class IndexData<TData> where TData : class
 
     private void FilterData()
     {
-        if (typeof(TData) == typeof(ChannelModel))
+        switch (typeof(TData))
         {
-            videoLibrary.Channels = searchHelper
-                .FilterList(videoLibrary.Channels, _searchText);
-
-            _visibleData = searchHelper
-                .FilterList(videoLibrary.Channels, _searchText)
-                .Take(_loadedItems)
-                .ToList() as List<TData>;
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            videoLibrary.Playlists = searchHelper
-                .FilterList(videoLibrary.Playlists, _searchText);
-
-            _visibleData = searchHelper
-                .FilterList(videoLibrary.Playlists, _searchText)
-                .Take(_loadedItems)
-                .ToList() as List<TData>;
-        }
-        else
-        {
-            videoLibrary.Videos = searchHelper
-                .FilterList(videoLibrary.Videos, _searchText);
-
-            _visibleData = searchHelper
-                .FilterList(videoLibrary.Videos, _searchText)
-                .Take(_loadedItems)
-                .ToList() as List<TData>;
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                videoLibrary.Channels = searchHelper.FilterList(videoLibrary.Channels, _searchText);
+                _visibleData = searchHelper.FilterList(videoLibrary.Channels, _searchText)
+                    .Take(_loadedItems)
+                    .ToList() as List<TData>;
+                break;
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                videoLibrary.Playlists = searchHelper.FilterList(videoLibrary.Playlists, _searchText);
+                _visibleData = searchHelper.FilterList(videoLibrary.Playlists, _searchText)
+                    .Take(_loadedItems)
+                    .ToList() as List<TData>;
+                break;
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                videoLibrary.Videos = searchHelper.FilterList(videoLibrary.Videos, _searchText);
+                _visibleData = searchHelper.FilterList(videoLibrary.Videos, _searchText)
+                    .Take(_loadedItems)
+                    .ToList() as List<TData>;
+                break;
+            default:
+                break;
         }
     }
 
@@ -336,17 +318,19 @@ public partial class IndexData<TData> where TData : class
 
     private void ClearList()
     {
-        if (typeof(TData) == typeof(ChannelModel))
+        switch (typeof(TData))
         {
-            videoLibrary.Channels.Clear();
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            videoLibrary.Playlists.Clear();
-        }
-        else
-        {
-            videoLibrary.Videos.Clear();
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                videoLibrary.Channels.Clear();
+                break;
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                videoLibrary.Playlists.Clear();
+                break;
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                videoLibrary.Videos.Clear();
+                break;
+            default:
+                break;
         }
 
         _visibleData.Clear();
@@ -355,53 +339,52 @@ public partial class IndexData<TData> where TData : class
     private void ClearDatas()
     {
         ClearList();
-        if (typeof(TData) == typeof(ChannelModel))
+        switch (typeof(TData))
         {
-            videoLibrary.Channels.Clear();
-        }
-        else if (typeof(TData) == typeof(VideoModel))
-        {
-            videoLibrary.Videos.Clear();
-        }
-        else
-        {
-            videoLibrary.Playlists.Clear();
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                videoLibrary.Channels.Clear();
+                break;
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                videoLibrary.Videos.Clear();
+                break;
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                videoLibrary.Playlists.Clear();
+                break;
+            default:
+                break;
         }
     }
 
     private void RemoveData(TData data)
     {
         RemoveDataFromList(data);
-        if (typeof(TData) == typeof(ChannelModel))
+        switch (data)
         {
-            var channel = data as ChannelModel;
-            videoLibrary.Channels.Remove(channel);
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            var playlist = data as PlaylistModel;
-            videoLibrary.Playlists.Remove(playlist);
-        }
-        else
-        {
-            var video = data as VideoModel;
-            videoLibrary.Videos.Remove(video);
+            case ChannelModel channel:
+                videoLibrary.Channels.Remove(channel);
+                break;
+            case PlaylistModel playlist:
+                videoLibrary.Playlists.Remove(playlist);
+                break;
+            case VideoModel video:
+                videoLibrary.Videos.Remove(video);
+                break;
         }
     }
 
     private void RemoveDataFromList(TData data)
     {
-        if (data is ChannelModel channel)
+        switch (data)
         {
-            videoLibrary.Channels.Remove(channel);
-        }
-        else if (data is PlaylistModel playlist)
-        {
-            videoLibrary.Playlists.Remove(playlist);
-        }
-        else if (data is VideoModel video)
-        {
-            videoLibrary.Videos.Remove(video);
+            case ChannelModel channel:
+                videoLibrary.Channels.Remove(channel);
+                break;
+            case PlaylistModel playlist:
+                videoLibrary.Playlists.Remove(playlist);
+                break;
+            case VideoModel video:
+                videoLibrary.Videos.Remove(video);
+                break;
         }
 
         _visibleData.Remove(data);
@@ -473,20 +456,17 @@ public partial class IndexData<TData> where TData : class
 
     private bool IsDataNotLoaded(string dataId)
     {
-        if (typeof(TData) == typeof(ChannelModel))
+        switch (typeof(TData))
         {
-            return videoLibrary.Channels.Any(c => c.ChannelId == dataId) is false;
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                return videoLibrary.Channels.Any(c => c.ChannelId == dataId) is false;
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                return videoLibrary.Videos.Any(v => v.VideoId == dataId) is false; ;
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                return videoLibrary.Playlists.Any(p => p.PlaylistId == dataId) is false;
+            default:
+                return false;
         }
-        else if (typeof(TData) == typeof(VideoModel))
-        {
-            return videoLibrary.Videos.Any(v => v.VideoId == dataId) is false;
-        }
-        else if (typeof(TData) == typeof(PlaylistModel))
-        {
-            return videoLibrary.Playlists.Any(p => p.PlaylistId == dataId) is false;
-        }
-
-        return false;
     }
 
     private bool IsPlaylistUrl()
