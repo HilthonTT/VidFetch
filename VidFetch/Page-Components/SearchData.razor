@@ -1,9 +1,8 @@
 ﻿@typeparam TData
 
 @inject IVideoLibrary videoLibrary
-@inject IYoutube youtube
 @inject ITokenHelper tokenHelper
-@inject ISearchHelper searchHelper
+@inject ISearchHelper<TData> searchHelper
 @inject IFolderHelper folderHelper
 @inject ILoadedItemsCache loadedItemsCache
 @inject ILanguageExtension languageExtension

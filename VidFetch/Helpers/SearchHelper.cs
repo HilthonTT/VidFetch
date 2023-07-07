@@ -1,7 +1,31 @@
 ﻿
+using VidFetchLibrary.Client;
+using VidFetchLibrary.Library;
+using VidFetchLibrary.Models;
+
 namespace VidFetch.Helpers;
-public class SearchHelper : ISearchHelper
+public class SearchHelper<TData> : ISearchHelper<TData> where TData : class
 {
+    private readonly IYoutube _youtube;
+    private readonly IVideoLibrary _videoLibrary;
+
+    public SearchHelper(IYoutube youtube, IVideoLibrary videoLibrary)
+    {
+        _youtube = youtube;
+        _videoLibrary = videoLibrary;
+    }
+
+    public async Task<List<TData>> GetBySearchAsync(string url, CancellationToken token)
+    {
+        return typeof(TData) switch
+        {
+            Type video when video == typeof(VideoModel) => await GetVideosBySearchAsync(url, token),
+            Type channel when channel == typeof(ChannelModel) => await GetChannelsBySearchAsync(url, token),
+            Type playlist when playlist == typeof(PlaylistModel) => await GetPlaylistsBySearchAsync(url, token),
+            _ => default,
+        };
+    }
+
     public async Task<IEnumerable<string>> SearchAsync<T>(List<T> items, string searchInput)
     {
         return await Task.Run(() =>
@@ -43,5 +67,23 @@ public class SearchHelper : ISearchHelper
         }
 
         return output;
+    }
+
+    private async Task<List<TData>> GetVideosBySearchAsync(string url, CancellationToken token)
+    {
+        _videoLibrary.VideoResults = await _youtube.GetVideosBySearchAsync(url, token);
+        return _videoLibrary.VideoResults as List<TData>;
+    }
+
+    private async Task<List<TData>> GetChannelsBySearchAsync(string url, CancellationToken token)
+    {
+        _videoLibrary.ChannelResults = await _youtube.GetChannelsBySearchAsync(url, token);
+        return _videoLibrary.ChannelResults as List<TData>;
+    }
+
+    private async Task<List<TData>> GetPlaylistsBySearchAsync(string url, CancellationToken token)
+    {
+        _videoLibrary.PlaylistResults = await _youtube.GetPlaylistsBySearchAsync(url, token);
+        return _videoLibrary.PlaylistResults as List<TData>;
     }
 }

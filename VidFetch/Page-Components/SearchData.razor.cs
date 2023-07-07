@@ -65,24 +65,7 @@ public partial class SearchData<TData> where TData : class
 
         var token = tokenHelper.InitializeToken(ref _tokenSource);
 
-        switch (typeof(TData))
-        {
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                videoLibrary.VideoResults = await youtube.GetVideosBySearchAsync(_url, token);
-                _visibleData = videoLibrary.VideoResults as List<TData>;
-                break;
-
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                videoLibrary.ChannelResults = await youtube.GetChannelsBySearchAsync(_url, token);
-                _visibleData = videoLibrary.ChannelResults as List<TData>;
-                break;
-
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                videoLibrary.PlaylistResults = await youtube.GetPlaylistsBySearchAsync(_url, token);
-                _visibleData = videoLibrary.PlaylistResults as List<TData>;
-                break;
-        }
-
+        _visibleData = await searchHelper.GetBySearchAsync(_url, token);
         CancelDataSearch();
     }
 

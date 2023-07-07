@@ -50,7 +50,7 @@ public static class RegisterServices
         builder.Services.AddSingleton<IVideoLibrary, VideoLibrary>();
 
         // Helpers
-        builder.Services.AddSingleton<ISearchHelper,  SearchHelper>();
+        builder.Services.AddSingleton(typeof(ISearchHelper<>), typeof(SearchHelper<>));
         builder.Services.AddSingleton<ITokenHelper, TokenHelper>();
         builder.Services.AddSingleton<IFolderHelper, FolderHelper>();
 

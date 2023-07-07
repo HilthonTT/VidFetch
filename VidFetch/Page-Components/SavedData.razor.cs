@@ -145,7 +145,6 @@ public partial class SavedData<TData> where TData : class
     private void FilterData()
     {
         _datas = searchHelper.FilterList(_datas, _searchText);
-
         _visibleData = searchHelper.FilterList(_datas, _searchText)
             .Take(_loadedItems)
             .ToList();
@@ -155,13 +154,13 @@ public partial class SavedData<TData> where TData : class
     {
         switch (typeof(TData))
         {
-            case Type videoModelType when videoModelType == typeof(VideoModel):
+            case Type video when video == typeof(VideoModel):
                 return await searchHelper.SearchAsync(_datas as List<VideoModel>, searchInput);
 
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
+            case Type channel when channel == typeof(ChannelModel):
                 return await searchHelper.SearchAsync(_datas as List<ChannelModel>, searchInput);
 
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+            case Type playlist when playlist == typeof(PlaylistModel):
                 return await searchHelper.SearchAsync(_datas as List<PlaylistModel>, searchInput);
 
             default:
@@ -259,7 +258,6 @@ public partial class SavedData<TData> where TData : class
                 break;
         }
     }
-
 
     private async Task UpdateVideo(TData video, CancellationToken token)
     {

@@ -1,7 +1,8 @@
 ﻿namespace VidFetch.Helpers;
 
-public interface ISearchHelper
+public interface ISearchHelper<TData> where TData : class
 {
     List<T> FilterList<T>(List<T> items, string searchText);
-    Task<IEnumerable<string>> SearchAsync<T>(List<T> videos, string searchInput);
+    Task<List<TData>> GetBySearchAsync(string url, CancellationToken token);
+    Task<IEnumerable<string>> SearchAsync<T>(List<T> items, string searchInput);
 }
