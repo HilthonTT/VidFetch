@@ -55,7 +55,9 @@
                                            Required="true">
                                     @foreach (var p in _paths)
                                     {
-                                        <MudSelectItem Value="@p">@GetSpacedString(p.ToString())</MudSelectItem>
+                                        <MudSelectItem Value="@p">
+                                            @GetSpacedString(p.ToString())
+                                        </MudSelectItem>
                                     }
                                 </MudSelect>
                             </div>
@@ -81,6 +83,20 @@
                                     @foreach (var f in _resolutions)
                                     {
                                         <MudSelectItem Value="@f">@GetSpacedString(f.ToString())</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <MudSelect @bind-Value="_settingsModel.SelectedLanguage"
+                                           Label="Selected Language"
+                                           Class="mud-input-root text-start"
+                                           HelperText="@GetDictionary()[KeyWords.SelectedLanguage]"
+                                           Required="true">
+                                    @foreach (var l in _languages)
+                                    {
+                                        <MudSelectItem Value="@l">
+                                            @GetLanguage(l)
+                                        </MudSelectItem>
                                     }
                                 </MudSelect>
                             </div>
@@ -144,7 +160,7 @@
                                            StartIcon="@Icons.Material.Filled.Save"
                                            Class="w-50"
                                            ButtonType="ButtonType.Submit">
-                                    Save
+                                    @GetDictionary()[KeyWords.Save]
                                 </MudButton>
                             </div>
                         </MudItem>

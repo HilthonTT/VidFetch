@@ -14,6 +14,7 @@ public partial class Settings
     private List<DownloadPath> _paths = new();
     private List<VideoExtension> _formats = new();
     private List<VideoResolution> _resolutions = new();
+    private List<Language> _languages = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -37,34 +38,32 @@ public partial class Settings
         _paths = defaultData.GetDownloadPaths();
         _formats = defaultData.GetVideoExtensions();
         _resolutions = defaultData.GetVideoResolutions();
+        _languages = defaultData.GetLanguages();
     }
 
     private async Task SaveAppSettings()
     {
         try
         {
-            bool isReload = _settingsModel.IsDarkMode != _settings.IsDarkMode;
+            bool shouldRender = ShouldReloadSettings();
 
-            var s = new SettingsLibrary
-            {
-                IsDarkMode = _settingsModel.IsDarkMode,
-                DownloadSubtitles = _settingsModel.DownloadSubtitles,
-                SaveVideos = _settingsModel.SaveVideos,
-                SelectedPath = _settingsModel.SelectedPath,
-                SelectedFormat = _settingsModel.SelectedFormat,
-                CreateSubDirectoryPlaylist = _settingsModel.CreateSubDirectoryPlaylist,
-                RemoveAfterDownload = _settingsModel.RemoveAfterDownload,
-                FfmpegPath = _settings.FfmpegPath,
-                SelectedResolution = _settings.SelectedResolution,
-            };
+            _settings.IsDarkMode = _settingsModel.IsDarkMode;
+            _settings.DownloadSubtitles = _settingsModel.DownloadSubtitles;
+            _settings.SelectedPath = _settingsModel.SelectedPath;
+            _settings.SaveVideos = _settingsModel.SaveVideos;
+            _settings.SelectedFormat = _settingsModel.SelectedFormat;
+            _settings.CreateSubDirectoryPlaylist = _settingsModel.CreateSubDirectoryPlaylist;
+            _settings.RemoveAfterDownload = _settingsModel.RemoveAfterDownload;
+            _settings.SelectedResolution = _settingsModel.SelectedResolution;
+            _settings.SelectedLanguage = _settingsModel.SelectedLanguage;
 
-            _ffmpegSettingsModel.SelectedResolution = s.SelectedResolution;
+            _ffmpegSettingsModel.SelectedResolution = _settings.SelectedResolution;
 
-            int exitCode = await settingsData.SetSettingsAsync(s);
+            int exitCode = await settingsData.SetSettingsAsync(_settings);
 
             if (exitCode is 1)
             {
-                navManager.NavigateTo("/Settings", isReload);
+                navManager.NavigateTo("/Settings", shouldRender);
             }
 
             string successMessage = GetDictionary()[KeyWords.SuccessfullySettings];
@@ -90,19 +89,10 @@ public partial class Settings
                 return;
             }
 
-            var s = new SettingsLibrary
-            {
-                Id = _settings.Id,
-                IsDarkMode = _settings.IsDarkMode,
-                DownloadSubtitles = _settings.DownloadSubtitles,
-                SaveVideos = _settings.SaveVideos,
-                SelectedPath = _settings.SelectedPath,
-                SelectedFormat = _settings.SelectedFormat,
-                FfmpegPath = _ffmpegSettingsModel.FfmpegPath,
-                SelectedResolution = _ffmpegSettingsModel.SelectedResolution,
-            };
+            _settings.FfmpegPath = _ffmpegSettingsModel.FfmpegPath;
+            _settings.SelectedResolution = _ffmpegSettingsModel.SelectedResolution;
 
-            await settingsData.SetSettingsAsync(s);
+            await settingsData.SetSettingsAsync(_settings);
 
             _settingsModel.SelectedResolution = _ffmpegSettingsModel.SelectedResolution;
 
@@ -140,6 +130,17 @@ public partial class Settings
         return dictionary;
     }
 
+    private string GetLanguage(Language language)
+    {
+        return language switch
+        {
+            Language.English => GetDictionary()[KeyWords.English],
+            Language.French => GetDictionary()[KeyWords.French],
+            Language.Indonesian => GetDictionary()[KeyWords.Indonesian],
+            _ => "",
+        };
+    }
+
     private bool IsValidPath()
     {
         string path = _ffmpegSettingsModel.FfmpegPath;
@@ -160,4 +161,16 @@ public partial class Settings
             return false;
         }
     }
+
+    private bool ShouldReloadSettings()
+    {
+        if (_settingsModel.IsDarkMode != _settings.IsDarkMode || 
+            _settingsModel.SelectedLanguage != _settings.SelectedLanguage)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
 }

@@ -67,6 +67,7 @@ public enum KeyWords
     SelectedPath,
     SelectedFormat,
     SelectedResolution,
+    SelectedLanguage,
     SearchLabelText,
     SearchHelperText,
     CancelSearch,

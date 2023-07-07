@@ -25,6 +25,7 @@ public static class IndonesianDictionary
             { KeyWords.SelectedPath, "Pilih jalur unduhan yang diinginkan." },
             { KeyWords.SelectedFormat, "Pilih format yang diinginkan." },
             { KeyWords.SelectedResolution, "Pilih resolusi yang diinginkan." },
+            { KeyWords.SelectedLanguage, "Pilih bahasa yang Anda inginkan." },
             { KeyWords.SearchLabelText, $"Cari {text} Anda" },
             { KeyWords.SearchHelperText, $"Masukkan URL atau judul {text}" },
             { KeyWords.CancelSearch, "Batalkan Pencarian" },

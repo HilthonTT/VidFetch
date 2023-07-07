@@ -24,6 +24,7 @@ public static class EnglishDictionary
             { KeyWords.RemoveVideoDownload, "Remove Video After Download" },
             { KeyWords.SelectedPath, "Pick your preferred download path." },
             { KeyWords.SelectedFormat, "Pick your preferred format." },
+            { KeyWords.SelectedLanguage, "Pick your preferred language." },
             { KeyWords.SelectedResolution, "Pick your preferred resolution." },
             { KeyWords.SearchLabelText, $"Search your {text}" },
             { KeyWords.SearchHelperText, $"Input the URL or the title of the {text}" },

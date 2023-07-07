@@ -34,8 +34,12 @@ public class SaveSettingsModel
     public VideoExtension SelectedFormat { get; set; } = VideoExtension.Mp4;
 
     [Display(Name = "Selected Resolution")]
-    [Required(ErrorMessage = "You must set your selected resolution settings")]
+    [Required(ErrorMessage = "You must set your selected resolution settings.")]
     public VideoResolution SelectedResolution { get; set; } = VideoResolution.P1080;
+
+    [Display(Name = "Selected Language")]
+    [Required(ErrorMessage = "You must set your selected language settings.")]
+    public Language SelectedLanguage { get; set; } = Language.English;
 
     public SaveSettingsModel()
     {
@@ -52,5 +56,6 @@ public class SaveSettingsModel
         SelectedResolution = settings.SelectedResolution;
         CreateSubDirectoryPlaylist = settings.CreateSubDirectoryPlaylist;
         RemoveAfterDownload = settings.RemoveAfterDownload;
+        SelectedLanguage = settings.SelectedLanguage;
     }
 }

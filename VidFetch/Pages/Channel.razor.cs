@@ -73,8 +73,10 @@ public partial class Channel
         {
             await channelData.DeleteChannelAsync(_channel);
 
-            string deleteMessage;
-            snackbar.Add($"Successfully deleted {_channel.Title}");
+            string deleteMessage = GetDictionary(_channel?.Title)
+                [KeyWords.SuccessfullyDeletedData];
+
+            snackbar.Add(deleteMessage);
             _isSaved = false;
 
             navManager.NavigateTo("/SavedMedias");

@@ -71,18 +71,21 @@ public class SettingsData : ISettingsData
     public async Task<int> SetSettingsAsync(SettingsLibrary settings)
     {        
         var existingSettings = await GetSettingsAsync();
-        _cache.Remove(CacheName);
+        int exitCode;
 
         if (existingSettings is not null)
         {
             settings.Id = existingSettings.Id;
-            
-            return await _asyncDbConnection.UpdateAsync(settings);
+            exitCode = await _asyncDbConnection.UpdateAsync(settings);
         }
         else
         {
-            return await _asyncDbConnection.InsertAsync(settings);
+            exitCode = await _asyncDbConnection.InsertAsync(settings);
         }
+
+        _cache.Remove(CacheName);
+
+        return exitCode;
     }
 
     public SettingsLibrary GetSettings()

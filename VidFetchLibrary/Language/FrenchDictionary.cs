@@ -25,6 +25,7 @@ public static class FrenchDictionary
             { KeyWords.SelectedPath, "Choisissez votre dossier de téléchargement préféré." },
             { KeyWords.SelectedFormat, "Choisissez votre format préféré." },
             { KeyWords.SelectedResolution, "Choisissez votre résolution préférée." },
+            { KeyWords.SelectedLanguage, "Choisissez votre language préférée." },
             { KeyWords.SearchLabelText, $"Recherchez votre {text}" },
             { KeyWords.SearchHelperText, $"Entrez l'URL ou le titre du {text}" },
             { KeyWords.CancelSearch, "Annuler la recherche" },
