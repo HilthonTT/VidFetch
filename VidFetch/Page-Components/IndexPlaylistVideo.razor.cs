@@ -161,25 +161,19 @@ public partial class IndexPlaylistVideo
                 await DownloadVideo(v, progress, token);
             }
 
-            CancelPlaylistDownload();
+            await AddSuccessSaveVideosSnackbar();
         }
         catch (OperationCanceledException)
         {
-            string message = GetDictionary()
-                [KeyWords.OperationCancelled];
-
-            snackbar.Add(message, Severity.Error);
+            await AddOperationCancelSnackbar();
         }
-        catch (Exception ex)
+        catch
         {
-            string errorMessage = GetDictionary(ex.Message)
-                [KeyWords.DownloadingErrorMessage];
-
-            snackbar.Add(errorMessage, Severity.Error);
-
+            await AddDownloadErrorSnackbar();
         }
         finally
         {
+            CancelPlaylistDownload();
             await OpenLoading.InvokeAsync(false);
         }
     }
@@ -218,14 +212,15 @@ public partial class IndexPlaylistVideo
             });
 
             await youtube.DownloadVideoAsync(url, progressReport, cancellationToken);
-            CancelVideoDownload();
+            await AddSuccessSaveVideosSnackbar();
         }
         catch
         {
-            string errorMessage = GetDictionary()
-                [KeyWords.DownloadingErrorMessage];
-
-            snackbar.Add(errorMessage, Severity.Error);
+            await AddDownloadErrorSnackbar();
+        }
+        finally
+        {
+            CancelVideoDownload();
         }
     }
 
@@ -247,27 +242,64 @@ public partial class IndexPlaylistVideo
                 await videoData.SetVideoAsync(v.Url, v.VideoId);
             }
 
-            CancelVideoDownload();
-
-            string successMessage = GetDictionary()
-                [KeyWords.SuccessfullySavedAllVideos];
-
-            snackbar.Add(successMessage);
+            await AddSuccessSaveVideosSnackbar();
         }
         catch (OperationCanceledException)
+        {
+            await AddOperationCancelSnackbar();
+        }
+        catch
+        {
+            await AddErrorWhileSavingSnackbar();
+        }
+        finally
+        {
+            CancelVideoDownload();
+        }
+    }
+
+    private async Task AddOperationCancelSnackbar()
+    {
+        await InvokeAsync(() =>
         {
             string message = GetDictionary()
                 [KeyWords.OperationCancelled];
 
             snackbar.Add(message, Severity.Error);
-        }
-        catch
-        {
-            string errorMessage = GetDictionary()
-                [KeyWords.ErrorWhileSaving];
+        });
+    }
 
-            snackbar.Add(errorMessage, Severity.Error);
-        }
+    private async Task AddDownloadErrorSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+                [KeyWords.DownloadingErrorMessage];
+
+            snackbar.Add(message, Severity.Error);
+        });
+    }
+
+    private async Task AddSuccessSaveVideosSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+                [KeyWords.SuccessfullySavedAllVideos];
+
+            snackbar.Add(message);
+        });
+    }
+
+    private async Task AddErrorWhileSavingSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+               [KeyWords.ErrorWhileSaving];
+
+            snackbar.Add(message, Severity.Error);
+        });
     }
 
     private void HandleSearchValueChanged(string value)

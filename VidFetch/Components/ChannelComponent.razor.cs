@@ -47,17 +47,20 @@ public partial class ChannelComponent
         {
             await channelData.SetChannelAsync(Channel.Url, Channel.ChannelId);
 
-            AddSnackbar();
+            await AddSnackbar();
             _isSaved = true;
         }
     }
 
-    private void AddSnackbar()
+    private async Task AddSnackbar()
     {
-        string successMessage = GetDictionary(Channel.Title)
-            [KeyWords.SuccessfullySavedData];
+        await InvokeAsync(() =>
+        {
+            string successMessage = GetDictionary(Channel.Title)
+                [KeyWords.SuccessfullySavedData];
 
-        snackbar.Add(successMessage);
+            snackbar.Add(successMessage);
+        });
     }
 
     private async Task LoadThumbnail()

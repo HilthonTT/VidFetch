@@ -100,22 +100,18 @@ public partial class SavedData<TData> where TData : class
                 var video = d as VideoModel;
                 await DownloadVideo(video, progress, token);
             }
-
-            CancelDownload();
         }
         catch (OperationCanceledException)
         {
-            string message = GetDictionary()
-                [KeyWords.OperationCancelled];
-
-            snackbar.Add(message, Severity.Error);
+            await AddOperationCancelSnackbar();
         }
-        catch (Exception ex)
+        catch
         {
-            string errorMessage = GetDictionary(ex.Message)
-                [KeyWords.DownloadingErrorMessage];
-
-            snackbar.Add(errorMessage, Severity.Error);
+            await AddDownloadErrorSnackbar();
+        }
+        finally
+        {
+            CancelDownload();
         }
     }
 
@@ -164,10 +160,7 @@ public partial class SavedData<TData> where TData : class
         _downloadingVideoText = video.Title;
         await youtube.DownloadVideoAsync(video.Url, progress, token);
 
-        string successMessage = GetDictionary(video.Title)
-            [KeyWords.SuccessfullyDownloaded];
-
-        snackbar.Add(successMessage);
+        await AddSuccessDownloadSnackbar();
     }
 
     private async Task DeleteData(TData data)
@@ -202,28 +195,21 @@ public partial class SavedData<TData> where TData : class
             {
                 token.ThrowIfCancellationRequested();
                 await UpdateData(d, token);
-            }
+            } 
 
-            CancelUpdateData();
-
-            string successMessage = GetDictionary("")
-                [KeyWords.SuccessfullyUpdatedData];
-
-            snackbar.Add(successMessage);
+            await AddSuccessUpdatedDataSnackbar();
         }
         catch (OperationCanceledException)
         {
-            string message = GetDictionary()
-                [KeyWords.OperationCancelled];
-
-            snackbar.Add(message, Severity.Error);
+            await AddOperationCancelSnackbar();
         }
         catch
         {
-            string errorMessage = GetDictionary()
-                [KeyWords.ErrorWhileUpdating];
-
-            snackbar.Add(errorMessage, Severity.Error);
+            await AddErrorWhileUpdatingSnackbar();
+        }
+        finally
+        {
+            CancelUpdateData();
         }
     }
 
@@ -257,10 +243,7 @@ public partial class SavedData<TData> where TData : class
         {
             RemoveData(video);
 
-            string NoLongerExistsDelete = GetDictionary(convertedVideo?.Title)
-                [KeyWords.NoLongerExistsDelete];
-
-            snackbar.Add(NoLongerExistsDelete, Severity.Error);
+            await AddSuccessUpdatedDataSnackbar();
 
             await videoData.DeleteVideoAsync(convertedVideo);
         }
@@ -278,10 +261,7 @@ public partial class SavedData<TData> where TData : class
         {
             RemoveData(channel);
 
-            string NoLongerExistsDelete = GetDictionary(convertedChannel?.Title)
-                [KeyWords.NoLongerExistsDelete];
-
-            snackbar.Add(NoLongerExistsDelete, Severity.Error);
+            await AddNoLongerExistsSnackbar();
 
             await channelData.DeleteChannelAsync(convertedChannel);
         }
@@ -299,10 +279,8 @@ public partial class SavedData<TData> where TData : class
         {
             RemoveData(playlist);
 
-            string NoLongerExistsDelete = GetDictionary(convertedPlaylist?.Title)
-                [KeyWords.NoLongerExistsDelete];
+            await AddNoLongerExistsSnackbar();
 
-            snackbar.Add(NoLongerExistsDelete, Severity.Error);
             await playlistData.DeletePlaylistAsync(convertedPlaylist);
         }
         else
@@ -320,6 +298,72 @@ public partial class SavedData<TData> where TData : class
             RemoveData(d);
             await DeleteData(d);
         }
+    }
+
+    private async Task AddOperationCancelSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+                [KeyWords.OperationCancelled];
+
+            snackbar.Add(message, Severity.Error);
+        });
+    }
+
+    private async Task AddDownloadErrorSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+                [KeyWords.DownloadingErrorMessage];
+
+            snackbar.Add(message, Severity.Error);
+        });
+    }
+
+    private async Task AddSuccessDownloadSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+                [KeyWords.SuccessfullyDownloaded];
+
+            snackbar.Add(message);
+        });
+    }
+
+    private async Task AddSuccessUpdatedDataSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+                [KeyWords.SuccessfullyUpdatedData];
+
+            snackbar.Add(message);
+        });
+    }
+
+    private async Task AddErrorWhileUpdatingSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+               [KeyWords.ErrorWhileUpdating];
+
+            snackbar.Add(message, Severity.Error);
+        });
+    }
+
+    private async Task AddNoLongerExistsSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+               [KeyWords.NoLongerExistsDelete];
+
+            snackbar.Add(message, Severity.Error);
+        });
     }
 
     private void UpdateProgress(double value)

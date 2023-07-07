@@ -62,9 +62,21 @@ public partial class Channel
         if (_isSaved is false)
         {
             await channelData.SetChannelAsync(_channel.Url, _channel.ChannelId);
-            snackbar.Add($"Successfully saved {_channel.Title}");
+
+            await AddSaveDataSnackbar();
             _isSaved = true;
         }
+    }
+
+    private async Task AddSaveDataSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+                [KeyWords.SuccessfullySavedData];
+
+            snackbar.Add(message);
+        });
     }
 
     private async Task DeleteChannel()

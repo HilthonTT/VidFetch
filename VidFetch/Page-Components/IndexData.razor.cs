@@ -3,7 +3,6 @@ using VidFetchLibrary.Library;
 using MudBlazor;
 using VidFetchLibrary.Models;
 using VidFetchLibrary.Language;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VidFetch.Page_Components;
 
@@ -97,22 +96,18 @@ public partial class IndexData<TData> where TData : class
                     RemoveData(d);
                 }
             }
-
-            CancelVideosDownload();
         }
         catch (OperationCanceledException)
         {
-            string message = GetDictionary()
-                [KeyWords.OperationCancelled];
-
-            snackbar.Add(message, Severity.Error);
+            await AddOperationCancelSnackbar();
         }
         catch
         {
-            string errorMessage = GetDictionary()
-                [KeyWords.DownloadingErrorMessage];
-
-            snackbar.Add(errorMessage, Severity.Error);
+            await AddDownloadErrorSnackbar();
+        }
+        finally
+        {
+            CancelVideosDownload();
         }
     }
 
@@ -276,6 +271,28 @@ public partial class IndexData<TData> where TData : class
     private async Task OpenFileLocation()
     {
         await folderHelper.OpenFolderLocationAsync();
+    }
+
+    private async Task AddOperationCancelSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+                [KeyWords.OperationCancelled];
+
+            snackbar.Add(message, Severity.Error);
+        });
+    }
+
+    private async Task AddDownloadErrorSnackbar()
+    {
+        await InvokeAsync(() =>
+        {
+            string message = GetDictionary()
+                [KeyWords.DownloadingErrorMessage];
+
+            snackbar.Add(message, Severity.Error);
+        });
     }
 
     private void FilterData()

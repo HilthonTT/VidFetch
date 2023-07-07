@@ -87,25 +87,42 @@ public partial class VideoComponent
 
             await youtube.DownloadVideoAsync(Video.Url, progress, token);
 
-            SnackbarDownload();
-            CancelVideoDownload();
+            await SnackbarDownload();
         }
         catch (OperationCanceledException)
+        {
+            await AddOperationCancelledSnackbar();
+        }
+        catch
+        {
+            await AddErrorDownloadSnackbar();
+        }
+        finally
+        {
+            CancelVideoDownload();
+        }
+    }
+
+    private async Task AddOperationCancelledSnackbar()
+    {
+        await InvokeAsync(() =>
         {
             string message = GetDictionary()
                 [KeyWords.OperationCancelled];
 
             snackbar.Add(message, Severity.Error);
-        }
-        catch
+        });
+    }
+
+    private async Task AddErrorDownloadSnackbar()
+    {
+        await InvokeAsync(() =>
         {
-            string errorMessage = GetDictionary()
+            string message = GetDictionary()
                 [KeyWords.DownloadingErrorMessage];
 
-            string modifiedErrorMessage = errorMessage.Replace("s", "");
-
-            snackbar.Add(modifiedErrorMessage, Severity.Error);
-        }
+            snackbar.Add(message, Severity.Error);
+        });
     }
 
     private void UpdateProgress(ref double progressVariable, double value)
@@ -123,7 +140,7 @@ public partial class VideoComponent
         {
             await videoData.SetVideoAsync(Video.Url, Video.VideoId);
 
-            AddSnackbar();
+            await AddSnackbar();
             _isSaved = true;
         }
     }
@@ -152,20 +169,26 @@ public partial class VideoComponent
         navManager.NavigateTo($"/Watch/{encodedUrl}");
     }
 
-    private void AddSnackbar()
+    private async Task AddSnackbar()
     {
-        string successMessage = GetDictionary(Video.Title)
-                [KeyWords.SuccessfullySavedData];
+        await InvokeAsync(() =>
+        {
+            string successMessage = GetDictionary(Video.Title)
+               [KeyWords.SuccessfullySavedData];
 
-        snackbar.Add(successMessage, Severity.Normal);
+            snackbar.Add(successMessage, Severity.Normal);
+        });
     }
 
-    private void SnackbarDownload()
+    private async Task SnackbarDownload()
     {
-        string successMessage = GetDictionary(Video.Title)
+        await InvokeAsync(() =>
+        {
+            string successMessage = GetDictionary(Video.Title)
                 [KeyWords.SuccessfullyDownloaded];
 
-        snackbar.Add(successMessage, Severity.Normal);
+            snackbar.Add(successMessage, Severity.Normal);
+        });
     }
 
     private string GetSaveVideoText()

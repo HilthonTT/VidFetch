@@ -50,17 +50,20 @@ public partial class PlaylistComponent
         {
             await playlistData.SetPlaylistAsync(Playlist.Url, Playlist.PlaylistId);
 
-            AddSnackbar();
+            await AddSnackbar();
             _isSaved = true;
         }
     }
 
-    private void AddSnackbar()
+    private async Task AddSnackbar()
     {
-        string successMessage = GetDictionary(Playlist.Title)
-            [KeyWords.SuccessfullySavedData];
+        await InvokeAsync(() =>
+        {
+            string successMessage = GetDictionary(Playlist.Title)
+                [KeyWords.SuccessfullySavedData];
 
-        snackbar.Add(successMessage);
+            snackbar.Add(successMessage);
+        });
     }
 
     private async Task LoadAuthorThumbnail()
