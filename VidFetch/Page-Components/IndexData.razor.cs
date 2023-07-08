@@ -81,6 +81,11 @@ public partial class IndexData<TData> where TData : class
 
     private async Task DownloadAllVideos()
     {
+        if (_visibleData?.Count <= 0)
+        {
+            return;
+        }
+
         try
         {
             ShowFFmpegWarningIfNeeded();
@@ -91,7 +96,7 @@ public partial class IndexData<TData> where TData : class
                 await UpdateProgress(val);
             });
 
-            await dataHelper.DownloadAllVideosAsync(_visibleData, progress, token, RemoveDataIfRemoveAfterDownload);
+            await generalHelper.DownloadAllAsync(_visibleData, progress, token, RemoveDataIfRemoveAfterDownload);
         }
         catch (OperationCanceledException)
         {
@@ -178,7 +183,7 @@ public partial class IndexData<TData> where TData : class
     {
         await OpenLoading.InvokeAsync(true);
 
-        _visibleData = await dataHelper.LoadDataAsync(_url, _loadedItems);
+        _visibleData = await generalHelper.LoadDataAsync(_url, _loadedItems);
 
         if (_settings.SaveVideos)
         {
@@ -209,7 +214,7 @@ public partial class IndexData<TData> where TData : class
                 break;
         }
 
-        await dataHelper.SaveAllAsync(datas, new());
+        await generalHelper.SaveDataAsync(datas, new());
     }
 
     private async Task<IEnumerable<string>> FilterSearchData(string searchInput)
@@ -297,13 +302,13 @@ public partial class IndexData<TData> where TData : class
     private void ClearDatas()
     {
         ClearList();
-        dataHelper.ClearDatas();
+        generalHelper.ClearDatas();
     }
 
     private void RemoveData(TData data)
     {
         _visibleData.Remove(data);
-        dataHelper.RemoveData(data);
+        generalHelper.RemoveData(data);
     }
 
     private void HandleSearchValueChanged(string value)
@@ -314,7 +319,7 @@ public partial class IndexData<TData> where TData : class
 
     private string GetName()
     {
-        string name = dataHelper.GetName();
+        string name = generalHelper.GetName();
         return $"{PageName}-{name}";
     }
 

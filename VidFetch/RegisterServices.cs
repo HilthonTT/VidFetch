@@ -10,6 +10,7 @@ using VidFetchLibrary.Library;
 using YoutubeExplode;
 using VidFetchLibrary.Cache;
 using VidFetchLibrary.Language;
+using VidFetch.Generics;
 
 namespace VidFetch;
 public static class RegisterServices
@@ -30,6 +31,14 @@ public static class RegisterServices
         builder.Logging.AddDebug();
 #endif
         builder.Services.AddMudServices();
+
+        // Generics
+        builder.Services.AddScoped(typeof(IGenericDeleteHelper<>), typeof(GenericDeleteHelper<>));
+        builder.Services.AddScoped(typeof(IGenericDownloadHelper<>), typeof(GenericDownloadHelper<>));
+        builder.Services.AddScoped(typeof(IGenericLoadHelper<>), typeof(GenericLoadHelper<>));
+        builder.Services.AddScoped(typeof(IGenericSaveHelper<>), typeof(GenericSaveHelper<>));
+        builder.Services.AddScoped(typeof(IGenericUpdateHelper<>), typeof(GenericUpdateHelper<>));
+        builder.Services.AddScoped(typeof(IGenericGeneralHelper<>), typeof(GenericGeneralHelper<>));
         
         // YoutubeExplode client
         builder.Services.AddScoped<YoutubeClient>();
@@ -51,7 +60,6 @@ public static class RegisterServices
 
         // Helpers
         builder.Services.AddScoped(typeof(ISearchHelper<>), typeof(SearchHelper<>));
-        builder.Services.AddScoped(typeof(IDataHelper<>), typeof(DataHelper<>));
         builder.Services.AddScoped<ISnackbarHelper, SnackbarHelper>();
 
         builder.Services.AddScoped<ITokenHelper, TokenHelper>();

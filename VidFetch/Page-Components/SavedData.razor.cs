@@ -89,7 +89,7 @@ public partial class SavedData<TData> where TData : class
                 await UpdateProgress(val);
             });
 
-            await dataHelper.DownloadAllVideosAsync(_datas, progress, token);
+            await generalHelper.DownloadAllAsync(_datas, progress, token);
         }
         catch (OperationCanceledException)
         {
@@ -169,7 +169,7 @@ public partial class SavedData<TData> where TData : class
             var dataCopy = _datas.ToList();
             var token = tokenHelper.InitializeToken(ref _updateTokenSource);
             
-            await dataHelper.UpdateAllAsync(dataCopy, RemoveData, token);
+            await generalHelper.UpdateAllDataAsync(dataCopy, token, RemoveData);
         }
         catch (OperationCanceledException)
         {
@@ -189,13 +189,13 @@ public partial class SavedData<TData> where TData : class
     {
         CloseDialog();
         var datasCopy = _datas.ToList();
-        await dataHelper.DeleteAllAsync(datasCopy, RemoveData);
+        await generalHelper.DeleteAllAsync(datasCopy, RemoveData);
     }
 
     private async Task DeleteData(TData data)
     {
         RemoveData(data);
-        await dataHelper.DeleteDataAsync(data);
+        await generalHelper.DeleteAsync(data);
     }
 
     private async Task UpdateProgress(double value)
@@ -274,7 +274,7 @@ public partial class SavedData<TData> where TData : class
 
     private string GetPageName()
     {
-        string name = dataHelper.GetName();
+        string name = generalHelper.GetName();
         return $"{PageName}-{name}";
     }
 

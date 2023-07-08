@@ -128,7 +128,7 @@ public partial class IndexPlaylistVideo
 
         if (_settings.SaveVideos)
         {
-            await dataHelper.SaveAllAsync(videoLibrary.PlaylistVideos, new CancellationToken());
+            await genericHelper.SaveDataAsync(videoLibrary.PlaylistVideos, new CancellationToken());
         }
 
         await OpenLoading.InvokeAsync(false);
@@ -136,6 +136,11 @@ public partial class IndexPlaylistVideo
 
     private async Task DownloadAllPlaylists()
     {
+        if (videoLibrary?.PlaylistVideos?.Count <= 0)
+        {
+            return;
+        }
+
         try
         {
             await InvokeAsync(ShowFFmpegWarningIfNeeded);
@@ -146,7 +151,7 @@ public partial class IndexPlaylistVideo
                 await UpdatePlaylistProgress(val);
             });
 
-            await dataHelper.DownloadAllVideosAsync(_visibleVideos, progress, token);
+            await genericHelper.DownloadAllAsync(_visibleVideos, progress, token);
         }
         catch (OperationCanceledException)
         {
@@ -217,7 +222,7 @@ public partial class IndexPlaylistVideo
             var videosCopy = videoLibrary.PlaylistVideos.ToList();
             var token = InitializeSaveAllToken();
 
-            await dataHelper.SaveAllAsync(videosCopy, token);
+            await genericHelper.SaveDataAsync(videosCopy, token);
         }
         catch (OperationCanceledException)
         {
@@ -342,7 +347,7 @@ public partial class IndexPlaylistVideo
 
     private string GetName()
     {
-        string name = dataHelper.GetName();
+        string name = genericHelper.GetName();
         return $"{PageName}-{name}";
     }
 
