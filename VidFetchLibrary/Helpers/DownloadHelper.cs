@@ -16,10 +16,11 @@ public class DownloadHelper : IDownloadHelper
     private readonly IStreamInfoCache _streamInfoCache;
     private readonly YoutubeClient _youtube;
 
-    public DownloadHelper(IPathHelper pathHelper,
-                          ISettingsData settingsData,
-                          IStreamInfoCache streamInfoCache,
-                          YoutubeClient youtube)
+    public DownloadHelper(
+        IPathHelper pathHelper,
+        ISettingsData settingsData,
+        IStreamInfoCache streamInfoCache,
+        YoutubeClient youtube)
     {
         _pathHelper = pathHelper;
         _settingsData = settingsData;
@@ -228,19 +229,21 @@ public class DownloadHelper : IDownloadHelper
         }
     }
 
-    private string GetVideoQualityLabel(SettingsLibrary settings)
+    private static string GetVideoQualityLabel(SettingsLibrary settings)
     {
-        VideoResolution resolution = settings.SelectedResolution;
-        string resolutionString = resolution.ToString();
+        var resolution = settings.SelectedResolution;
+        string resolutionString = resolution.ToString().ToLower();
 
-        if (resolutionString.StartsWith("P") && resolutionString.Length > 1)
+        return resolutionString switch
         {
-            resolutionString = resolutionString[1..] + resolutionString[0];
-            return resolutionString;
-        }
-        else
-        {
-            return resolutionString;
-        }
+            "p144" => "144p",
+            "p240" => "240p",
+            "p360" => "360p",
+            "p480" => "480p",
+            "p720" => "720p",
+            "p1080" => "1080p",
+            "p2160" => "2160p",
+            _ => "HighestResolution",
+        };
     }
 }
