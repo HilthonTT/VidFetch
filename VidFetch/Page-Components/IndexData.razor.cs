@@ -40,7 +40,7 @@ public partial class IndexData<TData> where TData : class
 
     private void InitializeVisibleData()
     {
-        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(GetName(), ItemsPerPage);
 
         _visibleData = GetDataResults()
             .Take(_loadedItems)
@@ -69,13 +69,14 @@ public partial class IndexData<TData> where TData : class
     {
         int dataCount = GetDataResults().Count;
         _loadedItems += ItemsPerPage;
+        
         if (_loadedItems > dataCount)
         {
             _loadedItems = dataCount;
         }
 
         _visibleData = GetDataResults().Take(_loadedItems).ToList();
-        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
+        loadedItemsCache.SetLoadedItemsCount(GetName(), _loadedItems);
     }
 
     private async Task DownloadAllVideos()
@@ -85,7 +86,10 @@ public partial class IndexData<TData> where TData : class
             ShowFFmpegWarningIfNeeded();
 
             var token = InitializeTokenDownload();
-            var progress = new Progress<double>(UpdateProgress);
+            var progress = new Progress<double>(async val =>
+            {
+                await UpdateProgress(val);
+            });
 
             await dataHelper.DownloadAllVideosAsync(_visibleData, progress, token, RemoveDataIfRemoveAfterDownload);
         }
@@ -130,6 +134,7 @@ public partial class IndexData<TData> where TData : class
     {
         tokenHelper.CancelRequest(ref _downloadTokenSource);
         _downloadingVideoText = "";
+        _progress = 0;
     }
 
     private async Task LoadData()
@@ -156,7 +161,7 @@ public partial class IndexData<TData> where TData : class
         }
         catch
         {
-            snackbarHelper.ShowErrorWhileLoadingMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorWhileLoadingMessage);
         }
         finally
         {
@@ -257,7 +262,7 @@ public partial class IndexData<TData> where TData : class
         }
     }
 
-    private void UpdateProgress(double value)
+    private async Task UpdateProgress(double value)
     {
         if (Math.Abs(value - _progress) < 0.1)
         {
@@ -265,7 +270,8 @@ public partial class IndexData<TData> where TData : class
         }
 
         _progress = value;
-        StateHasChanged();
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private void ClearList()
@@ -291,61 +297,25 @@ public partial class IndexData<TData> where TData : class
     private void ClearDatas()
     {
         ClearList();
-        switch (typeof(TData))
-        {
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                videoLibrary.Channels.Clear();
-                break;
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                videoLibrary.Videos.Clear();
-                break;
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                videoLibrary.Playlists.Clear();
-                break;
-            default:
-                break;
-        }
+        dataHelper.ClearDatas();
     }
 
     private void RemoveData(TData data)
     {
-        RemoveDataFromList(data);
-        switch (data)
-        {
-            case ChannelModel channel:
-                videoLibrary.Channels.Remove(channel);
-                break;
-            case PlaylistModel playlist:
-                videoLibrary.Playlists.Remove(playlist);
-                break;
-            case VideoModel video:
-                videoLibrary.Videos.Remove(video);
-                break;
-        }
-    }
-
-    private void RemoveDataFromList(TData data)
-    {
-        switch (data)
-        {
-            case ChannelModel channel:
-                videoLibrary.Channels.Remove(channel);
-                break;
-            case PlaylistModel playlist:
-                videoLibrary.Playlists.Remove(playlist);
-                break;
-            case VideoModel video:
-                videoLibrary.Videos.Remove(video);
-                break;
-        }
-
         _visibleData.Remove(data);
+        dataHelper.RemoveData(data);
     }
 
     private void HandleSearchValueChanged(string value)
     {
         _searchText = value;
         FilterData();
+    }
+
+    private string GetName()
+    {
+        string name = dataHelper.GetName();
+        return $"{PageName}-{name}";
     }
 
     private string GetDataTypeName()

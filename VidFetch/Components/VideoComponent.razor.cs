@@ -61,7 +61,7 @@ public partial class VideoComponent
             string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
             Video.AuthorThumbnailUrl = channelThumbnail;
 
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -75,19 +75,25 @@ public partial class VideoComponent
 
             var token = tokenHelper.InitializeToken(ref _tokenSource);
 
-            var progress = new Progress<double>(UpdateProgress);
+            var progress = new Progress<double>(async val =>
+            {
+                await UpdateProgress(val);
+            });
 
             await youtube.DownloadVideoAsync(Video.Url, progress, token);
 
-            snackbarHelper.ShowSuccessfullyDownloadedMessage(Video.Title);
+            await InvokeAsync(() =>
+            {
+                snackbarHelper.ShowSuccessfullyDownloadedMessage(Video.Title);
+            });
         }
         catch (OperationCanceledException)
         {
-            snackbarHelper.ShowErrorOperationCanceledMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorOperationCanceledMessage);
         }
         catch
         {
-            snackbarHelper.ShowErrorDownloadMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorDownloadMessage);
         }
         finally
         {
@@ -105,13 +111,13 @@ public partial class VideoComponent
         snackbarHelper.ShowFfmpegError();
     }
 
-    private void UpdateProgress(double value)
+    private async Task UpdateProgress(double value)
     {
         if (Math.Abs(value - _progress) < 0.1)
             return;
 
         _progress = value;
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveVideo()
@@ -120,7 +126,10 @@ public partial class VideoComponent
         {
             await videoData.SetVideoAsync(Video.Url, Video.VideoId);
 
-            snackbarHelper.ShowSuccessfullySavedVideosMessage();
+            await InvokeAsync(() =>
+            {
+                snackbarHelper.ShowSuccessfullySavedMessage(Video.Title);
+            });
             _isSaved = true;
         }
     }

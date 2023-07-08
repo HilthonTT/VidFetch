@@ -35,7 +35,7 @@ public partial class IndexPlaylistVideo
 
     protected override async Task OnInitializedAsync()
     {
-        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(GetName(), ItemsPerPage);
 
         _settings = await settingsData.GetSettingsAsync();
 
@@ -67,7 +67,7 @@ public partial class IndexPlaylistVideo
             .Take(_loadedItems)
             .ToList();
 
-        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
+        loadedItemsCache.SetLoadedItemsCount(GetName(), _loadedItems);
     }
 
 
@@ -87,14 +87,14 @@ public partial class IndexPlaylistVideo
             }
             else
             {
-                snackbarHelper.ShowEnterPlaylistUrl();
+                await InvokeAsync(snackbarHelper.ShowEnterPlaylistUrl);
             }
 
             ResetPlaylistUrl();
         }
         catch
         {
-            snackbarHelper.ShowErrorLoadingPlaylist();
+            await InvokeAsync(snackbarHelper.ShowErrorLoadingPlaylist);
         }
     }
 
@@ -128,38 +128,33 @@ public partial class IndexPlaylistVideo
 
         if (_settings.SaveVideos)
         {
-            await SavePlaylistVideos();
+            await dataHelper.SaveAllAsync(videoLibrary.PlaylistVideos, new CancellationToken());
         }
 
         await OpenLoading.InvokeAsync(false);
-    }
-
-    private async Task SavePlaylistVideos()
-    {
-        foreach (var v in videoLibrary.PlaylistVideos)
-        {
-            await videoData.SetVideoAsync(v.Url, v.VideoId);
-        }
     }
 
     private async Task DownloadAllPlaylists()
     {
         try
         {
-            ShowFFmpegWarningIfNeeded();
+            await InvokeAsync(ShowFFmpegWarningIfNeeded);
 
             var token = InitializeTokenForPlaylists();
-            var progress = new Progress<double>(UpdatePlaylistProgress);
+            var progress = new Progress<double>(async val =>
+            {
+                await UpdatePlaylistProgress(val);
+            });
 
             await dataHelper.DownloadAllVideosAsync(_visibleVideos, progress, token);
         }
         catch (OperationCanceledException)
         {
-            snackbarHelper.ShowErrorOperationCanceledMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorOperationCanceledMessage);
         }
         catch
         {
-            snackbarHelper.ShowErrorDownloadMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorDownloadMessage);
         }
         finally
         {
@@ -183,30 +178,26 @@ public partial class IndexPlaylistVideo
         return tokenHelper.InitializeToken(ref _playlistTokenSource);
     }
 
-    private void UpdatePlaylistProgress(double value)
-    {
-        UpdateProgress(ref _playlistProgress, value);
-    }
 
     private async Task DownloadFirstVideo(string url)
     {
         try
         {
-            ShowFFmpegWarningIfNeeded();
+            await InvokeAsync(ShowFFmpegWarningIfNeeded);
 
             var cancellationToken = tokenHelper.InitializeToken(ref _videoTokenSource);
 
-            var progressReport = new Progress<double>(value =>
+            var progressReport = new Progress<double>(async value =>
             {
-                UpdateProgress(ref _videoProgress, value);
+                await UpdateVideoProgress(value);
             });
 
             await youtube.DownloadVideoAsync(url, progressReport, cancellationToken);
-            snackbarHelper.ShowSuccessfullySavedVideosMessage();
+            await InvokeAsync(snackbarHelper.ShowSuccessfullySavedVideosMessage);
         }
         catch
         {
-            snackbarHelper.ShowErrorDownloadMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorDownloadMessage);
         }
         finally
         {
@@ -230,11 +221,11 @@ public partial class IndexPlaylistVideo
         }
         catch (OperationCanceledException)
         {
-            snackbarHelper.ShowErrorOperationCanceledMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorOperationCanceledMessage);
         }
         catch
         {
-            snackbarHelper.ShowErrorWhileSavingMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorWhileSavingMessage);
         }
         finally
         {
@@ -263,13 +254,27 @@ public partial class IndexPlaylistVideo
             .ToList();
     }
 
-    private void UpdateProgress(ref double progressVariable, double value)
+    private async Task UpdatePlaylistProgress(double value)
     {
-        if (Math.Abs(value - progressVariable) < 0.1)
-            return;
 
-        progressVariable = value;
-        StateHasChanged();
+        if (Math.Abs(value - _playlistProgress) < 0.1)
+        {
+            return;
+        }
+
+        _playlistProgress = value;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task  UpdateVideoProgress(double value)
+    {
+        if (Math.Abs(value - _videoProgress) < 0.1)
+        {
+            return;
+        }
+
+        _videoProgress = value;
+        await InvokeAsync(StateHasChanged);
     }
 
     private void CancelPlaylistDownload()
@@ -333,6 +338,12 @@ public partial class IndexPlaylistVideo
         }
 
         return $"{downloadText} {videoLibrary.PlaylistVideos?.Count} {videoText}";
+    }
+
+    private string GetName()
+    {
+        string name = dataHelper.GetName();
+        return $"{PageName}-{name}";
     }
 
     private string GetSearchBarText()

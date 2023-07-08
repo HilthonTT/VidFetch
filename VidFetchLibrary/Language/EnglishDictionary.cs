@@ -56,6 +56,7 @@ public static class EnglishDictionary
             { KeyWords.SuccessfullyDeletedData, $"Successfully deleted {text}." },
             { KeyWords.SuccessfullyDownloaded, $"Successfully downloaded {text}." },
             { KeyWords.SuccessfullyUpdatedData, $"Successfully updated {text}."},
+            { KeyWords.SuccessfullySavedAllVideos, $"Successfully saved all videos" },
             { KeyWords.OperationCanceled, "Operation canceled." },
             { KeyWords.ErrorWhileSaving, "An error occured while saving." },
             { KeyWords.ErrorWhileUpdating, "An error occured while updating." },

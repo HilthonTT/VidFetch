@@ -73,7 +73,7 @@ public partial class ChannelComponent
             string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
             Channel.ThumbnailUrl = channelThumbnail;
 
-            StateHasChanged();
+            await InvokeAsync(StateHasChanged);
         }
     }
 

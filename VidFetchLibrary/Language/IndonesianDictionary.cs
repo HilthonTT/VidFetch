@@ -56,6 +56,7 @@ public static class IndonesianDictionary
             { KeyWords.SuccessfullyDeletedData, $"{text} berhasil dihapus." },
             { KeyWords.SuccessfullyDownloaded, $"{text} berhasil diunduh." },
             { KeyWords.SuccessfullyUpdatedData, $"{text} berhasil diperbarui."},
+            { KeyWords.SuccessfullySavedAllVideos, $"Berhasil menyimpan semua video" },
             { KeyWords.OperationCanceled, "Operasi dibatalkan" },
             { KeyWords.ErrorWhileSaving, "Terjadi kesalahan saat menyimpan." },
             { KeyWords.ErrorWhileUpdating, "Terjadi kesalahan saat memperbarui." },

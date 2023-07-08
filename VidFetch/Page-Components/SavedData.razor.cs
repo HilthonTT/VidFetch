@@ -75,26 +75,29 @@ public partial class SavedData<TData> where TData : class
     {
         if (IsVideoModel() is false || _datas == null || _datas.Count == 0)
         {
-            snackbarHelper.ShowNoVideoErrorMessage();
+            await InvokeAsync(snackbarHelper.ShowNoVideoErrorMessage);
             return;
         }
 
         try
         {
-            ShowFFmpegWarningIfNeeded();
+            await InvokeAsync(ShowFFmpegWarningIfNeeded);
 
             var token = InitializeToken();
-            var progress = new Progress<double>(UpdateProgress);
+            var progress = new Progress<double>(async val =>
+            {
+                await UpdateProgress(val);
+            });
 
             await dataHelper.DownloadAllVideosAsync(_datas, progress, token);
         }
         catch (OperationCanceledException)
         {
-            snackbarHelper.ShowErrorOperationCanceledMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorOperationCanceledMessage);
         }
         catch
         {
-            snackbarHelper.ShowErrorDownloadMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorDownloadMessage);
         }
         finally
         {
@@ -170,11 +173,11 @@ public partial class SavedData<TData> where TData : class
         }
         catch (OperationCanceledException)
         {
-            snackbarHelper.ShowErrorOperationCanceledMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorOperationCanceledMessage);
         }
         catch
         {
-            snackbarHelper.ShowErrorWhileUpdatingMessage();
+            await InvokeAsync(snackbarHelper.ShowErrorWhileUpdatingMessage);
         }
         finally
         {
@@ -195,7 +198,7 @@ public partial class SavedData<TData> where TData : class
         await dataHelper.DeleteDataAsync(data);
     }
 
-    private void UpdateProgress(double value)
+    private async Task UpdateProgress(double value)
     {
         if (Math.Abs(value - _videosProgress) < 0.1)
         {
@@ -203,7 +206,7 @@ public partial class SavedData<TData> where TData : class
         }
 
         _videosProgress = value;
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
     private void CancelDownload()
@@ -271,27 +274,7 @@ public partial class SavedData<TData> where TData : class
 
     private string GetPageName()
     {
-        string name;
-
-        switch (typeof(TData))
-        {
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                name = nameof(ChannelModel);
-                break;
-
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                name = nameof(PlaylistModel);
-                break;
-
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                name = nameof(VideoModel);
-                break;
-
-            default:
-                name = "";
-                break;
-        }
-
+        string name = dataHelper.GetName();
         return $"{PageName}-{name}";
     }
 

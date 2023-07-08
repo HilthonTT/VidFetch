@@ -56,6 +56,7 @@ public static class FrenchDictionary
             { KeyWords.SuccessfullyDeletedData, $"{text} supprimé avec succès." },
             { KeyWords.SuccessfullyDownloaded, $"{text} téléchargé avec succès." },
             { KeyWords.SuccessfullyUpdatedData, $"{text} mis à jour avec succès."},
+            { KeyWords.SuccessfullySavedAllVideos, $"Toutes les vidéos ont été enregistrées avec succès" },
             { KeyWords.OperationCanceled, "Opération annulée" },
             { KeyWords.ErrorWhileSaving, "Une erreur s'est produite lors de l'enregistrement." },
             { KeyWords.ErrorWhileUpdating, "Une erreur s'est produite lors de la mise à jour." },

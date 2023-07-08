@@ -128,6 +128,52 @@ public class DataHelper<TData> : IDataHelper<TData> where TData : class
         _snackbarHelper.ShowSuccessfullySavedMessage(className);
     }
 
+    public string GetName()
+    {
+        string name = typeof(TData) switch
+        {
+            Type channelModelType when channelModelType == typeof(ChannelModel) => GetDictionary()[KeyWords.Channel],
+            Type playlistModelType when playlistModelType == typeof(PlaylistModel) => GetDictionary()[KeyWords.Playlist],
+            Type videoModelType when videoModelType == typeof(VideoModel) => GetDictionary()[KeyWords.Video],
+            _ => "",
+        };
+        return name;
+    }
+
+    public void ClearDatas()
+    {
+        switch (typeof(TData))
+        {
+            case Type channelModelType when channelModelType == typeof(ChannelModel):
+                _videoLibrary.Channels.Clear();
+                break;
+            case Type videoModelType when videoModelType == typeof(VideoModel):
+                _videoLibrary.Videos.Clear();
+                break;
+            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
+                _videoLibrary.Playlists.Clear();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void RemoveData(TData data)
+    {
+        switch (data)
+        {
+            case ChannelModel channel:
+                _videoLibrary.Channels.Remove(channel);
+                break;
+            case PlaylistModel playlist:
+                _videoLibrary.Playlists.Remove(playlist);
+                break;
+            case VideoModel video:
+                _videoLibrary.Videos.Remove(video);
+                break;
+        }
+    }
+
     private async Task SaveAsync(TData data)
     {
         switch (data.GetType())
@@ -293,18 +339,6 @@ public class DataHelper<TData> : IDataHelper<TData> where TData : class
     private static bool IsVideoModel()
     {
         return typeof(TData) == typeof(VideoModel);
-    }
-
-    private string GetName()
-    {
-        string name = typeof(TData) switch
-        {
-            Type channelModelType when channelModelType == typeof(ChannelModel) => GetDictionary()[KeyWords.Channel],
-            Type playlistModelType when playlistModelType == typeof(PlaylistModel) => GetDictionary()[KeyWords.Playlist],
-            Type videoModelType when videoModelType == typeof(VideoModel) => GetDictionary()[KeyWords.Video],
-            _ => "",
-        };
-        return name;
     }
 
     private Dictionary<KeyWords, string> GetDictionary()
