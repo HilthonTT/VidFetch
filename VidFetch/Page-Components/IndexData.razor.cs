@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using VidFetchLibrary.Library;
-using MudBlazor;
 using VidFetchLibrary.Models;
 using VidFetchLibrary.Language;
 
@@ -83,7 +82,7 @@ public partial class IndexData<TData> where TData : class
     {
         try
         {
-            await ShowFFmpegWarningIfNeeded();
+            ShowFFmpegWarningIfNeeded();
 
             var token = InitializeTokenDownload();
             var progressReport = new Progress<double>(UpdateProgress);
@@ -100,11 +99,11 @@ public partial class IndexData<TData> where TData : class
         }
         catch (OperationCanceledException)
         {
-            await AddOperationCancelSnackbar();
+            snackbarHelper.ShowErrorOperationCanceledMessage();
         }
         catch
         {
-            await AddDownloadErrorSnackbar();
+            snackbarHelper.ShowErrorDownloadMessage();
         }
         finally
         {
@@ -120,18 +119,14 @@ public partial class IndexData<TData> where TData : class
         }
     }
 
-    private async Task ShowFFmpegWarningIfNeeded()
+    private void ShowFFmpegWarningIfNeeded()
     {
         if (IsFFmpegInvalid() is false)
         {
             return;
         }
 
-        await InvokeAsync(() =>
-        {
-            string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
-            snackbar.Add(errorMessage, Severity.Warning);
-        });
+        snackbarHelper.ShowFfmpegError();
     }
 
     private CancellationToken InitializeTokenDownload()
@@ -146,7 +141,7 @@ public partial class IndexData<TData> where TData : class
         _downloadingVideoText = video.Title;
         await youtube.DownloadVideoAsync(video.Url, progress, token);
 
-        await AddSuccessfullyDownloadedSnackbar(video.Title);
+        snackbarHelper.ShowSuccessfullyDownloadedMessage(video.Title);
     }
 
     private void CancelVideosDownload()
@@ -179,7 +174,7 @@ public partial class IndexData<TData> where TData : class
         }
         catch
         {
-            await AddErrorWhileLoadingDataSnackbar();
+            snackbarHelper.ShowErrorWhileLoadingMessage();
         }
         finally
         {
@@ -301,50 +296,6 @@ public partial class IndexData<TData> where TData : class
     private async Task OpenFileLocation()
     {
         await folderHelper.OpenFolderLocationAsync();
-    }
-
-    private async Task AddOperationCancelSnackbar()
-    {
-        await InvokeAsync(() =>
-        {
-            string message = GetDictionary()
-                [KeyWords.OperationCancelled];
-
-            snackbar.Add(message, Severity.Error);
-        });
-    }
-
-    private async Task AddDownloadErrorSnackbar()
-    {
-        await InvokeAsync(() =>
-        {
-            string message = GetDictionary()
-                [KeyWords.DownloadingErrorMessage];
-
-            snackbar.Add(message, Severity.Error);
-        });
-    }
-
-    private async Task AddErrorWhileLoadingDataSnackbar()
-    {
-        await InvokeAsync(() =>
-        {
-            string message = GetDictionary()
-                [KeyWords.ErrorWhileLoadingData];
-
-            snackbar.Add(message, Severity.Error);
-        });
-    }
-
-    private async Task AddSuccessfullyDownloadedSnackbar(string text)
-    {
-        await InvokeAsync(() =>
-        {
-            string message = GetDictionary(text)
-                [KeyWords.SuccessfullyDownloaded];
-
-            snackbar.Add(message);
-        });
     }
 
     private void FilterData()

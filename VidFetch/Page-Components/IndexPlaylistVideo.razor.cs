@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 using VidFetchLibrary.Language;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
@@ -88,14 +87,14 @@ public partial class IndexPlaylistVideo
             }
             else
             {
-                await ShowEnterPlaylistUrlMessage();
+                snackbarHelper.ShowEnterPlaylistUrl();
             }
 
             ResetPlaylistUrl();
         }
         catch
         {
-            await ShowErrorLoadingPlaylistMessage();
+            snackbarHelper.ShowErrorLoadingPlaylist();
         }
     }
 
@@ -109,27 +108,9 @@ public partial class IndexPlaylistVideo
             .ToList();
     }
 
-    private async Task ShowEnterPlaylistUrlMessage()
-    {
-        await InvokeAsync(() =>
-        {
-            string message = GetDictionary()[KeyWords.EnterPlaylistUrl];
-            snackbar.Add(message);
-        });
-    }
-
     private void ResetPlaylistUrl()
     {
         _playlistUrl = "";
-    }
-
-    private async Task ShowErrorLoadingPlaylistMessage()
-    {
-        await InvokeAsync(() =>
-        {
-            string errorMessage = GetDictionary()[KeyWords.ErrorWhileLoadingPlaylist];
-            snackbar.Add(errorMessage, Severity.Error);
-        });
     }
 
     private async Task LoadPlaylistVideos()
@@ -164,7 +145,7 @@ public partial class IndexPlaylistVideo
     {
         try
         {
-            await ShowFFmpegWarningIfNeeded();
+            ShowFFmpegWarningIfNeeded();
 
             var token = InitializeTokenForPlaylists();
             var progress = new Progress<double>(UpdatePlaylistProgress);
@@ -176,15 +157,15 @@ public partial class IndexPlaylistVideo
                 await DownloadVideo(video, progress, token);
             }
 
-            await AddSuccessSaveVideosSnackbar();
+            snackbarHelper.ShowSuccessfullySavedVideosMessage();
         }
         catch (OperationCanceledException)
         {
-            await AddOperationCancelSnackbar();
+            snackbarHelper.ShowErrorOperationCanceledMessage();
         }
         catch
         {
-            await AddDownloadErrorSnackbar();
+            snackbarHelper.ShowErrorDownloadMessage();
         }
         finally
         {
@@ -193,18 +174,14 @@ public partial class IndexPlaylistVideo
         }
     }
 
-    private async Task ShowFFmpegWarningIfNeeded()
+    private void ShowFFmpegWarningIfNeeded()
     {
         if (IsFFmpegInvalid() is false)
         {
             return;
         }
 
-        await InvokeAsync(() =>
-        {
-            string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
-            snackbar.Add(errorMessage, Severity.Warning);
-        });  
+        snackbarHelper.ShowFfmpegError();
     }
 
     private CancellationToken InitializeTokenForPlaylists()
@@ -224,7 +201,7 @@ public partial class IndexPlaylistVideo
 
         await youtube.DownloadVideoAsync(video.Url, progress, token, true, _playlist.Title);
 
-        await AddSnackbar(video.Title);
+        snackbarHelper.ShowSuccessfullyDownloadedMessage(video.Title);
 
         if (_settings.RemoveAfterDownload)
         {
@@ -237,7 +214,7 @@ public partial class IndexPlaylistVideo
     {
         try
         {
-            await ShowFFmpegWarningIfNeeded();
+            ShowFFmpegWarningIfNeeded();
 
             var cancellationToken = tokenHelper.InitializeToken(ref _videoTokenSource);
 
@@ -247,18 +224,17 @@ public partial class IndexPlaylistVideo
             });
 
             await youtube.DownloadVideoAsync(url, progressReport, cancellationToken);
-            await AddSuccessSaveVideosSnackbar();
+            snackbarHelper.ShowSuccessfullySavedVideosMessage();
         }
         catch
         {
-            await AddDownloadErrorSnackbar();
+            snackbarHelper.ShowErrorDownloadMessage();
         }
         finally
         {
             CancelVideoDownload();
         }
     }
-
 
     private async Task<IEnumerable<string>> SearchPlaylistVideos(string searchInput)
     {
@@ -278,15 +254,15 @@ public partial class IndexPlaylistVideo
                 await videoData.SetVideoAsync(v.Url, v.VideoId);
             }
 
-            await AddSuccessSaveVideosSnackbar();
+            snackbarHelper.ShowSuccessfullySavedVideosMessage();
         }
         catch (OperationCanceledException)
         {
-            await AddOperationCancelSnackbar();
+            snackbarHelper.ShowErrorOperationCanceledMessage();
         }
         catch
         {
-            await AddErrorWhileSavingSnackbar();
+            snackbarHelper.ShowErrorWhileSavingMessage();
         }
         finally
         {
@@ -297,50 +273,6 @@ public partial class IndexPlaylistVideo
     private CancellationToken InitializeSaveAllToken()
     {
         return tokenHelper.InitializeToken(ref _saveAllTokenSource);
-    }
-
-    private async Task AddOperationCancelSnackbar()
-    {
-        await InvokeAsync(() =>
-        {
-            string message = GetDictionary()
-                [KeyWords.OperationCancelled];
-
-            snackbar.Add(message, Severity.Error);
-        });
-    }
-
-    private async Task AddDownloadErrorSnackbar()
-    {
-        await InvokeAsync(() =>
-        {
-            string message = GetDictionary()
-                [KeyWords.DownloadingErrorMessage];
-
-            snackbar.Add(message, Severity.Error);
-        });
-    }
-
-    private async Task AddSuccessSaveVideosSnackbar()
-    {
-        await InvokeAsync(() =>
-        {
-            string message = GetDictionary()
-                [KeyWords.SuccessfullySavedAllVideos];
-
-            snackbar.Add(message);
-        });
-    }
-
-    private async Task AddErrorWhileSavingSnackbar()
-    {
-        await InvokeAsync(() =>
-        {
-            string message = GetDictionary()
-               [KeyWords.ErrorWhileSaving];
-
-            snackbar.Add(message, Severity.Error);
-        });
     }
 
     private void HandleSearchValueChanged(string value)
@@ -383,17 +315,6 @@ public partial class IndexPlaylistVideo
     private void CancelSaveVideo()
     {
         tokenHelper.CancelRequest(ref _saveAllTokenSource);
-    }
-
-    private async Task AddSnackbar(string title)
-    {
-        await InvokeAsync(() =>
-        {
-            string successMessage = GetDictionary(title)
-            [KeyWords.SuccessfullyDownloaded];
-
-            snackbar.Add(successMessage);
-        });
     }
 
     private void ClearPlaylistVideos()

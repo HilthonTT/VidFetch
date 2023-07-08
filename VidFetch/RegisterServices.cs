@@ -30,6 +30,7 @@ public static class RegisterServices
         builder.Logging.AddDebug();
 #endif
         builder.Services.AddMudServices();
+        builder.Services.AddScoped<ISnackbarHelper, SnackbarHelper>();
 
         // YoutubeExplode client
         builder.Services.AddTransient<YoutubeClient>();

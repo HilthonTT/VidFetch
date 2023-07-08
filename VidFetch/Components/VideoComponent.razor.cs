@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 using VidFetchLibrary.Language;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
@@ -72,30 +71,23 @@ public partial class VideoComponent
         {
             _isDownloading = true;
 
-            if (IsFFmpegInvalid())
-            {
-                string errorMessage = GetDictionary()[KeyWords.FfmpegErrorMessage];
-                snackbar.Add(errorMessage, Severity.Warning);
-            }
+            ShowFFmpegWarningIfNeeded();
 
             var token = tokenHelper.InitializeToken(ref _tokenSource);
 
-            var progress = new Progress<double>(value =>
-            {
-                UpdateProgress(ref _progress, value);
-            });
+            var progress = new Progress<double>(UpdateProgress);
 
             await youtube.DownloadVideoAsync(Video.Url, progress, token);
 
-            await SnackbarDownload();
+            snackbarHelper.ShowSuccessfullyDownloadedMessage(Video.Title);
         }
         catch (OperationCanceledException)
         {
-            await AddOperationCancelledSnackbar();
+            snackbarHelper.ShowErrorOperationCanceledMessage();
         }
         catch
         {
-            await AddErrorDownloadSnackbar();
+            snackbarHelper.ShowErrorDownloadMessage();
         }
         finally
         {
@@ -103,34 +95,22 @@ public partial class VideoComponent
         }
     }
 
-    private async Task AddOperationCancelledSnackbar()
+    private void ShowFFmpegWarningIfNeeded()
     {
-        await InvokeAsync(() =>
+        if (IsFFmpegInvalid() is false)
         {
-            string message = GetDictionary()
-                [KeyWords.OperationCancelled];
+            return;
+        }
 
-            snackbar.Add(message, Severity.Error);
-        });
+        snackbarHelper.ShowFfmpegError();
     }
 
-    private async Task AddErrorDownloadSnackbar()
+    private void UpdateProgress(double value)
     {
-        await InvokeAsync(() =>
-        {
-            string message = GetDictionary()
-                [KeyWords.DownloadingErrorMessage];
-
-            snackbar.Add(message, Severity.Error);
-        });
-    }
-
-    private void UpdateProgress(ref double progressVariable, double value)
-    {
-        if (Math.Abs(value - progressVariable) < 0.1)
+        if (Math.Abs(value - _progress) < 0.1)
             return;
 
-        progressVariable = value;
+        _progress = value;
         StateHasChanged();
     }
 
@@ -140,7 +120,7 @@ public partial class VideoComponent
         {
             await videoData.SetVideoAsync(Video.Url, Video.VideoId);
 
-            await AddSnackbar();
+            snackbarHelper.ShowSuccessfullySavedVideosMessage();
             _isSaved = true;
         }
     }
@@ -167,28 +147,6 @@ public partial class VideoComponent
     {
         string encodedUrl = Uri.EscapeDataString(Video.Url);
         navManager.NavigateTo($"/Watch/{encodedUrl}");
-    }
-
-    private async Task AddSnackbar()
-    {
-        await InvokeAsync(() =>
-        {
-            string successMessage = GetDictionary(Video.Title)
-               [KeyWords.SuccessfullySavedData];
-
-            snackbar.Add(successMessage, Severity.Normal);
-        });
-    }
-
-    private async Task SnackbarDownload()
-    {
-        await InvokeAsync(() =>
-        {
-            string successMessage = GetDictionary(Video.Title)
-                [KeyWords.SuccessfullyDownloaded];
-
-            snackbar.Add(successMessage, Severity.Normal);
-        });
     }
 
     private string GetSaveVideoText()
