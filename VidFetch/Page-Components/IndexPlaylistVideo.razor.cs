@@ -47,6 +47,7 @@ public partial class IndexPlaylistVideo
         if (string.IsNullOrWhiteSpace(PlaylistUrl) is false)
         {
             _playlist = await youtube.GetPlaylistAsync(PlaylistUrl);
+            PreparePlaylistDisplay();
         }
 
         _visibleVideos = videoLibrary.PlaylistVideos.Take(_loadedItems).ToList();
@@ -100,12 +101,26 @@ public partial class IndexPlaylistVideo
 
     private void PreparePlaylistDisplay()
     {
-        _showDialog = true;
-        _firstVideoInPlaylistUrl = _playlistUrl;
+        string playlistUrl = PlaylistUrl;
+        string text = _playlistUrl;
+
+        if (PlaylistUrl.Contains("index="))
+        {
+            _showDialog = true;
+            _firstVideoInPlaylistUrl = PlaylistUrl;
+        }
+
+        if (_playlistUrl.Contains("index="))
+        {
+            _showDialog = true;
+            _firstVideoInPlaylistUrl = _playlistUrl;
+        }
 
         _visibleVideos = videoLibrary.PlaylistVideos
             .Take(_loadedItems)
             .ToList();
+
+        PlaylistUrl = "";
     }
 
     private void ResetPlaylistUrl()
@@ -292,6 +307,7 @@ public partial class IndexPlaylistVideo
     private void CancelVideoDownload()
     {
         tokenHelper.CancelRequest(ref _videoTokenSource);
+        _showDialog = false;
     }
 
     private void CancelSaveVideo()

@@ -123,10 +123,13 @@
                            Class="my-7" />
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="(() => DownloadFirstVideo(_firstVideoInPlaylistUrl))">
-            @GetDictionary()[KeyWords.Download]
-        </MudButton>
-        <MudButton OnClick="(() => _showDialog = !_showDialog)">
+        @if (_videoTokenSource is null)
+        {
+            <MudButton Color="Color.Primary" OnClick="(() => DownloadFirstVideo(_firstVideoInPlaylistUrl))">
+                @GetDictionary()[KeyWords.Download]
+            </MudButton>
+        }
+        <MudButton OnClick="CancelVideoDownload" Color="Color.Error">
             @GetDictionary()[KeyWords.Cancel]
         </MudButton>
     </DialogActions>
