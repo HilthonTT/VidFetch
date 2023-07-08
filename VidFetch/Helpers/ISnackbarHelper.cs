@@ -11,10 +11,12 @@ public interface ISnackbarHelper
     void ShowSuccessfullyDownloadedMessage();
     void ShowSuccessfullyDownloadedMessage(string text);
     void ShowSuccessfullySavedVideosMessage();
-    void ShowSuccessfullyUpdatedDataMessage();
+    void ShowSuccessfullyUpdatedDataMessage(string text);
     void ShowEnterPlaylistUrl();
     void ShowErrorLoadingPlaylist();
     void ShowFfmpegError();
     void ShowNoVideoErrorMessage();
     void ShowSuccessfullySavedMessage(string text);
+    void ShowCurrentlyDownloading(string text);
+    void ShowSuccessfullyDeleteMessage(string text);
 }

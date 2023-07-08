@@ -30,9 +30,9 @@ public class SnackbarHelper : ISnackbarHelper
         _snackbar.Add(message);
     }
 
-    public void ShowSuccessfullyUpdatedDataMessage()
+    public void ShowSuccessfullyUpdatedDataMessage(string text)
     {
-        string message = GetDictionary()
+        string message = GetDictionary(text)
             [KeyWords.SuccessfullyUpdatedData];
 
         _snackbar.Add(message);
@@ -75,7 +75,7 @@ public class SnackbarHelper : ISnackbarHelper
     public void ShowErrorOperationCanceledMessage()
     {
         string message = GetDictionary()
-            [KeyWords.OperationCancelled];
+            [KeyWords.OperationCanceled];
 
         _snackbar.Add(message, Severity.Error);
 
@@ -133,6 +133,22 @@ public class SnackbarHelper : ISnackbarHelper
     {
         string message = GetDictionary()
             [KeyWords.EnterPlaylistUrl];
+
+        _snackbar.Add(message);
+    }
+
+    public void ShowCurrentlyDownloading(string text)
+    {
+        string message = GetDictionary(text)
+            [KeyWords.CurrentlyDownloading];
+
+        _snackbar.Add(message);
+    }
+
+    public void ShowSuccessfullyDeleteMessage(string text)
+    {
+        string message = GetDictionary(text)
+           [KeyWords.SuccessfullyDeletedData];
 
         _snackbar.Add(message);
     }

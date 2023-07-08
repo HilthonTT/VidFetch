@@ -86,13 +86,7 @@ public partial class SavedData<TData> where TData : class
             var token = InitializeToken();
             var progress = new Progress<double>(UpdateProgress);
 
-            foreach (var data in _datas)
-            {
-                if (data is VideoModel video)
-                {
-                    await DownloadVideo(video, progress, token);
-                }
-            }
+            await dataHelper.DownloadAllVideosAsync(_datas, progress, token);
         }
         catch (OperationCanceledException)
         {
@@ -165,51 +159,14 @@ public partial class SavedData<TData> where TData : class
         await folderHelper.OpenFolderLocationAsync();
     }
 
-    private async Task DownloadVideo(VideoModel video, Progress<double> progress, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-
-        _downloadingVideoText = video.Title;
-        await youtube.DownloadVideoAsync(video.Url, progress, token);
-
-        snackbarHelper.ShowSuccessfullyDownloadedMessage();
-    }
-
-    private async Task DeleteData(TData data)
-    {
-        RemoveData(data);
-
-        switch (data)
-        {
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                await videoData.DeleteVideoAsync(data as VideoModel);
-                break;
-
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                await channelData.DeleteChannelAsync(data as ChannelModel);
-                break;
-
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                await playlistData.DeletePlaylistAsync(data as PlaylistModel);
-                break;
-            default:
-                break;
-        }
-    }
-
     private async Task UpdateAllDatas()
     {
         try
         {
             var dataCopy = _datas.ToList();
             var token = tokenHelper.InitializeToken(ref _updateTokenSource);
-            foreach (var d in dataCopy)
-            {
-                token.ThrowIfCancellationRequested();
-                await UpdateData(d, token);
-            } 
-
-            snackbarHelper.ShowSuccessfullyUpdatedDataMessage();
+            
+            await dataHelper.UpdateAllAsync(dataCopy, RemoveData, token);
         }
         catch (OperationCanceledException)
         {
@@ -225,91 +182,19 @@ public partial class SavedData<TData> where TData : class
         }
     }
 
-    private async Task UpdateData(TData data, CancellationToken token)
-    {
-        switch (data)
-        {
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                await UpdateVideo(data, token);
-                break;
-
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                await UpdateChannel(data, token);
-                break;
-
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                await UpdatePlaylist(data, token);
-                break;
-            default:
-                break;
-        }
-    }
-
-    private async Task UpdateVideo(TData video, CancellationToken token)
-    {
-        var convertedVideo = video as VideoModel;
-        var newVideo = await youtube.GetVideoAsync(convertedVideo.Url, token);
-
-        if (newVideo is null)
-        {
-            RemoveData(video);
-
-            snackbarHelper.ShowSuccessfullyUpdatedDataMessage();
-
-            await videoData.DeleteVideoAsync(convertedVideo);
-        }
-        else
-        {
-            await videoData.SetVideoAsync(convertedVideo.Url, convertedVideo.VideoId);
-        }
-    }
-
-    private async Task UpdateChannel(TData channel, CancellationToken token)
-    {
-        var convertedChannel = channel as ChannelModel;
-        var newChannel = await youtube.GetChannelAsync(convertedChannel.Url, token);
-        if (newChannel is null)
-        {
-            RemoveData(channel);
-
-            snackbarHelper.ShowNoLongerExistsMessage();
-
-            await channelData.DeleteChannelAsync(convertedChannel);
-        }
-        else
-        {
-            await channelData.SetChannelAsync(convertedChannel.Url, convertedChannel.ChannelId);
-        }
-    }
-
-    private async Task UpdatePlaylist(TData playlist, CancellationToken token)
-    {
-        var convertedPlaylist = playlist as PlaylistModel;
-        var newPlaylist = await youtube.GetPlaylistAsync(convertedPlaylist.Url, token);
-        if (newPlaylist is null)
-        {
-            RemoveData(playlist);
-
-            snackbarHelper.ShowNoLongerExistsMessage();
-
-            await playlistData.DeletePlaylistAsync(convertedPlaylist);
-        }
-        else
-        {
-            await playlistData.SetPlaylistAsync(convertedPlaylist.Url, convertedPlaylist.PlaylistId);
-        }
-    }
-
     private async Task DeleteAllData()
     {
         CloseDialog();
         var datasCopy = _datas.ToList();
-        foreach (var d in datasCopy)
-        {
-            RemoveData(d);
-            await DeleteData(d);
-        }
+        await dataHelper.DeleteAllAsync(datasCopy, RemoveData);
     }
+
+    private async Task DeleteData(TData data)
+    {
+        RemoveData(data);
+        await dataHelper.DeleteDataAsync(data);
+    }
+
     private void UpdateProgress(double value)
     {
         if (Math.Abs(value - _videosProgress) < 0.1)

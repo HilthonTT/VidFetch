@@ -30,43 +30,45 @@ public static class RegisterServices
         builder.Logging.AddDebug();
 #endif
         builder.Services.AddMudServices();
-        builder.Services.AddScoped<ISnackbarHelper, SnackbarHelper>();
-
+        
         // YoutubeExplode client
-        builder.Services.AddTransient<YoutubeClient>();
+        builder.Services.AddScoped<YoutubeClient>();
 
         // Language
-        builder.Services.AddSingleton<ILanguageExtension, LanguageExtension>();
+        builder.Services.AddScoped<ILanguageExtension, LanguageExtension>();
 
         // Caching
         builder.Services.AddMemoryCache();
 
-        builder.Services.AddTransient<IVideoCache, VideoCache>();
-        builder.Services.AddTransient<IChannelCache, ChannelCache>();
-        builder.Services.AddTransient<IPlaylistCache, PlaylistCache>();
-        builder.Services.AddTransient<IStreamInfoCache, StreamInfoCache>();
-        builder.Services.AddTransient<ILoadedItemsCache,  LoadedItemsCache>();
+        builder.Services.AddScoped<IVideoCache, VideoCache>();
+        builder.Services.AddScoped<IChannelCache, ChannelCache>();
+        builder.Services.AddScoped<IPlaylistCache, PlaylistCache>();
+        builder.Services.AddScoped<IStreamInfoCache, StreamInfoCache>();
+        builder.Services.AddScoped<ILoadedItemsCache,  LoadedItemsCache>();
 
         // Video Library (Keeps the loaded data in)
-        builder.Services.AddSingleton<IVideoLibrary, VideoLibrary>();
+        builder.Services.AddScoped<IVideoLibrary, VideoLibrary>();
 
         // Helpers
-        builder.Services.AddSingleton(typeof(ISearchHelper<>), typeof(SearchHelper<>));
-        builder.Services.AddSingleton<ITokenHelper, TokenHelper>();
-        builder.Services.AddSingleton<IFolderHelper, FolderHelper>();
+        builder.Services.AddScoped(typeof(ISearchHelper<>), typeof(SearchHelper<>));
+        builder.Services.AddScoped(typeof(IDataHelper<>), typeof(DataHelper<>));
+        builder.Services.AddScoped<ISnackbarHelper, SnackbarHelper>();
+
+        builder.Services.AddScoped<ITokenHelper, TokenHelper>();
+        builder.Services.AddScoped<IFolderHelper, FolderHelper>();
 
         // Data Access
-        builder.Services.AddSingleton<ISettingsData, SettingsData>();
-        builder.Services.AddSingleton<IVideoData, VideoData>();
-        builder.Services.AddSingleton<IChannelData, ChannelData>();
-        builder.Services.AddSingleton<IPlaylistData, PlaylistData>();
+        builder.Services.AddScoped<ISettingsData, SettingsData>();
+        builder.Services.AddScoped<IVideoData, VideoData>();
+        builder.Services.AddScoped<IChannelData, ChannelData>();
+        builder.Services.AddScoped<IPlaylistData, PlaylistData>();
 
         // Personal Services
-        builder.Services.AddSingleton<IDefaultData, DefaultData>();
-        builder.Services.AddSingleton<IYoutube, Youtube>();
-        builder.Services.AddSingleton<IDownloadHelper, DownloadHelper>();
-        builder.Services.AddSingleton<IPathHelper, PathHelper>();
+        builder.Services.AddScoped<IDefaultData, DefaultData>();
+        builder.Services.AddScoped<IYoutube, Youtube>();
+        builder.Services.AddScoped<IDownloadHelper, DownloadHelper>();
+        builder.Services.AddScoped<IPathHelper, PathHelper>();
 
-        builder.Services.AddSingleton<ILauncher, LauncherWrapper>();
+        builder.Services.AddScoped<ILauncher, LauncherWrapper>();
     }
 }

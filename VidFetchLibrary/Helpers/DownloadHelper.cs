@@ -71,7 +71,7 @@ public class DownloadHelper : IDownloadHelper
         }
         catch (TaskCanceledException)
         {
-            throw new Exception("Task has been cancelled.");
+            throw new OperationCanceledException();
         }
         catch (Exception ex)
         {

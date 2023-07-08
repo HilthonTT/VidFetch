@@ -117,6 +117,7 @@ public partial class IndexPlaylistVideo
     {
         await OpenLoading.InvokeAsync(true);
         var videos = await youtube.GetPlayListVideosAsync(_playlistUrl);
+
         foreach (var v in videos)
         {
             if (IsVideoNotLoaded(v.VideoId))
@@ -150,14 +151,7 @@ public partial class IndexPlaylistVideo
             var token = InitializeTokenForPlaylists();
             var progress = new Progress<double>(UpdatePlaylistProgress);
 
-            var videosCopy = _visibleVideos.ToList();
-
-            foreach (var video in videosCopy)
-            {
-                await DownloadVideo(video, progress, token);
-            }
-
-            snackbarHelper.ShowSuccessfullySavedVideosMessage();
+            await dataHelper.DownloadAllVideosAsync(_visibleVideos, progress, token);
         }
         catch (OperationCanceledException)
         {
@@ -192,22 +186,6 @@ public partial class IndexPlaylistVideo
     private void UpdatePlaylistProgress(double value)
     {
         UpdateProgress(ref _playlistProgress, value);
-    }
-
-    private async Task DownloadVideo(VideoModel video, Progress<double> progress, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-        _currentDownloadingVideo = video.Title;
-
-        await youtube.DownloadVideoAsync(video.Url, progress, token, true, _playlist.Title);
-
-        snackbarHelper.ShowSuccessfullyDownloadedMessage(video.Title);
-
-        if (_settings.RemoveAfterDownload)
-        {
-            videoLibrary.PlaylistVideos.Remove(video);
-            _visibleVideos.Remove(video);
-        }
     }
 
     private async Task DownloadFirstVideo(string url)
@@ -248,13 +226,7 @@ public partial class IndexPlaylistVideo
             var videosCopy = videoLibrary.PlaylistVideos.ToList();
             var token = InitializeSaveAllToken();
 
-            foreach (var v in videosCopy)
-            {
-                token.ThrowIfCancellationRequested();
-                await videoData.SetVideoAsync(v.Url, v.VideoId);
-            }
-
-            snackbarHelper.ShowSuccessfullySavedVideosMessage();
+            await dataHelper.SaveAllAsync(videosCopy, token);
         }
         catch (OperationCanceledException)
         {

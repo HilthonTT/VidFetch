@@ -85,17 +85,9 @@ public partial class IndexData<TData> where TData : class
             ShowFFmpegWarningIfNeeded();
 
             var token = InitializeTokenDownload();
-            var progressReport = new Progress<double>(UpdateProgress);
+            var progress = new Progress<double>(UpdateProgress);
 
-            var dataCopy = _visibleData.ToList();
-
-            foreach (var d in dataCopy)
-            {
-                var video = d as VideoModel;
-                await DownloadVideo(video, progressReport, token);
-
-                RemoveDataIfRemoveAfterDownload(d);
-            }
+            await dataHelper.DownloadAllVideosAsync(_visibleData, progress, token, RemoveDataIfRemoveAfterDownload);
         }
         catch (OperationCanceledException)
         {
@@ -132,16 +124,6 @@ public partial class IndexData<TData> where TData : class
     private CancellationToken InitializeTokenDownload()
     {
         return tokenHelper.InitializeToken(ref _downloadTokenSource);
-    }
-
-    private async Task DownloadVideo(VideoModel video, Progress<double> progress, CancellationToken token)
-    {
-        token.ThrowIfCancellationRequested();
-
-        _downloadingVideoText = video.Title;
-        await youtube.DownloadVideoAsync(video.Url, progress, token);
-
-        snackbarHelper.ShowSuccessfullyDownloadedMessage(video.Title);
     }
 
     private void CancelVideosDownload()
@@ -191,18 +173,7 @@ public partial class IndexData<TData> where TData : class
     {
         await OpenLoading.InvokeAsync(true);
 
-        switch (typeof(TData))
-        {
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                await LoadChannel();
-                break;
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                await LoadVideo();
-                break;
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                await LoadPlaylist();
-                break;
-        }
+        _visibleData = await dataHelper.LoadDataAsync(_url, _loadedItems);
 
         if (_settings.SaveVideos)
         {
@@ -212,67 +183,28 @@ public partial class IndexData<TData> where TData : class
         await OpenLoading.InvokeAsync(false);
     }
 
-    private async Task LoadChannel()
-    {
-        var channel = await youtube.GetChannelAsync(_url);
-
-        if (IsDataNotLoaded(channel.ChannelId))
-        {
-            videoLibrary.Channels.Add(channel);
-        }
-
-        _visibleData = videoLibrary.Channels.Take(_loadedItems).ToList() as List<TData>;
-    }
-
-    private async Task LoadVideo()
-    {
-        var video = await youtube.GetVideoAsync(_url);
-
-        if (IsDataNotLoaded(video.VideoId))
-        {
-            videoLibrary.Videos.Add(video);
-        }
-
-        _visibleData = videoLibrary.Videos.Take(_loadedItems).ToList() as List<TData>;
-    }
-
-    private async Task LoadPlaylist()
-    {
-        var playlist = await youtube.GetPlaylistAsync(_url);
-
-        if (IsDataNotLoaded(playlist.PlaylistId))
-        {
-            videoLibrary.Playlists.Add(playlist);
-        }
-
-        _visibleData = videoLibrary.Playlists.Take(_loadedItems).ToList() as List<TData>;
-    }
-
     private async Task SaveData()
     {
+        var datas = new List<TData>();
+
         switch (typeof(TData))
         {
             case Type channelModelType when channelModelType == typeof(ChannelModel):
-                foreach (var channel in videoLibrary.Channels)
-                {
-                    await channelData.SetChannelAsync(channel.Url, channel.ChannelId);
-                }
+                datas = videoLibrary.Channels.ToList() as List<TData>;
                 break;
 
             case Type videoModelType when videoModelType == typeof(VideoModel):
-                foreach (var video in videoLibrary.Videos)
-                {
-                    await videoData.SetVideoAsync(video.Url, video.VideoId);
-                }
+                datas = videoLibrary.Videos.ToList() as List<TData>;
                 break;
 
             case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                foreach (var playlist in videoLibrary.Playlists)
-                {
-                    await playlistData.SetPlaylistAsync(playlist.Url, playlist.PlaylistId);
-                }
+                datas = videoLibrary.Playlists.ToList() as List<TData>;
+                break;
+            default:
                 break;
         }
+
+        await dataHelper.SaveAllAsync(datas, new());
     }
 
     private async Task<IEnumerable<string>> FilterSearchData(string searchInput)
@@ -472,21 +404,6 @@ public partial class IndexData<TData> where TData : class
         }
 
         return $"{searchText} {GetDataResults().Count} {GetDataTypeName()}";
-    }
-
-    private bool IsDataNotLoaded(string dataId)
-    {
-        switch (typeof(TData))
-        {
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                return videoLibrary.Channels.Any(c => c.ChannelId == dataId) is false;
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                return videoLibrary.Videos.Any(v => v.VideoId == dataId) is false; ;
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                return videoLibrary.Playlists.Any(p => p.PlaylistId == dataId) is false;
-            default:
-                return false;
-        }
     }
 
     private bool IsPlaylistUrl()
