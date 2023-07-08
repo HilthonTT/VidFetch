@@ -22,14 +22,6 @@ public class SnackbarHelper : ISnackbarHelper
         _snackbar.Add(message, Severity.Error);
     }
 
-    public void ShowSuccessfullyDownloadedMessage()
-    {
-        string message = GetDictionary()
-            [KeyWords.SuccessfullyDownloaded];
-
-        _snackbar.Add(message);
-    }
-
     public void ShowSuccessfullyUpdatedDataMessage(string text)
     {
         string message = GetDictionary(text)

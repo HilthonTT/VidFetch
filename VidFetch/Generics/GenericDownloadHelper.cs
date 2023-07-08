@@ -40,7 +40,7 @@ public class GenericDownloadHelper<TData> : IGenericDownloadHelper<TData> where 
             RemoveData(data);
         }
 
-        string videos = GetDictionary()[KeyWords.Videos];
+        string videos = GetDictionary()[KeyWords.Videos].ToLower();
         _snackbarHelper.ShowSuccessfullyDownloadedMessage(videos);
     }
 
@@ -51,7 +51,7 @@ public class GenericDownloadHelper<TData> : IGenericDownloadHelper<TData> where 
         _snackbarHelper.ShowCurrentlyDownloading(video.Title);
         await _youtube.DownloadVideoAsync(video.Url, progress, token);
 
-        _snackbarHelper.ShowSuccessfullyDownloadedMessage();
+        _snackbarHelper.ShowSuccessfullyDownloadedMessage(video.Title);
     }
 
     private Dictionary<KeyWords, string> GetDictionary()

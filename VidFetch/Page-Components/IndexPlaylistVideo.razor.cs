@@ -213,7 +213,12 @@ public partial class IndexPlaylistVideo
             });
 
             await youtube.DownloadVideoAsync(url, progressReport, cancellationToken);
-            await InvokeAsync(snackbarHelper.ShowSuccessfullySavedVideosMessage);
+
+            await InvokeAsync(() =>
+            {
+                string video = GetDictionary()[KeyWords.Video].ToLower();
+                snackbarHelper.ShowSuccessfullyDownloadedMessage(video);
+            });
         }
         catch
         {

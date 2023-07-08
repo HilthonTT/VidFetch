@@ -8,7 +8,6 @@ public interface ISnackbarHelper
     void ShowErrorWhileUpdatingMessage();
     void ShowNoLongerExistsMessage();
     void ShowErrorOperationCanceledMessage();
-    void ShowSuccessfullyDownloadedMessage();
     void ShowSuccessfullyDownloadedMessage(string text);
     void ShowSuccessfullySavedVideosMessage();
     void ShowSuccessfullyUpdatedDataMessage(string text);

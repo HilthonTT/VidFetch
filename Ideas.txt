@@ -5,3 +5,4 @@ Ideas
 https://github.com/Tyrrrz/YoutubeExplode/tree/master/YoutubeExplode.Converter
 
 	
+Fix bug where video would popup 2 snackbars.
