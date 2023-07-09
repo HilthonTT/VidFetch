@@ -30,8 +30,8 @@ public class PlaylistModel
         Description = playlist.Description;
         Url = playlist.Url;
         ThumbnailUrl = GetThumbnailSource(playlist.Thumbnails[0].Url);
-        AuthorName = playlist.Author.ChannelTitle;
-        AuthorUrl = playlist.Author.ChannelUrl;
+        AuthorName = playlist.Author?.ChannelTitle;
+        AuthorUrl = playlist.Author?.ChannelUrl;
         AuthorThumbnailUrl = "";
     }
 
