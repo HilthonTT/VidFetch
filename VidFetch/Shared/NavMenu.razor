@@ -1,6 +1,7 @@
-﻿@inject NavigationManager navManager
+﻿@inject ILanguageExtension languageExtension
+@inject NavigationManager navManager
 
-<MudAppBar Color="Color.Primary" Fixed="false">
+<MudAppBar Color="Color.Dark" Fixed="false">
     <MudIconButton Icon="@Icons.Material.Filled.Home"
                    Color="Color.Inherit"
                    Edge="Edge.Start"
@@ -9,22 +10,22 @@
     <MudIconButton Icon="@Icons.Material.Filled.Download"
                    Color="Color.Inherit"
                    Edge="Edge.Start"
-                   Title="Download"
+                   Title="@GetDictionary()[KeyWords.Download]"
     @onclick="LoadPasteLinkPage" />
     <MudIconButton Icon="@Icons.Material.Filled.PersonalVideo"
                    Color="Color.Inherit"
                    Edge="Edge.Start"
-                   Title="Saved Medias"
+                   Title="@GetDictionary()[KeyWords.SavedMedias]"
     @onclick="LoadSavedMediasPage" />
     <MudIconButton Icon="@Icons.Material.Filled.Search"
                    Color="Color.Inherit"
                    Edge="Edge.Start"
-                   Title="Search"
+                   Title="@GetDictionary()[KeyWords.Search]"
     @onclick="LoadSearchPage" />
     <MudSpacer />
     <MudIconButton Icon="@Icons.Material.Filled.Settings"
                    Color="Color.Inherit"
-                   Title="Settings"
+                   Title="@GetDictionary()[KeyWords.Settings]"
     @onclick="LoadSettingsPage" />
     <MudIconButton Icon="@Icons.Custom.Brands.GitHub"
                    Color="Color.Inherit"

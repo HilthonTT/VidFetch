@@ -1,7 +1,15 @@
+using VidFetchLibrary.Language;
+
 namespace VidFetch.Shared;
 
 public partial class NavMenu
 {
+    private Dictionary<KeyWords, string> GetDictionary()
+    {
+        var dictionary = languageExtension.GetDictionary();
+        return dictionary;
+    }
+
     private void LoadHomePage()
     {
         navManager.NavigateTo("/");

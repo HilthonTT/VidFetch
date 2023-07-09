@@ -26,7 +26,6 @@ public partial class IndexData<TData> where TData : class
     private SettingsLibrary _settings;
     private CancellationTokenSource _downloadTokenSource;
     private List<TData> _visibleData = new();
-    private string _url = "";
     private string _searchText = "";
     private string _downloadingVideoText = "";
     private double _progress = 0;
@@ -146,44 +145,36 @@ public partial class IndexData<TData> where TData : class
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(_url))
+            string url = await clipboard.GetTextAsync();
+
+            if (string.IsNullOrWhiteSpace(url))
             {
                 return;
             }
 
-            if (IsPlaylistUrl())
+            if (IsPlaylistUrl(url))
             {
-                await GetPlaylistUrl.InvokeAsync(_url);
-                await AddVideos.InvokeAsync(_url);
+                await GetPlaylistUrl.InvokeAsync(url);
+                await AddVideos.InvokeAsync(url);
                 await SwitchEvent.InvokeAsync();
             }
             else
             {
                 await LoadSingleData();
             }
-
-            ResetUrl();
         }
         catch
         {
             await InvokeAsync(snackbarHelper.ShowErrorWhileLoadingMessage);
         }
-        finally
-        {
-            ResetUrl();
-        }
-    }
-
-    private void ResetUrl()
-    {
-        _url = "";
     }
 
     private async Task LoadSingleData()
     {
+        string url = await clipboard.GetTextAsync();
         await OpenLoading.InvokeAsync(true);
 
-        _visibleData = await generalHelper.LoadDataAsync(_url, _loadedItems);
+        _visibleData = await generalHelper.LoadDataAsync(url, _loadedItems);
 
         if (_settings.SaveVideos)
         {
@@ -380,15 +371,10 @@ public partial class IndexData<TData> where TData : class
         return GetPluralSearchBarText(count);
     }
 
-    private string GetEnterUrlText()
+    private string GetProgressText()
     {
-        return typeof(TData) switch
-        {
-            Type video when video == typeof(VideoModel) => GetDictionary()[KeyWords.EnterUrlTextVideo],
-            Type channel when channel == typeof(ChannelModel) => GetDictionary()[KeyWords.EnterUrlTextChannel],
-            Type playlist when playlist == typeof(PlaylistModel) => GetDictionary()[KeyWords.EnterUrlTextPlaylist],
-            _ => "",
-        };
+        string progress = (_progress * 100).ToString("0.##");
+        return $"{progress}%";
     }
 
     private string GetSingularSearchBarText()
@@ -413,9 +399,9 @@ public partial class IndexData<TData> where TData : class
         };
     }
 
-    private bool IsPlaylistUrl()
+    private static bool IsPlaylistUrl(string url)
     {
-        return Uri.IsWellFormedUriString(_url, UriKind.Absolute) && _url.Contains("list=");
+        return Uri.IsWellFormedUriString(url, UriKind.Absolute) && url.Contains("list=");
     }
 
     private bool IsFFmpegInvalid()
