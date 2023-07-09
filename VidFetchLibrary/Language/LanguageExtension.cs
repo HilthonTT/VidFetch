@@ -4,10 +4,19 @@ namespace VidFetchLibrary.Language;
 public class LanguageExtension : ILanguageExtension
 {
     private readonly ISettingsData _settingsData;
+    private readonly IEnglishDictionary _english;
+    private readonly IFrenchDictionary _french;
+    private readonly IIndonesianDictionary _indonesian;
 
-    public LanguageExtension(ISettingsData settingsData)
+    public LanguageExtension(ISettingsData settingsData,
+                             IEnglishDictionary english,
+                             IFrenchDictionary french,
+                             IIndonesianDictionary indonesian)
     {
         _settingsData = settingsData;
+        _english = english;
+        _french = french;
+        _indonesian = indonesian;
     }
 
     public Dictionary<KeyWords, string> GetDictionary(string text = "")
@@ -16,32 +25,11 @@ public class LanguageExtension : ILanguageExtension
 
         return settings.SelectedLanguage switch
         {
-            Data.Language.English => EnglishDictionary(text),
-            Data.Language.French => FrenchDictionary(text),
-            Data.Language.Indonesian => IndonesianDictionary(text),
-            _ => EnglishDictionary(),
+            Data.Language.English => _english.GetDictionary(text),
+            Data.Language.French => _french.GetDictionary(text),
+            Data.Language.Indonesian => _indonesian.GetDictionary(text),
+            _ => _english.GetDictionary(text),
         };
-    }
-
-    private static Dictionary<KeyWords, string> EnglishDictionary(string text = "")
-    {
-        var englishDictionary = Language.EnglishDictionary.Dictionary(text);
-
-        return englishDictionary;
-    }
-
-    private static Dictionary<KeyWords, string> FrenchDictionary(string text = "")
-    {
-        var frenchDictionary = Language.FrenchDictionary.Dictionary(text);
-
-        return frenchDictionary;
-    }
-
-    private static Dictionary<KeyWords, string> IndonesianDictionary(string text = "")
-    {
-        var indonesianDictionary = Language.IndonesianDictionary.Dictionary(text);
-
-        return indonesianDictionary;
     }
 }
 

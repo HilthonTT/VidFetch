@@ -368,7 +368,7 @@ public partial class IndexData<TData> where TData : class
 
         if (GetDataResults().Count == 1)
         {
-            return GetPluralSearchBarText("1");
+            return GetSingularSearchBarText();
         }
 
         string count = GetDataResults().Count.ToString();

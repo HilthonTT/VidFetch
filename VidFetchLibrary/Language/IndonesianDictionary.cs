@@ -1,7 +1,37 @@
-﻿namespace VidFetchLibrary.Language;
-public static class IndonesianDictionary
+﻿using Microsoft.Extensions.Caching.Memory;
+
+namespace VidFetchLibrary.Language;
+public class IndonesianDictionary : IIndonesianDictionary
 {
-    public static Dictionary<KeyWords, string> Dictionary(string text)
+    private const string CacheName = nameof(IndonesianDictionary);
+    private const int CacheTime = 5;
+    private readonly IMemoryCache _cache;
+
+    public IndonesianDictionary(IMemoryCache cache)
+    {
+        _cache = cache;
+    }
+
+    public Dictionary<KeyWords, string> GetDictionary(string text)
+    {
+        string key = $"{CacheName}-{text}";
+
+        var dictionary = _cache.GetOrCreate(key, entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+
+            return CreateDictionary(text);
+        });
+
+        if (dictionary is null)
+        {
+            _cache.Remove(key);
+        }
+
+        return dictionary;
+    }
+
+    public static Dictionary<KeyWords, string> CreateDictionary(string text)
     {
         var indonesianDictionary = new Dictionary<KeyWords, string>
         {

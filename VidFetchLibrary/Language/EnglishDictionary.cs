@@ -1,7 +1,37 @@
-﻿namespace VidFetchLibrary.Language;
-public static class EnglishDictionary
+﻿using Microsoft.Extensions.Caching.Memory;
+
+namespace VidFetchLibrary.Language;
+public class EnglishDictionary : IEnglishDictionary
 {
-    public static Dictionary<KeyWords, string> Dictionary(string text)
+    private const string CacheName = nameof(EnglishDictionary);
+    private const int CacheTime = 5;
+    private readonly IMemoryCache _cache;
+
+    public EnglishDictionary(IMemoryCache cache)
+    {
+        _cache = cache;
+    }
+
+    public Dictionary<KeyWords, string> GetDictionary(string text)
+    {
+        string key = $"{CacheName}-{text}";
+
+        var dictionary = _cache.GetOrCreate(key, entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+
+            return CreateDictionary(text);
+        });
+
+        if (dictionary is null)
+        {
+            _cache.Remove(key);
+        }
+
+        return dictionary;
+    }
+
+    private static Dictionary<KeyWords, string> CreateDictionary(string text)
     {
         var englishDictonary = new Dictionary<KeyWords, string>
         {

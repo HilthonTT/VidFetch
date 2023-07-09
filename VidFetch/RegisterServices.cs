@@ -45,6 +45,9 @@ public static class RegisterServices
 
         // Language
         builder.Services.AddScoped<ILanguageExtension, LanguageExtension>();
+        builder.Services.AddScoped<IEnglishDictionary, EnglishDictionary>();
+        builder.Services.AddScoped<IFrenchDictionary, FrenchDictionary>();
+        builder.Services.AddScoped<IIndonesianDictionary, IndonesianDictionary>();
 
         // Caching
         builder.Services.AddMemoryCache();
