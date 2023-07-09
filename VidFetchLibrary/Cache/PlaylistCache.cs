@@ -53,16 +53,17 @@ public class PlaylistCache : IPlaylistCache
             var results = await _youtube.Search.GetPlaylistsAsync(searchInput, token)
                .CollectAsync(MaxDataCount);
 
-            return results.Select(v => new PlaylistModel(v))
-                .ToList();
+            return results;
         });
 
         if (output is null)
         {
             _cache.Remove(key);
+            return new();
         }
 
-        return output;
+        var playlists = output.Select(p => new PlaylistModel(p)).ToList();
+        return playlists;
     }
 
     private static string CachePlaylistSearch(string searchInput)

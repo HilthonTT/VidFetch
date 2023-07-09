@@ -134,16 +134,17 @@ public class VideoCache : IVideoCache
             var results = await _youtube.Search.GetVideosAsync(searchInput, token)
                .CollectAsync(MaxDataCount);
 
-            return results.Select(v => new VideoModel(v))
-                .ToList();
+            return results;
         });
 
         if (output is null)
         {
             _cache.Remove(key);
+            return new();
         }
 
-        return output;
+        var videos = output.Select(v => new VideoModel(v)).ToList();
+        return videos;
     }
 
     public string CachePrimaryVideoKey(string url)

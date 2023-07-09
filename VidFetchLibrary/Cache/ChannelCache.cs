@@ -69,16 +69,17 @@ public class ChannelCache : IChannelCache
                .GetChannelsAsync(searchInput, token)
                .CollectAsync(MaxDataCount);
 
-            return results.Select(v => new ChannelModel(v))
-                .ToList();
+            return results;
         });
 
         if (output is null)
         {
             _cache.Remove(key);
+            return new();
         }
 
-        return output;
+        var channels = output.Select(c => new ChannelModel(c)).ToList();
+        return channels;
     }
 
     private static string CacheChannelSearch(string searchInput)
