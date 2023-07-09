@@ -78,5 +78,6 @@ public static class RegisterServices
         builder.Services.AddScoped<IPathHelper, PathHelper>();
 
         builder.Services.AddScoped<ILauncher, LauncherWrapper>();
+        builder.Services.AddScoped<IClipboard, ClipboardWrapper>();
     }
 }
