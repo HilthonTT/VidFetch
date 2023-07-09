@@ -63,6 +63,7 @@ public static class RegisterServices
 
         // Helpers
         builder.Services.AddScoped(typeof(ISearchHelper<>), typeof(SearchHelper<>));
+        builder.Services.AddScoped(typeof(IVideoLibraryFilterHelper<>), typeof(VideoLibraryFilterHelper<>));
         builder.Services.AddScoped<ISnackbarHelper, SnackbarHelper>();
 
         builder.Services.AddScoped<ITokenHelper, TokenHelper>();

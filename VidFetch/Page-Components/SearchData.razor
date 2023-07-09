@@ -3,9 +3,11 @@
 @inject IVideoLibrary videoLibrary
 @inject ITokenHelper tokenHelper
 @inject ISearchHelper<TData> searchHelper
+@inject IVideoLibraryFilterHelper<TData> filterHelper
 @inject IFolderHelper folderHelper
 @inject ILoadedItemsCache loadedItemsCache
 @inject ILanguageExtension languageExtension
+
 
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">

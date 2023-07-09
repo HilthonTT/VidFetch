@@ -106,3 +106,14 @@ public enum Language
     French,
     Indonesian,
 }
+
+public enum VideoLibraryList
+{
+    Videos,
+    PlaylistVideos,
+    Channels,
+    Playlists,
+    VideoResults,
+    ChannelResults,
+    PlaylistResults,
+}

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
 using VidFetchLibrary.Language;
+using VidFetchLibrary.Data;
 
 namespace VidFetch.Page_Components;
 
@@ -48,20 +49,8 @@ public partial class IndexData<TData> where TData : class
 
     private List<TData> GetDataResults()
     {
-        switch (typeof(TData))
-        {
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                return videoLibrary.Videos as List<TData>;
-
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                return videoLibrary.Channels as List<TData>;
-
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                return videoLibrary.Playlists as List<TData>;
-
-            default:
-                return new List<TData>();
-        }
+        var list = GetList();
+        return filterHelper.GetDataResults(list);
     }
 
     private void LoadMoreData()
@@ -89,7 +78,7 @@ public partial class IndexData<TData> where TData : class
         {
             ShowFFmpegWarningIfNeeded();
 
-            var token = InitializeTokenDownload();
+            var token = tokenHelper.InitializeToken(ref _downloadTokenSource);
             var progress = new Progress<double>(async val =>
             {
                 await UpdateProgress(val);
@@ -127,11 +116,6 @@ public partial class IndexData<TData> where TData : class
         }
 
         snackbarHelper.ShowFfmpegError();
-    }
-
-    private CancellationToken InitializeTokenDownload()
-    {
-        return tokenHelper.InitializeToken(ref _downloadTokenSource);
     }
 
     private void CancelVideosDownload()
@@ -190,44 +174,16 @@ public partial class IndexData<TData> where TData : class
 
     private async Task SaveData()
     {
-        var datas = new List<TData>();
-
-        switch (typeof(TData))
-        {
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                datas = videoLibrary.Channels.ToList() as List<TData>;
-                break;
-
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                datas = videoLibrary.Videos.ToList() as List<TData>;
-                break;
-
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                datas = videoLibrary.Playlists.ToList() as List<TData>;
-                break;
-            default:
-                break;
-        }
+        var list = GetList();
+        var datas = filterHelper.GetDataResults(list);
 
         await generalHelper.SaveDataAsync(datas, new());
     }
 
     private async Task<IEnumerable<string>> FilterSearchData(string searchInput)
     {
-        switch (typeof(TData))
-        {
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                return await searchHelper.SearchAsync(videoLibrary.Videos, searchInput);
-
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                return await searchHelper.SearchAsync(videoLibrary.Channels, searchInput);
-
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                return await searchHelper.SearchAsync(videoLibrary.Playlists, searchInput);
-
-            default:
-                return default;
-        }
+        var list = GetList();
+        return await filterHelper.FilterSearchData(list, searchInput);
     }
 
     private async Task OpenFileLocation()
@@ -237,29 +193,8 @@ public partial class IndexData<TData> where TData : class
 
     private void FilterData()
     {
-        switch (typeof(TData))
-        {
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                videoLibrary.Channels = searchHelper.FilterList(videoLibrary.Channels, _searchText);
-                _visibleData = searchHelper.FilterList(videoLibrary.Channels, _searchText)
-                    .Take(_loadedItems)
-                    .ToList() as List<TData>;
-                break;
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                videoLibrary.Playlists = searchHelper.FilterList(videoLibrary.Playlists, _searchText);
-                _visibleData = searchHelper.FilterList(videoLibrary.Playlists, _searchText)
-                    .Take(_loadedItems)
-                    .ToList() as List<TData>;
-                break;
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                videoLibrary.Videos = searchHelper.FilterList(videoLibrary.Videos, _searchText);
-                _visibleData = searchHelper.FilterList(videoLibrary.Videos, _searchText)
-                    .Take(_loadedItems)
-                    .ToList() as List<TData>;
-                break;
-            default:
-                break;
-        }
+        var list = GetList();
+        _visibleData = filterHelper.FilterData(list, _searchText, _loadedItems);
     }
 
     private async Task UpdateProgress(double value)
@@ -276,21 +211,9 @@ public partial class IndexData<TData> where TData : class
 
     private void ClearList()
     {
-        switch (typeof(TData))
-        {
-            case Type channelModelType when channelModelType == typeof(ChannelModel):
-                videoLibrary.Channels.Clear();
-                break;
-            case Type playlistModelType when playlistModelType == typeof(PlaylistModel):
-                videoLibrary.Playlists.Clear();
-                break;
-            case Type videoModelType when videoModelType == typeof(VideoModel):
-                videoLibrary.Videos.Clear();
-                break;
-            default:
-                break;
-        }
+        var list = GetList();
 
+        filterHelper.ClearListData(list);
         _visibleData.Clear();
     }
 
@@ -455,5 +378,16 @@ public partial class IndexData<TData> where TData : class
     private List<PlaylistModel> GetPlaylists()
     {
         return _visibleData.Take(_loadedItems).ToList() as List<PlaylistModel>;
+    }
+
+    private static VideoLibraryList GetList()
+    {
+        return typeof(TData) switch
+        {
+            Type channel when channel == typeof(ChannelModel) => VideoLibraryList.Channels,
+            Type playlist when playlist == typeof(PlaylistModel) => VideoLibraryList.Playlists,
+            Type video when video == typeof(VideoModel) => VideoLibraryList.Videos,
+            _ => VideoLibraryList.Videos,
+        };
     }
 }
