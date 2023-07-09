@@ -374,20 +374,20 @@ public partial class IndexPlaylistVideo
 
     private string GetSearchBarText()
     {
-        string searchText = GetDictionary()[KeyWords.Search];
-        string videoText = GetDictionary()[KeyWords.Video];
+        int videoCount = videoLibrary.PlaylistVideos.Count;
 
-        if (videoLibrary?.PlaylistVideos.Count <= 0)
+        if (videoCount <= 0)
         {
-            return $"{searchText} {videoText}";
+            return GetDictionary()[KeyWords.SearchVideo];
         }
 
-        if (videoLibrary.PlaylistVideos?.Count == 1)
+        if (videoCount == 1)
         {
-            return $"{searchText} 1 {videoText}";
+            return GetDictionary("1")[KeyWords.SearchVideoPlural];
         }
 
-        return $"{searchText} {videoLibrary.PlaylistVideos?.Count} {videoText}";
+        string count = videoCount.ToString();
+        return GetDictionary(count)[KeyWords.SearchVideoPlural];
     }
 
     private Dictionary<KeyWords, string> GetDictionary(string text = "")

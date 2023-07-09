@@ -14,7 +14,7 @@
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
         <MudTextField @bind-Value="_url"
-                      Label="@($"Enter {GetDataTypeName()} URL")"
+                      Label="@GetEnterUrlText()"
                       Variant="Variant.Outlined"
                       Adornment="Adornment.End"
                       AdornmentIcon="@Icons.Material.Filled.Download"

@@ -49,7 +49,7 @@
                         <MudItem xs="6">
                             <div class="d-flex align-items-center mb-3">
                                 <MudSelect @bind-Value="_settingsModel.SelectedPath"
-                                           Label="Download Path:"
+                                           Label="@GetDictionary()[KeyWords.DownloadPath]"
                                            Class="mud-input-root text-start"
                                            HelperText="@GetDictionary()[KeyWords.SelectedPath]"
                                            Required="true">
@@ -63,7 +63,7 @@
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudSelect @bind-Value="_settingsModel.SelectedFormat"
-                                           Label="Video Format:"
+                                           Label="@GetDictionary()[KeyWords.VideoFormat]"
                                            Class="mud-input-root text-start"
                                            HelperText="@GetDictionary()[KeyWords.SelectedFormat]"
                                            Required="true">
@@ -75,7 +75,7 @@
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudSelect @bind-Value="_settingsModel.SelectedResolution"
-                                           Label="Selected Resolution:"
+                                           Label="@GetDictionary()[KeyWords.Resolution]"
                                            Class="mud-input-root text-start"
                                            HelperText="@GetDictionary()[KeyWords.SelectedResolution]"
                                            Required="true"
@@ -88,7 +88,7 @@
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudSelect @bind-Value="_settingsModel.SelectedLanguage"
-                                           Label="Selected Language"
+                                           Label="@GetDictionary()[KeyWords.Language]"
                                            Class="mud-input-root text-start"
                                            HelperText="@GetDictionary()[KeyWords.SelectedLanguage]"
                                            Required="true">
@@ -119,7 +119,7 @@
             </MudCardContent>
         </MudCard>
     </MudTabPanel>
-    <MudTabPanel Text="Ffmpeg Settings">
+    <MudTabPanel Text="@GetDictionary()[KeyWords.FfmpegSettings]">
         <MudCard>
             <MudCardContent>
                 <EditForm Model="_ffmpegSettingsModel" OnValidSubmit="SaveFfmpegSettings">
@@ -130,18 +130,17 @@
                             <div class="d-flex align-items-center mb-3">
                                 <MudTextField @bind-Value="_ffmpegSettingsModel.FfmpegPath"
                                               Required="true"
-                                              HelperText="Input your ffmpeg file path to the .exe"
-                                              RequiredError="You must input your ffmpeg file path to the .exe"
-                                              Label="Ffmpeg File Path"
+                                              HelperText="@GetDictionary()[KeyWords.FfmpegHelperText]"
+                                              Label="@GetDictionary()[KeyWords.Ffmpeg]"
                                               FullWidth="true"
                                               Clearable="true"
                                               OnClearButtonClick="ClearFfmpegPath" />
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudSelect @bind-Value="_ffmpegSettingsModel.SelectedResolution"
-                                           Label="Selected Resolution:"
+                                           Label="@GetDictionary()[KeyWords.Resolution]"
                                            Class="mud-input-root text-start"
-                                           HelperText="Pick your preferred resolution."
+                                           HelperText="@GetDictionary()[KeyWords.SelectedResolution]"
                                            Required="true"
                                            FullWidth="true">
                                     @foreach (var f in _resolutions)

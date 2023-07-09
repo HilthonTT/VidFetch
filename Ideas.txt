@@ -6,3 +6,7 @@ https://github.com/Tyrrrz/YoutubeExplode/tree/master/YoutubeExplode.Converter
 
 	
 Fix bug where video would popup 2 snackbars.
+
+Fix some translation issues.
+
+Example: Settings page

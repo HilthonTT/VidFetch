@@ -23,21 +23,21 @@
          ApplyEffectsToContainer="true"
          PanelClass="pa-6"
          Centered="true">
-    <MudTabPanel Text="Videos" ID=@VideoId>
+    <MudTabPanel Text="@GetDictionary()[KeyWords.Videos]" ID=@VideoId>
         <IndexData TData="VideoModel"
                    SwitchEvent="(() => Activate(PlaylistVideoId))"
                    AddVideos="LoadPlaylistVideos"
                    OpenLoading="ToggleLoadingOverlay"
                    GetPlaylistUrl="GetPlaylistUrl" />
     </MudTabPanel>
-    <MudTabPanel Text="Playlist Videos" ID=@PlaylistVideoId>
+    <MudTabPanel Text="@GetDictionary()[KeyWords.PlaylistVideos]" ID=@PlaylistVideoId>
         <IndexPlaylistVideo PlaylistUrl="@_playlistUrl"
                             OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
-    <MudTabPanel Text="Channels" ID=@ChannelId>
+    <MudTabPanel Text="@GetDictionary()[KeyWords.Channels]" ID=@ChannelId>
         <IndexData TData="ChannelModel" OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
-    <MudTabPanel Text="Playlists" ID=@PlaylistId>
+    <MudTabPanel Text="@GetDictionary()[KeyWords.Playlists]" ID=@PlaylistId>
         <IndexData TData="PlaylistModel" OpenLoading="ToggleLoadingOverlay" />
     </MudTabPanel>
 </MudTabs>

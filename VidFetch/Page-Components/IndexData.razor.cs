@@ -366,19 +366,51 @@ public partial class IndexData<TData> where TData : class
 
     private string GetSearchBarText()
     {
-        string searchText = GetDictionary()[KeyWords.Search];
-
         if (GetDataResults().Count <= 0)
         {
-            return $"{searchText} {GetDataTypeName()}";
+            return GetSingularSearchBarText();
         }
 
         if (GetDataResults().Count == 1)
         {
-            return $"{searchText} 1 {GetDataTypeName()}";
+            return GetPluralSearchBarText("1");
         }
 
-        return $"{searchText} {GetDataResults().Count} {GetDataTypeName()}";
+        string count = GetDataResults().Count.ToString();
+        return GetPluralSearchBarText(count);
+    }
+
+    private string GetEnterUrlText()
+    {
+        return typeof(TData) switch
+        {
+            Type video when video == typeof(VideoModel) => GetDictionary()[KeyWords.EnterUrlTextVideo],
+            Type channel when channel == typeof(ChannelModel) => GetDictionary()[KeyWords.EnterUrlTextChannel],
+            Type playlist when playlist == typeof(PlaylistModel) => GetDictionary()[KeyWords.EnterUrlTextPlaylist],
+            _ => "",
+        };
+    }
+
+    private string GetSingularSearchBarText()
+    {
+        return typeof(TData) switch
+        {
+            Type video when video == typeof(VideoModel) => GetDictionary()[KeyWords.SearchVideo],
+            Type channel when channel == typeof(ChannelModel) => GetDictionary()[KeyWords.SearchChannel],
+            Type playlist when playlist == typeof(PlaylistModel) => GetDictionary()[KeyWords.SearchPlaylist],
+            _ => "",
+        };
+    }
+
+    private string GetPluralSearchBarText(string text)
+    {
+        return typeof(TData) switch
+        {
+            Type video when video == typeof(VideoModel) => GetDictionary(text)[KeyWords.SearchVideoPlural],
+            Type channel when channel == typeof(ChannelModel) => GetDictionary(text)[KeyWords.SearchChannelPlural],
+            Type playlist when playlist == typeof(PlaylistModel) => GetDictionary(text)[KeyWords.SearchPlaylistPlural],
+            _ => "",
+        };
     }
 
     private bool IsPlaylistUrl()

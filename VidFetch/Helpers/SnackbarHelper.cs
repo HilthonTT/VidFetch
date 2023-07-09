@@ -124,7 +124,7 @@ public class SnackbarHelper : ISnackbarHelper
     public void ShowEnterPlaylistUrl()
     {
         string message = GetDictionary()
-            [KeyWords.EnterPlaylistUrl];
+            [KeyWords.PleaseEnterAPlaylistUrl];
 
         _snackbar.Add(message);
     }

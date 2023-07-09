@@ -6,7 +6,7 @@
 
 <MudGrid>
     <MudItem xs="12" sm="6" md="4">
-        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Past A Link">
+        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="@GetDictionary()[KeyWords.PasteALink]">
             <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Primary" @onclick="LoadPasteLinkPage">
                 <div class="d-flex align-items-center flex-column">
                     <div class="d-flex justify-content-center">
@@ -20,7 +20,7 @@
         </MudPaper>
     </MudItem>
     <MudItem xs="12" sm="6" md="4">
-        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Saved Medias">
+        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="@GetDictionary()[KeyWords.SavedMedias]">
             <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Secondary" @onclick="LoadSavedMediaPage">
                 <div class="d-flex align-items-center flex-column">
                     <div class="d-flex justify-content-center">
@@ -34,7 +34,7 @@
         </MudPaper>
     </MudItem>
     <MudItem xs="12" sm="12" md="4">
-        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Search">
+        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="@GetDictionary()[KeyWords.SearchMedias]">
             <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Tertiary" @onclick="LoadSearchPage">
                 <div class="d-flex align-items-center flex-column">
                     <div class="d-flex justify-content-center">
@@ -170,7 +170,7 @@
         </MudGrid>
     </MudItem>
     <MudItem xs="12">
-        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="Settings">
+        <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;" title="@GetDictionary()[KeyWords.Settings]">
             <MudButton Class="mud-width-full" Style="height: 100%" Color="Color.Error" @onclick="LoadSettingsPage">
                 <div class="d-flex align-items-center flex-column">
                     <div class="d-flex justify-content-center">
