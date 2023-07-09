@@ -147,7 +147,7 @@ public partial class IndexData<TData> where TData : class
         {
             string url = await clipboard.GetTextAsync();
 
-            if (string.IsNullOrWhiteSpace(url))
+            if (string.IsNullOrWhiteSpace(url) || IsUrl(url) is false)
             {
                 return;
             }
@@ -166,6 +166,10 @@ public partial class IndexData<TData> where TData : class
         catch
         {
             await InvokeAsync(snackbarHelper.ShowErrorWhileLoadingMessage);
+        }
+        finally
+        {
+            await OpenLoading.InvokeAsync(false);
         }
     }
 
@@ -401,7 +405,12 @@ public partial class IndexData<TData> where TData : class
 
     private static bool IsPlaylistUrl(string url)
     {
-        return Uri.IsWellFormedUriString(url, UriKind.Absolute) && url.Contains("list=");
+        return IsUrl(url) && url.Contains("list=");
+    }
+
+    private static bool IsUrl(string url)
+    {
+        return Uri.IsWellFormedUriString(url, UriKind.Absolute);
     }
 
     private bool IsFFmpegInvalid()

@@ -24,7 +24,6 @@ public partial class IndexPlaylistVideo
     private CancellationTokenSource _videoTokenSource;
     private PlaylistModel _playlist = new();
     private List<VideoModel> _visibleVideos = new();
-    private string _playlistUrl = "";
     private string _searchText = "";
     private string _currentDownloadingVideo = "";
     private string _firstVideoInPlaylistUrl = "";
@@ -47,7 +46,7 @@ public partial class IndexPlaylistVideo
         if (string.IsNullOrWhiteSpace(PlaylistUrl) is false)
         {
             _playlist = await youtube.GetPlaylistAsync(PlaylistUrl);
-            PreparePlaylistDisplay();
+            PreparePlaylistDisplay("");
         }
 
         _visibleVideos = videoLibrary.PlaylistVideos.Take(_loadedItems).ToList();
@@ -74,46 +73,50 @@ public partial class IndexPlaylistVideo
 
     private async Task LoadPlaylist()
     {
-        if (string.IsNullOrWhiteSpace(_playlistUrl))
+        string url = await clipboard.GetTextAsync();
+
+        if (string.IsNullOrWhiteSpace(url) || IsUrl(url) is false)
         {
             return;
         }
 
         try
         {
-            if (IsUrlPlaylist())
+            await OpenLoading.InvokeAsync(true);
+
+            if (IsUrlPlaylist(url))
             {
                 await LoadPlaylistVideos();
-                PreparePlaylistDisplay();
+                PreparePlaylistDisplay(url);
             }
             else
             {
                 await InvokeAsync(snackbarHelper.ShowEnterPlaylistUrl);
             }
 
-            ResetPlaylistUrl();
         }
         catch
         {
             await InvokeAsync(snackbarHelper.ShowErrorLoadingPlaylist);
         }
+        finally
+        {
+            await OpenLoading.InvokeAsync(false);
+        }
     }
 
-    private void PreparePlaylistDisplay()
+    private void PreparePlaylistDisplay(string url)
     {
-        string playlistUrl = PlaylistUrl;
-        string text = _playlistUrl;
-
         if (PlaylistUrl.Contains("index="))
         {
             _showDialog = true;
             _firstVideoInPlaylistUrl = PlaylistUrl;
         }
 
-        if (_playlistUrl.Contains("index="))
+        if (url.Contains("index="))
         {
             _showDialog = true;
-            _firstVideoInPlaylistUrl = _playlistUrl;
+            _firstVideoInPlaylistUrl = url;
         }
 
         _visibleVideos = videoLibrary.PlaylistVideos
@@ -123,15 +126,16 @@ public partial class IndexPlaylistVideo
         PlaylistUrl = "";
     }
 
-    private void ResetPlaylistUrl()
-    {
-        _playlistUrl = "";
-    }
-
     private async Task LoadPlaylistVideos()
     {
-        await OpenLoading.InvokeAsync(true);
-        var videos = await youtube.GetPlayListVideosAsync(_playlistUrl);
+        string url = await clipboard.GetTextAsync();
+
+        if (IsUrl(url) is false)
+        {
+            return;
+        }
+
+        var videos = await youtube.GetPlayListVideosAsync(url);
 
         foreach (var v in videos)
         {
@@ -158,13 +162,14 @@ public partial class IndexPlaylistVideo
 
         try
         {
-            await InvokeAsync(ShowFFmpegWarningIfNeeded);
-
             var token = InitializeTokenForPlaylists();
+
             var progress = new Progress<double>(async val =>
             {
                 await UpdatePlaylistProgress(val);
             });
+
+            await InvokeAsync(ShowFFmpegWarningIfNeeded);
 
             await genericHelper.DownloadAllAsync(_visibleVideos, progress, token);
         }
@@ -302,17 +307,25 @@ public partial class IndexPlaylistVideo
         await InvokeAsync(StateHasChanged);
     }
 
+    private async Task OpenFileLocation()
+    {
+        await folderHelper.OpenFolderLocationAsync();
+    }
+
     private void CancelPlaylistDownload()
     {
         tokenHelper.CancelRequest(ref _playlistTokenSource);
         _playlistProgress = 0;
         _currentDownloadingVideo = "";
+        StateHasChanged();
     }
 
     private void CancelVideoDownload()
     {
         tokenHelper.CancelRequest(ref _videoTokenSource);
+        _videoProgress = 0;
         _showDialog = false;
+        StateHasChanged();
     }
 
     private void CancelSaveVideo()
@@ -332,9 +345,14 @@ public partial class IndexPlaylistVideo
         _visibleVideos.Remove(video);
     }
 
-    private bool IsUrlPlaylist()
+    private static bool IsUrlPlaylist(string url)
     {
-        return Uri.IsWellFormedUriString(_playlistUrl, UriKind.Absolute) && _playlistUrl.Contains("list=");
+        return IsUrl(url) && url.Contains("list=");
+    }
+
+    private static bool IsUrl(string url)
+    {
+        return Uri.IsWellFormedUriString(url, UriKind.Absolute);
     }
 
     private bool IsVideoNotLoaded(string videoId)
@@ -364,6 +382,12 @@ public partial class IndexPlaylistVideo
         }
 
         return $"{downloadText} {videoLibrary.PlaylistVideos?.Count} {videoText}";
+    }
+
+    private string GetProgressText()
+    {
+        string progress = (_playlistProgress * 100).ToString("0.##");
+        return $"{progress}%";
     }
 
     private string GetName()

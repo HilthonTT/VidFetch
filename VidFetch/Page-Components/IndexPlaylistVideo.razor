@@ -3,78 +3,131 @@
 @inject IVideoData videoData
 @inject ISettingsData settingsData
 @inject ITokenHelper tokenHelper
+@inject IFolderHelper folderHelper
 @inject ISearchHelper<VideoModel> searchHelper
 @inject IGenericGeneralHelper<VideoModel> genericHelper
 @inject ISnackbarHelper snackbarHelper
 @inject ILoadedItemsCache loadedItemsCache
 @inject ILanguageExtension languageExtension
+@inject IClipboard clipboard
 
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
-        <MudTextField @bind-Value="_playlistUrl"
-                      Label="@GetDictionary()[KeyWords.EnterUrlTextPlaylist]"
-                      Variant="Variant.Outlined"
-                      Adornment="Adornment.End"
-                      AdornmentIcon="@Icons.Material.Filled.Download"
-                      OnAdornmentClick="LoadPlaylist"
-                      Required="true"
-                      Clearable="true" />
-    </MudItem>
-</MudGrid>
-<MudGrid Spacing="5">
-    <MudItem xs="12">
-        @if (_playlistTokenSource is null)
-        {
-            <MudButton Color="Color.Primary"
-                       Variant="Variant.Filled"
-                       Class="w-100 mb-3"
-            @onclick="DownloadAllPlaylists">
-                @GetDownloadText()
-            </MudButton>
-        }
-        else
-        {
-            <MudButton Color="Color.Error"
-                       Variant="Variant.Filled"
-                       Class="w-100 mb-3"
-            @onclick="CancelPlaylistDownload">
-                @GetDictionary()[KeyWords.Cancel]
-            </MudButton>
-        }
-        <MudProgressLinear Color="Color.Primary"
-                           Striped="true"
-                           Size="Size.Medium"
-                           Max="1"
-                           Value="@_playlistProgress"
-                           Class="my-7"
-                           Buffer="true" />
-        <div class="justify-content-between d-flex align-items-center">
-            <div class="mx-3">
+        <div class="justify-content-between d-flex">
+            <div>
+                <MudButtonGroup OverrideStyles=false>
+                    <MudButton OnClick="LoadPlaylist"
+                               Color="Color.Primary"
+                               Variant="Variant.Outlined"
+                               Size="Size.Small"
+                               Class="mx-3">
+                        <div class="d-flex align-items-center flex-column">
+                            <div class="d-flex justify-content-center">
+                                <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Link" Size="Size.Small"></MudIcon>
+                            </div>
+                            <div class="text-center">
+                                <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.PasteALink]</MudText>
+                            </div>
+                        </div>
+                    </MudButton>
+                    @if (_playlistTokenSource is null)
+                    {
+                        <MudButton Color="Color.Success"
+                                   Variant="Variant.Outlined"
+                                   Size="Size.Small"
+                        @onclick="DownloadAllPlaylists">
+                            <div class="d-flex align-items-center flex-column">
+                                <div class="d-flex justify-content-center">
+                                    <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Download" Size="Size.Small"></MudIcon>
+                                </div>
+                                <div class="text-center">
+                                    <MudText Class="text-uppercase fw-bold">@GetDownloadText()</MudText>
+                                </div>
+                            </div>
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Color="Color.Error"
+                                   Variant="Variant.Outlined"
+                                   Size="Size.Small"
+                        @onclick="CancelPlaylistDownload">
+                            <div class="d-flex align-items-center flex-column">
+                                <div class="d-flex justify-content-center">
+                                    <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"></MudIcon>
+                                </div>
+                                <div class="text-center">
+                                    <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.Cancel]</MudText>
+                                </div>
+                            </div>
+                        </MudButton>
+                    }
+                </MudButtonGroup>
+            </div>
+            <div>
                 <MudButton Color="Color.Error"
                            Variant="Variant.Outlined"
+                           Size="Size.Small"
                 @onclick="ClearPlaylistVideos">
-                    @GetDictionary()[KeyWords.Clear] 
-                    @GetDictionary()[KeyWords.Videos]
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="d-flex justify-content-center">
+                            <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Delete" Size="Size.Small"></MudIcon>
+                        </div>
+                        <div class="text-center">
+                            <MudText Class="text-uppercase fw-bold">
+                                @GetDictionary()[KeyWords.Clear]
+                                @GetDictionary()[KeyWords.Videos]
+                            </MudText>
+                        </div>
+                    </div>
                 </MudButton>
             </div>
-            <div class="w-100">
-                <MudAutocomplete T="string"
-                                 Label="@GetSearchBarText()"
-                                 Variant="Variant.Outlined"
-                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                                 OnAdornmentClick="FilterPlaylistVideo"
-                                 SearchFunc="SearchPlaylistVideos"
-                                 ResetValueOnEmptyText="true"
-                                 ValueChanged="HandleSearchValueChanged"/>
-            </div>
-            <div class="mx-3">
-                <MudButton @onclick="SaveAllVideos"
-                           Color="Color.Success"
-                           Variant="Variant.Outlined">
-                    @GetDictionary()[KeyWords.Save]
-                    @GetDictionary()[KeyWords.Videos]
+            <div>
+                <MudButton @onclick="OpenFileLocation"
+                           Class="mx-3"
+                           Variant="Variant.Outlined"
+                           Color="Color.Warning"
+                           Size="Size.Small">
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="d-flex justify-content-center">
+                            <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Folder" Size="Size.Small"></MudIcon>
+                        </div>
+                        <div class="text-center">
+                            <MudText Class="text-uppercase fw-bold">
+                                @GetDictionary()[KeyWords.OpenFolderLocation]
+                            </MudText>
+                        </div>
+                    </div>
+                </MudButton>
+                <MudButton @onclick="SaveAllVideos" Variant="Variant.Outlined" Color="Color.Success" Size="Size.Small">
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="d-flex justify-content-center">
+                            <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Save" Size="Size.Small"></MudIcon>
+                        </div>
+                        <div class="text-center">
+                            <MudText Class="text-uppercase fw-bold">
+                                @GetDictionary()[KeyWords.Save]
+                                @GetDictionary()[KeyWords.Videos]
+                            </MudText>
+                        </div>
+                    </div>
                 </MudButton>
             </div>
+        </div>
+    </MudItem>
+</MudGrid>
+<MudGrid Spacing="5" Class="mb-12">
+    <MudItem xs="12">
+       
+        <div class="w-100">
+            <MudAutocomplete T="string"
+                                Label="@GetSearchBarText()"
+                                Variant="Variant.Outlined"
+                                AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                                OnAdornmentClick="FilterPlaylistVideo"
+                                SearchFunc="SearchPlaylistVideos"
+                                ResetValueOnEmptyText="true"
+                                ValueChanged="HandleSearchValueChanged"/>
         </div>
         @if (_visibleVideos?.Count > 0 || videoLibrary.PlaylistVideos.Count > 0)
         {
@@ -136,3 +189,13 @@
 </MudDialog>
 
 
+<MudAppBar Bottom="true" Fixed="true" Color="Color.Dark" Elevation="1">
+    <MudText Class="mx-5">@GetProgressText()</MudText>
+    <MudProgressLinear Color="Color.Primary"
+                       Striped="true"
+                       Size="Size.Medium"
+                       Max="1"
+                       Value="@_playlistProgress"
+                       Class="my-7"
+                       Buffer="true" />
+</MudAppBar>

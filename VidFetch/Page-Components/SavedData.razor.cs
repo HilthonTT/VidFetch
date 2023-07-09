@@ -251,7 +251,7 @@ public partial class SavedData<TData> where TData : class
             return $"{searchText} 1 {GetDataTypeName()}";
         }
 
-        return $"{searchText} {_datas?.Count} {GetDataTypeName()}";
+        return $"{searchText} {_datas?.Count} {GetPluralDataTypeName().ToLower()}";
     }
 
     private string GetDownloadVideoText()
@@ -269,7 +269,13 @@ public partial class SavedData<TData> where TData : class
             return $"{downloadText} 1 {videoText}";
         }
 
-        return $"{downloadText} {_datas?.Count} {videoText}s";
+        return $"{downloadText} {_datas?.Count} {GetPluralDataTypeName()}";
+    }
+
+    private string GetProgressText()
+    {
+        string progress = (_videosProgress * 100).ToString("0.##");
+        return $"{progress}%";
     }
 
     private string GetPageName()
@@ -297,6 +303,17 @@ public partial class SavedData<TData> where TData : class
             "Video" => GetDictionary()[KeyWords.Video].ToLower(),
             "Channel" => GetDictionary()[KeyWords.Channel].ToLower(),
             "Playlist" => GetDictionary()[KeyWords.Playlist].ToLower(),
+            _ => "",
+        };
+    }
+
+    private string GetPluralDataTypeName()
+    {
+        return typeof(TData) switch
+        {
+            Type video when video == typeof(VideoModel) => GetDictionary()[KeyWords.Videos],
+            Type channel when channel == typeof(ChannelModel) => GetDictionary()[KeyWords.Channels],
+            Type playlist when playlist == typeof(PlaylistModel) => GetDictionary()[KeyWords.Playlists],
             _ => "",
         };
     }

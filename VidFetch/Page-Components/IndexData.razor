@@ -86,11 +86,11 @@
             <div>
                 @if (IsVideoModel())
                 {
-                    <MudButton Size="Size.Small"
-                    @onclick="OpenFileLocation"
+                    <MudButton @onclick="OpenFileLocation"
                                Class="mx-3"
                                Variant="Variant.Outlined"
-                               Color="Color.Warning">
+                               Color="Color.Warning"
+                               Size="Size.Small">
                         <div class="d-flex align-items-center flex-column">
                             <div class="d-flex justify-content-center">
                                 <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Folder" Size="Size.Small"></MudIcon>
@@ -139,7 +139,7 @@
         </div>
     </MudItem>
 </MudGrid>
-<MudGrid Spacing="5" Class="mb-10">
+<MudGrid Spacing="5" Class="mb-12">
     <MudItem xs="12">
         <div class="w-100">
             <MudAutocomplete T="string"
@@ -149,7 +149,7 @@
                              OnAdornmentClick="FilterData"
                              SearchFunc="FilterSearchData"
                              ResetValueOnEmptyText="true"
-                             ValueChanged="HandleSearchValueChanged"/>
+                             ValueChanged="HandleSearchValueChanged" />
         </div>
         @if (_visibleData?.Count > 0 || GetDataResults()?.Count > 0)
         {

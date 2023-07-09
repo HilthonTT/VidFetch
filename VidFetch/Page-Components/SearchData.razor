@@ -25,22 +25,39 @@
     <MudItem xs="12">
         <div class="justify-content-between d-flex align-items-center">
             <div class="mx-3">
-                @if (_tokenSource is not null)
-                {
-                    <MudButton @onclick="CancelDataSearch"
-                               Color="Color.Error"
-                               Variant="Variant.Outlined">
-                        @GetDictionary()[KeyWords.CancelSearch]
-                    </MudButton>
-                }
-                else
-                {
-                    <MudButton @onclick="SearchTData"
-                               Color="Color.Success"
-                               Variant="Variant.Outlined">
-                        @GetDictionary()[KeyWords.Search] @GetDataTypeName()
-                    </MudButton>
-                }
+                <MudButtonGroup OverrideStyles=false>
+                    @if (_tokenSource is not null)
+                    {
+                        <MudButton Color="Color.Error"
+                                   Variant="Variant.Outlined"
+                                   Size="Size.Small"
+                        @onclick="CancelDataSearch">
+                            <div class="d-flex align-items-center flex-column">
+                                <div class="d-flex justify-content-center">
+                                    <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"></MudIcon>
+                                </div>
+                                <div class="text-center">
+                                    <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.Cancel]</MudText>
+                                </div>
+                            </div>
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton @onclick="SearchTData"
+                                   Color="Color.Success"
+                                   Variant="Variant.Outlined">
+                            <div class="d-flex align-items-center flex-column">
+                                <div class="d-flex justify-content-center">
+                                    <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Search" Size="Size.Small"></MudIcon>
+                                </div>
+                                <div class="text-center">
+                                    <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.Search]</MudText>
+                                </div>
+                            </div>
+                        </MudButton>
+                    }
+                </MudButtonGroup>
             </div>
             <div class="w-100">
                 <MudAutocomplete T="string"
@@ -53,12 +70,38 @@
                                  ValueChanged="HandleSearchValueChanged" />
             </div>
             <div class="mx-3">
-                <MudButtonGroup Color="Color.Warning" Variant="Variant.Outlined">
-                    <MudButton @onclick="OpenFileLocation">
-                        @GetDictionary()[KeyWords.OpenFolderLocation]
+                <MudButtonGroup OverrideStyles=false>
+                    <MudButton @onclick="OpenFileLocation"
+                               Class="mx-3"
+                               Variant="Variant.Outlined"
+                               Color="Color.Warning"
+                               Size="Size.Small">
+                        <div class="d-flex align-items-center flex-column">
+                            <div class="d-flex justify-content-center">
+                                <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Folder" Size="Size.Small"></MudIcon>
+                            </div>
+                            <div class="text-center">
+                                <MudText Class="text-uppercase fw-bold">
+                                    @GetDictionary()[KeyWords.OpenFolderLocation]
+                                </MudText>
+                            </div>
+                        </div>
                     </MudButton>
-                    <MudButton @onclick="ClearData">
-                        @GetDictionary()[KeyWords.Clear] @GetDataTypeName()
+                    <MudButton Color="Color.Error"
+                               Variant="Variant.Outlined"
+                               Size="Size.Small"
+                    @onclick="ClearData">
+                        <div class="d-flex align-items-center flex-column">
+                            <div class="d-flex justify-content-center">
+                                <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Delete" Size="Size.Small"></MudIcon>
+                            </div>
+                            <div class="text-center">
+                                <MudText Class="text-uppercase fw-bold">
+                                    @GetDictionary()[KeyWords.Clear]
+                                    @GetDataTypeName()s
+                                </MudText>
+                            </div>
+                        </div>
                     </MudButton>
                 </MudButtonGroup>
             </div>
