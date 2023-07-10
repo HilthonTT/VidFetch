@@ -151,6 +151,11 @@ public class PlaylistData : IPlaylistData
 
     private async Task<PlaylistModel> FillDataAsync(PlaylistModel playlist)
     {
+        if (string.IsNullOrWhiteSpace(playlist.AuthorThumbnailUrl) is false)
+        {
+            return playlist;
+        }
+
         var channel = await _youtube.GetChannelAsync(playlist.AuthorUrl);
         string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
 

@@ -156,6 +156,11 @@ public class VideoData : IVideoData
 
     private async Task<VideoModel> FillDataAsync(VideoModel video)
     {
+        if (string.IsNullOrWhiteSpace(video.AuthorThumbnailUrl) is false)
+        {
+            return video;
+        }
+
         var channel = await _youtube.GetChannelAsync(video.AuthorUrl);
         string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
 
