@@ -141,11 +141,10 @@ public partial class IndexData<TData> where TData : class
                 await GetPlaylistUrl.InvokeAsync(url);
                 await AddVideos.InvokeAsync(url);
                 await SwitchEvent.InvokeAsync();
+
             }
-            else
-            {
-                await LoadSingleData();
-            }
+
+            await LoadSingleData(url);
         }
         catch
         {
@@ -157,9 +156,8 @@ public partial class IndexData<TData> where TData : class
         }
     }
 
-    private async Task LoadSingleData()
+    private async Task LoadSingleData(string url)
     {
-        string url = await clipboard.GetTextAsync();
         await OpenLoading.InvokeAsync(true);
 
         _visibleData = await generalHelper.LoadDataAsync(url, _loadedItems);
@@ -324,6 +322,33 @@ public partial class IndexData<TData> where TData : class
             Type playlist when playlist == typeof(PlaylistModel) => GetDictionary(text)[KeyWords.SearchPlaylistPlural],
             _ => "",
         };
+    }
+
+    private string GetPluralDataTypeText()
+    {
+        return typeof(TData) switch
+        {
+            Type video when video == typeof(VideoModel) => GetDictionary()[KeyWords.Videos],
+            Type channel when channel == typeof(ChannelModel) => GetDictionary()[KeyWords.Channels],
+            Type playlist when playlist == typeof(PlaylistModel) => GetDictionary()[KeyWords.Playlists],
+            _ => "",
+        };
+    }
+
+    private string GetClearButtonText()
+    {
+        string clear = GetDictionary()[KeyWords.Clear];
+        string dataTypeName = GetPluralDataTypeText();
+
+        return $"{clear} {dataTypeName}";
+    }
+
+    private string GetSaveButtonText()
+    {
+        string save = GetDictionary()[KeyWords.Save];
+        string dataTypeName = GetPluralDataTypeText();
+
+        return $"{save} {dataTypeName}";
     }
 
     private static bool IsPlaylistUrl(string url)

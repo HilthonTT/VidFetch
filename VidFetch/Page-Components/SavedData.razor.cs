@@ -321,6 +321,14 @@ public partial class SavedData<TData> where TData : class
         };
     }
 
+    private string GetDeleteButtonText()
+    {
+        string delete = GetDictionary()[KeyWords.Delete];
+        string dataTypeName = GetPluralDataTypeName();
+
+        return $"{delete} {dataTypeName}";
+    }
+
     private bool IsFFmpegInvalid()
     {
         bool isFFmpegEmpty = string.IsNullOrWhiteSpace(_settings.FfmpegPath) is false;

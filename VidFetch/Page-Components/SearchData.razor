@@ -25,89 +25,39 @@
 </MudGrid>
 <MudGrid Spacing="5">
     <MudItem xs="12">
-        <div class="justify-content-between d-flex align-items-center">
-            <div class="mx-3">
-                <MudButtonGroup OverrideStyles=false>
-                    @if (_tokenSource is not null)
-                    {
-                        <MudButton Color="Color.Error"
-                                   Variant="Variant.Outlined"
-                                   Size="Size.Small"
-                        @onclick="CancelDataSearch">
-                            <div class="d-flex align-items-center flex-column">
-                                <div class="d-flex justify-content-center">
-                                    <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"></MudIcon>
-                                </div>
-                                <div class="text-center">
-                                    <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.Cancel]</MudText>
-                                </div>
-                            </div>
-                        </MudButton>
-                    }
-                    else
-                    {
-                        <MudButton @onclick="SearchTData"
-                                   Color="Color.Success"
-                                   Variant="Variant.Outlined">
-                            <div class="d-flex align-items-center flex-column">
-                                <div class="d-flex justify-content-center">
-                                    <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Search" Size="Size.Small"></MudIcon>
-                                </div>
-                                <div class="text-center">
-                                    <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.Search]</MudText>
-                                </div>
-                            </div>
-                        </MudButton>
-                    }
-                </MudButtonGroup>
-            </div>
-            <div class="w-100">
-                <MudAutocomplete T="string"
-                                 Label="@GetSearchBarText()"
-                                 Variant="Variant.Outlined"
-                                 AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
-                                 OnAdornmentClick="FilterData"
-                                 SearchFunc="FilterSearchData"
-                                 ResetValueOnEmptyText="true"
-                                 ValueChanged="HandleSearchValueChanged" />
-            </div>
-            <div class="mx-3">
-                <MudButtonGroup OverrideStyles=false>
-                    <MudButton @onclick="OpenFileLocation"
-                               Class="mx-3"
-                               Variant="Variant.Outlined"
-                               Color="Color.Warning"
-                               Size="Size.Small">
-                        <div class="d-flex align-items-center flex-column">
-                            <div class="d-flex justify-content-center">
-                                <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Folder" Size="Size.Small"></MudIcon>
-                            </div>
-                            <div class="text-center">
-                                <MudText Class="text-uppercase fw-bold">
-                                    @GetDictionary()[KeyWords.OpenFolderLocation]
-                                </MudText>
-                            </div>
-                        </div>
-                    </MudButton>
-                    <MudButton Color="Color.Error"
-                               Variant="Variant.Outlined"
-                               Size="Size.Small"
-                    @onclick="ClearData">
-                        <div class="d-flex align-items-center flex-column">
-                            <div class="d-flex justify-content-center">
-                                <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Delete" Size="Size.Small"></MudIcon>
-                            </div>
-                            <div class="text-center">
-                                <MudText Class="text-uppercase fw-bold">
-                                    @GetDictionary()[KeyWords.Clear]
-                                    @GetDataTypeName()s
-                                </MudText>
-                            </div>
-                        </div>
-                    </MudButton>
-                </MudButtonGroup>
-            </div>
-        </div>
+        <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
+            @if (_tokenSource is not null)
+            {
+                <MudFab OnClick="CancelDataSearch"
+                        Color="Color.Error"
+                        StartIcon="@Icons.Material.Filled.Cancel"
+                        Label="@GetDictionary()[KeyWords.Cancel]" />
+
+            }
+            else
+            {
+                <MudFab OnClick="SearchTData"
+                        Color="Color.Success"
+                        StartIcon="@Icons.Material.Filled.Search"
+                        Label="@GetDictionary()[KeyWords.Search]" />
+            }
+            <MudAutocomplete T="string"
+                             Label="@GetSearchBarText()"
+                             Variant="Variant.Outlined"
+                             AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
+                             OnAdornmentClick="FilterData"
+                             SearchFunc="FilterSearchData"
+                             ResetValueOnEmptyText="true"
+                             ValueChanged="HandleSearchValueChanged" />
+            <MudFab OnClick="OpenFileLocation"
+                    Color="Color.Warning"
+                    StartIcon="@Icons.Material.Filled.Folder"
+                    Label="@GetDictionary()[KeyWords.OpenFolderLocation]" />
+            <MudFab OnClick="ClearData"
+                    Color="Color.Error"
+                    StartIcon="@Icons.Material.Filled.Delete"
+                    Label="@GetClearButtonText()" />
+        </MudStack>
         @if (_visibleData?.Count > 0)
         {
             <MudDivider Class="mb-6 mt-6"></MudDivider>

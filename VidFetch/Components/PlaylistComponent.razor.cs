@@ -29,7 +29,7 @@ public partial class PlaylistComponent
         if (firstRender)
         {
             await LoadPlaylistData();
-            await RerenderIfNeeded();
+            await InvokeAsync(StateHasChanged);
         }
     }
 
@@ -104,17 +104,6 @@ public partial class PlaylistComponent
     {
         string encodedUrl = Uri.EscapeDataString(Playlist.Url);
         navManager.NavigateTo($"/Playlist/{encodedUrl}");
-    }
-
-    private async Task RerenderIfNeeded()
-    {
-        bool isAuthorThumbnailEmpty = string.IsNullOrWhiteSpace(Playlist.AuthorThumbnailUrl);
-        bool isThumbnailEmpty = string.IsNullOrWhiteSpace(Playlist.ThumbnailUrl);
-
-        if (isAuthorThumbnailEmpty || isThumbnailEmpty)
-        {
-            await InvokeAsync(StateHasChanged);
-        }
     }
 
     private string GetSavePlaylistText()

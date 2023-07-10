@@ -15,17 +15,21 @@
                     @_video?.Title
                 </MudLink>
             </MudItem>
-            <MudItem>
-                <MudAvatar>
-                    <MudImage title="@_video?.AuthorName" Src="@_channel?.ThumbnailUrl" />
-                </MudAvatar>
-            </MudItem>
-            <MudItem>
-                <MudLink Color="Color.Warning" Typo="Typo.body1" @onclick="(() => OpenUrl(_video.AuthorUrl))">
-                    @_video?.AuthorName
-                </MudLink>
-            </MudItem>
-            <MudText Typo="Typo.body2">Uploaded: @_video?.UploadDate</MudText>
+            <MudStack Row="true" Justify="Justify.FlexStart">
+                <MudItem>
+                    <MudAvatar>
+                        <MudImage title="@_video?.AuthorName" Src="@_channel?.ThumbnailUrl" />
+                    </MudAvatar>
+                </MudItem>
+                <MudItem>
+                    <MudButton Typo="Typo.body1" @onclick="(() => OpenUrl(_video.AuthorUrl))">
+                        @_video?.AuthorName
+                    </MudButton>
+                </MudItem>
+            </MudStack>
+            <MudText Typo="Typo.body2" Class="mt-5">
+                Uploaded: @_video?.UploadDate.ToString("MMMM d, yyyy")
+            </MudText>
             <MudDivider Class="mt-5 mb-5" />
             <MudText Typo="Typo.body2">
                 @(

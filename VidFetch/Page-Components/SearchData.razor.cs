@@ -119,33 +119,31 @@ public partial class SearchData<TData> where TData : class
         return $"{PageName}-{name}";
     }
 
-    private string GetDataTypeName()
+    private string GetSingularDataTypeName()
     {
-        string typeName = typeof(TData).Name;
-        string trimmedName;
-
-        if (typeName.EndsWith("Model"))
+        return typeof(TData) switch
         {
-            trimmedName = typeName[..^"Model".Length];
-        }
-        else
-        {
-            trimmedName = typeName;
-        }
+            Type video when video == typeof(VideoModel) => GetDictionary()[KeyWords.Video],
+            Type channel when channel == typeof(ChannelModel) => GetDictionary()[KeyWords.Channel],
+            Type playlist when playlist == typeof(PlaylistModel) => GetDictionary()[KeyWords.Playlist],
+            _ => "",
+        };
+    }
 
-
-        return trimmedName switch
+    private string GetPluralDataTypeName()
+    {
+        return typeof(TData) switch
         {
-            "Video" => GetDictionary()[KeyWords.Video].ToLower(),
-            "Channel" => GetDictionary()[KeyWords.Channel].ToLower(),
-            "Playlist" => GetDictionary()[KeyWords.Playlist].ToLower(),
+            Type video when video == typeof(VideoModel) => GetDictionary()[KeyWords.Videos],
+            Type channel when channel == typeof(ChannelModel) => GetDictionary()[KeyWords.Channels],
+            Type playlist when playlist == typeof(PlaylistModel) => GetDictionary()[KeyWords.Playlists],
             _ => "",
         };
     }
 
     private string GetSearchBarText()
     {
-        string dataTypeName = GetDataTypeName();
+        string dataTypeName = GetSingularDataTypeName();
         string searchText = GetDictionary()[KeyWords.Search];
 
         if (GetDataResults()?.Count <= 0)
@@ -165,7 +163,7 @@ public partial class SearchData<TData> where TData : class
     {
         string helperText = GetDictionary()[KeyWords.SearchHelperText];
 
-        string completeHelperText = helperText + GetDataTypeName();
+        string completeHelperText = helperText + GetSingularDataTypeName();
         return completeHelperText;
     }
 
@@ -173,8 +171,16 @@ public partial class SearchData<TData> where TData : class
     {
         string labelText = GetDictionary()[KeyWords.SearchLabelText];
 
-        string completedLabelText = labelText + GetDataTypeName();
+        string completedLabelText = labelText + GetSingularDataTypeName();
         return completedLabelText;
+    }
+
+    private string GetClearButtonText()
+    {
+        string clear = GetDictionary()[KeyWords.Clear];
+        string dataTypeName = GetPluralDataTypeName();
+
+        return $"{clear} {dataTypeName}";
     }
 
     private Dictionary<KeyWords, string> GetDictionary()

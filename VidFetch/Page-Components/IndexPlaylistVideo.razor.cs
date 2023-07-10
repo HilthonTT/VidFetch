@@ -396,6 +396,22 @@ public partial class IndexPlaylistVideo
         return $"{PageName}-{name}";
     }
 
+    private string GetClearButtonText()
+    {
+        string clear = GetDictionary()[KeyWords.Clear];
+        string videos = GetDictionary()[KeyWords.Videos];
+
+        return $"{clear} {videos}";
+    }
+
+    private string GetSaveButtonText()
+    {
+        string save = GetDictionary()[KeyWords.Save];
+        string videos = GetDictionary()[KeyWords.Videos];
+
+        return $"{save} {videos}";
+    }
+
     private string GetSearchBarText()
     {
         int videoCount = videoLibrary.PlaylistVideos.Count;

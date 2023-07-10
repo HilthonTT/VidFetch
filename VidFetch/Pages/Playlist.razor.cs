@@ -10,6 +10,9 @@ public partial class Playlist
     [Parameter]
     public string Url { get; set; }
 
+    private const int ItemsPerPage = 6;
+    private const string PageName = nameof(Playlist);
+
     private PlaylistModel _playlist;
     private List<VideoModel> _videos = new();
     private List<VideoModel> _visibleVideos = new();
@@ -19,30 +22,45 @@ public partial class Playlist
 
     protected override async Task OnInitializedAsync()
     {
-        _playlistId = UrlRegex().Match(Url).Value;
         await LoadData();
 
-        _visibleVideos = _videos.Take(_loadedItems).ToList();
+        _playlistId = UrlRegex().Match(Url).Value;
+        InitializeCount();
     }
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadNullData();
+        if (firstRender)
+        {
+            await LoadNullData();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void InitializeCount()
+    {
+        _loadedItems = loadedItemsCache.GetLoadedItemsCount(PageName, ItemsPerPage);
+
+        _visibleVideos = _videos
+            .Take(_loadedItems)
+            .ToList();
     }
 
     private void LoadMoreVideos()
     {
-        int itemsPerPage = 6;
         int videosCount = _videos.Count;
-
-        _loadedItems += itemsPerPage;
+        _loadedItems += ItemsPerPage;
 
         if (_loadedItems > videosCount)
         {
             _loadedItems = videosCount;
         }
 
-        _visibleVideos = _videos.Take(_loadedItems).ToList();
+        _visibleVideos = _videos
+            .Take(_loadedItems)
+            .ToList();
+
+        loadedItemsCache.SetLoadedItemsCount(PageName, _loadedItems);
     }
 
     private async Task LoadData()
@@ -51,10 +69,8 @@ public partial class Playlist
         if (isUrlValid)
         {
             _playlist = await playlistData.GetPlaylistAsync(Url, _playlistId);
-            if (_playlist is null)
-            {
-                _playlist = await youtube.GetPlaylistAsync(Url);
-            }
+
+            _playlist ??= await youtube.GetPlaylistAsync(Url);
 
             _isSaved = await playlistData.PlaylistExistsAsync(_playlist.Url, _playlist.PlaylistId);
             _videos = await youtube.GetPlayListVideosAsync(Url);

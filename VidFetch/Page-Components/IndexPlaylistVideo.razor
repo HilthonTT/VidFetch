@@ -14,105 +14,36 @@
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
         <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center">
-            <MudButton OnClick="LoadPlaylist"
-                       Color="Color.Primary"
-                       Variant="Variant.Outlined"
-                       Size="Size.Small"
-                       Class="w-100">
-                <div class="d-flex align-items-center flex-column">
-                    <div class="d-flex justify-content-center">
-                        <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Link" Size="Size.Small"></MudIcon>
-                    </div>
-                    <div class="text-center">
-                        <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.PasteALink]</MudText>
-                    </div>
-                </div>
-            </MudButton>
+            <MudFab OnClick="LoadPlaylist"
+                    Color="Color.Primary"
+                    StartIcon="@Icons.Material.Filled.Link"
+                    Label="@GetDictionary()[KeyWords.PasteALink]" />
             @if (_playlistTokenSource is null)
             {
-                <MudButton Color="Color.Success"
-                           Variant="Variant.Outlined"
-                           Size="Size.Small"
-                           Class="w-100"
-                @onclick="DownloadAllPlaylists">
-                    <div class="d-flex align-items-center flex-column">
-                        <div class="d-flex justify-content-center">
-                            <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Download" Size="Size.Small"></MudIcon>
-                        </div>
-                        <div class="text-center">
-                            <MudText Class="text-uppercase fw-bold">@GetDownloadText()</MudText>
-                        </div>
-                    </div>
-                </MudButton>
+                <MudFab OnClick="DownloadAllPlaylists"
+                        Color="Color.Success"
+                        StartIcon="@Icons.Material.Filled.Download"
+                        Label="@GetDownloadText()" />
             }
             else
             {
-                <MudButton Color="Color.Error"
-                           Variant="Variant.Outlined"
-                           Size="Size.Small"
-                           Class="w-100"
-                @onclick="CancelPlaylistDownload">
-                    <div class="d-flex align-items-center flex-column">
-                        <div class="d-flex justify-content-center">
-                            <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"></MudIcon>
-                        </div>
-                        <div class="text-center">
-                            <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.Cancel]</MudText>
-                        </div>
-                    </div>
-                </MudButton>
+                <MudFab OnClick="CancelPlaylistDownload"
+                        Color="Color.Error"
+                        StartIcon="@Icons.Material.Filled.Cancel"
+                        Label="@GetDictionary()[KeyWords.Cancel]" />
             }
-            <MudButton Color="Color.Error"
-                       Variant="Variant.Outlined"
-                       Size="Size.Small"
-                       Class="w-100"
-            @onclick="ClearPlaylistVideos">
-                <div class="d-flex align-items-center flex-column">
-                    <div class="d-flex justify-content-center">
-                        <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Delete" Size="Size.Small"></MudIcon>
-                    </div>
-                    <div class="text-center">
-                        <MudText Class="text-uppercase fw-bold">
-                            @GetDictionary()[KeyWords.Clear]
-                            @GetDictionary()[KeyWords.Videos]
-                        </MudText>
-                    </div>
-                </div>
-            </MudButton>
-
-            <MudButton @onclick="OpenFileLocation"
-                       Class="w-100"
-                       Variant="Variant.Outlined"
-                       Color="Color.Warning"
-                       Size="Size.Small">
-                <div class="d-flex align-items-center flex-column">
-                    <div class="d-flex justify-content-center">
-                        <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Folder" Size="Size.Small"></MudIcon>
-                    </div>
-                    <div class="text-center">
-                        <MudText Class="text-uppercase fw-bold">
-                            @GetDictionary()[KeyWords.OpenFolderLocation]
-                        </MudText>
-                    </div>
-                </div>
-            </MudButton>
-            <MudButton @onclick="SaveAllVideos"
-                       Variant="Variant.Outlined"
-                       Color="Color.Success"
-                       Size="Size.Small"
-                       Class="w-100">
-                <div class="d-flex align-items-center flex-column">
-                    <div class="d-flex justify-content-center">
-                        <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Save" Size="Size.Small"></MudIcon>
-                    </div>
-                    <div class="text-center">
-                        <MudText Class="text-uppercase fw-bold">
-                            @GetDictionary()[KeyWords.Save]
-                            @GetDictionary()[KeyWords.Videos]
-                        </MudText>
-                    </div>
-                </div>
-            </MudButton>
+            <MudFab OnClick="OpenFileLocation"
+                    Color="Color.Warning"
+                    StartIcon="@Icons.Material.Filled.Folder"
+                    Label="@GetDictionary()[KeyWords.OpenFolderLocation]" />
+            <MudFab OnClick="SaveAllVideos"
+                    Color="Color.Success"
+                    StartIcon="@Icons.Material.Filled.Save"
+                    Label="@GetSaveButtonText()" />
+            <MudFab OnClick="CancelPlaylistDownload"
+                    Color="Color.Error"
+                    StartIcon="@Icons.Material.Filled.Delete"
+                    Label="@GetClearButtonText()" />
         </MudStack>
     </MudItem>
 </MudGrid>
