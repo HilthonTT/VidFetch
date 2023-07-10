@@ -149,7 +149,7 @@ public partial class IndexData<TData> where TData : class
         }
         catch
         {
-            await InvokeAsync(snackbarHelper.ShowErrorWhileLoadingMessage);
+            snackbarHelper.ShowErrorWhileLoadingMessage();
         }
         finally
         {

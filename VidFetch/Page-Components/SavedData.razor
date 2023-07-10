@@ -16,100 +16,100 @@
 
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
-        <div class="justify-content-between d-flex">
-            <div>
-                @if (_allVideosTokenSource is null && IsVideoModel())
-                {
-                    <MudButton Color="Color.Success"
-                               Variant="Variant.Outlined"
-                               Size="Size.Small"
-                    @onclick="DownloadVideos">
-                        <div class="d-flex align-items-center flex-column">
-                            <div class="d-flex justify-content-center">
-                                <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Download" Size="Size.Small"></MudIcon>
-                            </div>
-                            <div class="text-center">
-                                <MudText Class="text-uppercase fw-bold">
-                                    @GetDownloadVideoText()
-                                </MudText>
-                            </div>
+        <MudStack Row="true" Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="3">
+            @if (_allVideosTokenSource is null && IsVideoModel())
+            {
+                <MudButton Color="Color.Success"
+                           Variant="Variant.Outlined"
+                           Size="Size.Small"
+                           Class="w-100"
+                @onclick="DownloadVideos">
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="d-flex justify-content-center">
+                            <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Download" Size="Size.Small"></MudIcon>
                         </div>
-                    </MudButton>
-                }
-                else if (_allVideosTokenSource is not null && IsVideoModel())
-                {
-                    <MudButton Color="Color.Error"
-                               Variant="Variant.Outlined"
-                               Size="Size.Small"
-                    @onclick="CancelDownload">
-                        <div class="d-flex align-items-center flex-column">
-                            <div class="d-flex justify-content-center">
-                                <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"></MudIcon>
-                            </div>
-                            <div class="text-center">
-                                <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.Cancel]</MudText>
-                            </div>
+                        <div class="text-center">
+                            <MudText Class="text-uppercase fw-bold">
+                                @GetDownloadVideoText()
+                            </MudText>
                         </div>
-                    </MudButton>
-                }
-            </div>
-            <div>
-                <MudButtonGroup OverrideStyles=false>
-                    <MudButton @onclick="OpenDialog"
-                               Color="Color.Error"
-                               Variant="Variant.Outlined"
-                               Size="Size.Small"
-                               Class="mx-3">
-                        <div class="d-flex align-items-center flex-column">
-                            <div class="d-flex justify-content-center">
-                                <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Delete" Size="Size.Small"></MudIcon>
-                            </div>
-                            <div class="text-center">
-                                <MudText Class="text-uppercase fw-bold">
-                                    @GetDictionary()[KeyWords.Delete] @GetPluralDataTypeName()
-                                </MudText>
-                            </div>
+                    </div>
+                </MudButton>
+            }
+            else if (_allVideosTokenSource is not null && IsVideoModel())
+            {
+                <MudButton Color="Color.Error"
+                           Variant="Variant.Outlined"
+                           Size="Size.Small"
+                           Class="w-100"
+                @onclick="CancelDownload">
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="d-flex justify-content-center">
+                            <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"></MudIcon>
                         </div>
-                    </MudButton>
-                    @if (_updateTokenSource is null)
-                    {
-                        <MudButton @onclick="UpdateAllDatas"
-                                   Color="Color.Warning"
-                                   Variant="Variant.Outlined"
-                                   Size="Size.Small">
-                            <div class="d-flex align-items-center flex-column">
-                                <div class="d-flex justify-content-center">
-                                    <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Update" Size="Size.Small"></MudIcon>
-                                </div>
-                                <div class="text-center">
-                                    <MudText Class="text-uppercase fw-bold">
-                                        @GetDictionary()[KeyWords.UpdateData]
-                                    </MudText>
-                                </div>
-                            </div>
-                        </MudButton>
-                    }
-                    else
-                    {
-                        <MudButton @onclick="CancelUpdateData"
-                                   Color="Color.Error"
-                                   Variant="Variant.Outlined"
-                                   Size="Size.Small">
-                            <div class="d-flex align-items-center flex-column">
-                                <div class="d-flex justify-content-center">
-                                    <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"></MudIcon>
-                                </div>
-                                <div class="text-center">
-                                    <MudText Class="text-uppercase fw-bold">
-                                        @GetDictionary()[KeyWords.CancelUpdateData]
-                                    </MudText>
-                                </div>
-                            </div>
-                        </MudButton>
-                    }
-                </MudButtonGroup>
-            </div>
-        </div>
+                        <div class="text-center">
+                            <MudText Class="text-uppercase fw-bold">@GetDictionary()[KeyWords.Cancel]</MudText>
+                        </div>
+                    </div>
+                </MudButton>
+            }
+
+            <MudButton @onclick="OpenDialog"
+                        Color="Color.Error"
+                        Variant="Variant.Outlined"
+                        Size="Size.Small"
+            Class="w-100">
+                <div class="d-flex align-items-center flex-column">
+                    <div class="d-flex justify-content-center">
+                        <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Delete" Size="Size.Small"></MudIcon>
+                    </div>
+                    <div class="text-center">
+                        <MudText Class="text-uppercase fw-bold">
+                            @GetDictionary()[KeyWords.Delete] @GetPluralDataTypeName()
+                        </MudText>
+                    </div>
+                </div>
+            </MudButton>
+            @if (_updateTokenSource is null)
+            {
+                <MudButton @onclick="UpdateAllDatas"
+                            Color="Color.Warning"
+                            Variant="Variant.Outlined"
+                            Size="Size.Small"
+                Class="w-100">
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="d-flex justify-content-center">
+                            <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Update" Size="Size.Small"></MudIcon>
+                        </div>
+                        <div class="text-center">
+                            <MudText Class="text-uppercase fw-bold">
+                                @GetDictionary()[KeyWords.UpdateData]
+                            </MudText>
+                        </div>
+                    </div>
+                </MudButton>
+            }
+            else
+            {
+                <MudButton @onclick="CancelUpdateData"
+                            Color="Color.Error"
+                            Variant="Variant.Outlined"
+                            Size="Size.Small"
+                Class="w-100">
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="d-flex justify-content-center">
+                            <MudIcon class="mx-auto" Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"></MudIcon>
+                        </div>
+                        <div class="text-center">
+                            <MudText Class="text-uppercase fw-bold">
+                                @GetDictionary()[KeyWords.CancelUpdateData]
+                            </MudText>
+                        </div>
+                    </div>
+                </MudButton>
+            }
+
+        </MudStack>
     </MudItem>
 </MudGrid>
 <MudGrid Spacing="5">

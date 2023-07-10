@@ -75,15 +75,15 @@ public partial class SavedData<TData> where TData : class
     {
         if (IsVideoModel() is false || _datas == null || _datas.Count == 0)
         {
-            await InvokeAsync(snackbarHelper.ShowNoVideoErrorMessage);
+            snackbarHelper.ShowNoVideoErrorMessage();
             return;
         }
 
         try
         {
-            await InvokeAsync(ShowFFmpegWarningIfNeeded);
-
             var token = InitializeToken();
+            ShowFFmpegWarningIfNeeded();
+
             var progress = new Progress<double>(async val =>
             {
                 await UpdateProgress(val);
@@ -93,11 +93,11 @@ public partial class SavedData<TData> where TData : class
         }
         catch (OperationCanceledException)
         {
-            await InvokeAsync(snackbarHelper.ShowErrorOperationCanceledMessage);
+            snackbarHelper.ShowErrorOperationCanceledMessage();
         }
         catch
         {
-            await InvokeAsync(snackbarHelper.ShowErrorDownloadMessage);
+            snackbarHelper.ShowErrorDownloadMessage();
         }
         finally
         {
@@ -166,18 +166,21 @@ public partial class SavedData<TData> where TData : class
     {
         try
         {
-            var dataCopy = _datas.ToList();
             var token = tokenHelper.InitializeToken(ref _updateTokenSource);
-            
+            var dataCopy = _datas.ToList();
+            string dataTypeName = GetPluralDataTypeName().ToLower();
+
             await generalHelper.UpdateAllDataAsync(dataCopy, token, RemoveData);
+
+            snackbarHelper.ShowSuccessfullyUpdatedDataMessage(dataTypeName);
         }
         catch (OperationCanceledException)
         {
-            await InvokeAsync(snackbarHelper.ShowErrorOperationCanceledMessage);
+            snackbarHelper.ShowErrorOperationCanceledMessage();
         }
         catch
         {
-            await InvokeAsync(snackbarHelper.ShowErrorWhileUpdatingMessage);
+            snackbarHelper.ShowErrorWhileUpdatingMessage();
         }
         finally
         {

@@ -43,17 +43,17 @@ public class GenericSaveHelper<TData> : IGenericSaveHelper<TData> where TData : 
         string name = typeof(TData) switch
         {
             Type channelModelType when channelModelType == typeof(ChannelModel) => GetDictionary()
-                [KeyWords.Channel],
+                [KeyWords.Channels],
 
             Type playlistModelType when playlistModelType == typeof(PlaylistModel) => GetDictionary()
-                [KeyWords.Playlist],
+                [KeyWords.Playlists],
 
             Type videoModelType when videoModelType == typeof(VideoModel) => GetDictionary()
-                [KeyWords.Video],
+                [KeyWords.Videos],
             _ => "",
         };
 
-        return name;
+        return name.ToLower();
     }
 
     private async Task SaveAsync(TData data)

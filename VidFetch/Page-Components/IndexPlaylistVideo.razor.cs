@@ -91,13 +91,13 @@ public partial class IndexPlaylistVideo
             }
             else
             {
-                await InvokeAsync(snackbarHelper.ShowEnterPlaylistUrl);
+                snackbarHelper.ShowEnterPlaylistUrl();
             }
 
         }
         catch
         {
-            await InvokeAsync(snackbarHelper.ShowErrorLoadingPlaylist);
+            snackbarHelper.ShowErrorLoadingPlaylist();
         }
         finally
         {
@@ -169,17 +169,17 @@ public partial class IndexPlaylistVideo
                 await UpdatePlaylistProgress(val);
             });
 
-            await InvokeAsync(ShowFFmpegWarningIfNeeded);
+            ShowFFmpegWarningIfNeeded();
 
             await genericHelper.DownloadAllAsync(_visibleVideos, progress, token);
         }
         catch (OperationCanceledException)
         {
-            await InvokeAsync(snackbarHelper.ShowErrorOperationCanceledMessage);
+            snackbarHelper.ShowErrorOperationCanceledMessage();
         }
         catch
         {
-            await InvokeAsync(snackbarHelper.ShowErrorDownloadMessage);
+            snackbarHelper.ShowErrorDownloadMessage();
         }
         finally
         {
@@ -208,7 +208,7 @@ public partial class IndexPlaylistVideo
     {
         try
         {
-            await InvokeAsync(ShowFFmpegWarningIfNeeded);
+            ShowFFmpegWarningIfNeeded();
 
             var cancellationToken = tokenHelper.InitializeToken(ref _videoTokenSource);
 
@@ -227,7 +227,7 @@ public partial class IndexPlaylistVideo
         }
         catch
         {
-            await InvokeAsync(snackbarHelper.ShowErrorDownloadMessage);
+            snackbarHelper.ShowErrorDownloadMessage();
         }
         finally
         {
@@ -251,11 +251,11 @@ public partial class IndexPlaylistVideo
         }
         catch (OperationCanceledException)
         {
-            await InvokeAsync(snackbarHelper.ShowErrorOperationCanceledMessage);
+            snackbarHelper.ShowErrorOperationCanceledMessage();
         }
         catch
         {
-            await InvokeAsync(snackbarHelper.ShowErrorWhileSavingMessage);
+            snackbarHelper.ShowErrorWhileSavingMessage();
         }
         finally
         {
