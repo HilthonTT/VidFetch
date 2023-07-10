@@ -48,10 +48,10 @@ public partial class PlaylistComponent
     {
         if (_isSaved is false)
         {
+            _isSaved = true;
             await playlistData.SetPlaylistAsync(Playlist.Url, Playlist.PlaylistId);
 
             await AddSnackbar();
-            _isSaved = true;
         }
     }
 

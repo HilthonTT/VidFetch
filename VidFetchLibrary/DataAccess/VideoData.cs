@@ -58,7 +58,9 @@ public class VideoData : IVideoData
     public async Task<VideoModel> GetVideoAsync(string url, string videoId)
     {
         await SetUpDb();
-        string key = GetCache(videoId);
+
+        var defaultVideo = new VideoModel { Url = url, VideoId = videoId };
+        string key = GetCache(defaultVideo);
 
         var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
@@ -92,9 +94,7 @@ public class VideoData : IVideoData
     public async Task<int> SetVideoAsync(string url, string videoId)
     {
         var existingVideo = await GetVideoAsync(url, videoId);
-
-        string key = GetCache(videoId);
-        RemoveCache(key);
+        RemoveCache(existingVideo);
 
         if (existingVideo is null)
         {
@@ -110,17 +110,19 @@ public class VideoData : IVideoData
     public async Task<int> DeleteVideoAsync(VideoModel video)
     {
         await SetUpDb();
+        RemoveCache(video);
 
-        string key = GetCache(video.VideoId);
-        RemoveCache(key);
+        if (video.Id == 0)
+        {
+            video = await GetVideoAsync(video.Url, video.VideoId);
+        }
 
         return await _db.DeleteAsync<VideoModel>(video.Id);
     }
 
-    public void RemoveVideoCache(string videoId)
+    public void RemoveVideoCache(VideoModel video)
     {
-        string key = GetCache(videoId);
-
+        string key = GetCache(video);
         _cache.Remove(key);
     }
 
@@ -136,20 +138,20 @@ public class VideoData : IVideoData
         return await _db.UpdateAsync(video);
     }
 
-    private void RemoveCache(string videoId = "")
+    private void RemoveCache(VideoModel video)
     {
         _cache.Remove(CacheName);
 
-        if (string.IsNullOrWhiteSpace(videoId) is false)
+        if (video is not null)
         {
-            string key = GetCache(videoId);
+            string key = GetCache(video);
             _cache.Remove(key);
         }
     }
 
-    private static string GetCache(string videoId)
+    private static string GetCache(VideoModel video)
     {
-        return $"{CacheName}-{videoId}";
+        return $"{CacheName}-{video.Url}";
     }
 
     private async Task<VideoModel> FillDataAsync(VideoModel video)

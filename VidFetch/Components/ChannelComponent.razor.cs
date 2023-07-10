@@ -45,10 +45,10 @@ public partial class ChannelComponent
     {
         if (_isSaved is false)
         {
+            _isSaved = true;
             await channelData.SetChannelAsync(Channel.Url, Channel.ChannelId);
 
             await AddSnackbar();
-            _isSaved = true;
         }
     }
 

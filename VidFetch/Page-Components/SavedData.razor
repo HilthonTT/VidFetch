@@ -97,7 +97,7 @@
                         <PlaylistComponent @key="p.PlaylistId"
                                            Playlist="p"
                                            CardSize="4"
-                                           RemoveEvent="(() => RemoveData((TData)(dynamic)p))" />
+                                           RemoveEvent="(() => DeleteData((TData)(dynamic)p))" />
                     </MudVirtualize>
                 }
             </MudGrid>

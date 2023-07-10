@@ -58,11 +58,14 @@ public class PlaylistData : IPlaylistData
     public async Task<PlaylistModel> GetPlaylistAsync(string url, string playlistId)
     {
         await SetUpDb();
-        string key = GetCache(playlistId);
+
+        var defaultPlaylist = new PlaylistModel { Url = url, PlaylistId = playlistId };
+        string key = GetCache(defaultPlaylist);
 
         var output = await _cache.GetOrCreateAsync(key, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
+            
             return await _db.Table<PlaylistModel>().FirstOrDefaultAsync(v => v.PlaylistId == playlistId || v.Url == url);
         });
 
@@ -91,9 +94,7 @@ public class PlaylistData : IPlaylistData
     public async Task<int> SetPlaylistAsync(string url, string playlistId)
     {
         var existingPlaylist = await GetPlaylistAsync(url, playlistId);
-
-        string key = GetCache(playlistId);
-        RemoveCache(key);
+        RemoveCache(existingPlaylist);
 
         if (existingPlaylist is null)
         {
@@ -109,10 +110,15 @@ public class PlaylistData : IPlaylistData
     public async Task<int> DeletePlaylistAsync(PlaylistModel playlist)
     {
         await SetUpDb();
-        string key = GetCache(playlist.PlaylistId);
 
-        RemoveCache(key);
-        return await _db.DeleteAsync<VideoModel>(playlist.Id);
+        RemoveCache(playlist);
+
+        if (playlist.Id == 0)
+        {
+            playlist = await GetPlaylistAsync(playlist.Url, playlist.PlaylistId);
+        }
+
+        return await _db.DeleteAsync<PlaylistModel>(playlist.Id);
     }
 
     private async Task<int> CreatePlaylistAsync(PlaylistModel playlist)
@@ -127,20 +133,20 @@ public class PlaylistData : IPlaylistData
         return await _db.UpdateAsync(playlist);
     }
 
-    private void RemoveCache(string playlistId = "")
+    private void RemoveCache(PlaylistModel playlist)
     {
         _cache.Remove(CacheName);
 
-        if (string.IsNullOrWhiteSpace(playlistId) is false)
+        if (playlist is not null)
         {
-            string key = GetCache(playlistId);
+            string key = GetCache(playlist);
             _cache.Remove(key);
         }
     }
 
-    private static string GetCache(string playlistId)
+    private static string GetCache(PlaylistModel playlist)
     {
-        return $"{CacheName}-{playlistId}";
+        return $"{CacheName}-{playlist.Url}";
     }
 
     private async Task<PlaylistModel> FillDataAsync(PlaylistModel playlist)

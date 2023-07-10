@@ -124,19 +124,19 @@ public partial class VideoComponent
     {
         if (_isSaved is false)
         {
+            _isSaved = true;
             await videoData.SetVideoAsync(Video.Url, Video.VideoId);
 
             await InvokeAsync(() =>
             {
                 snackbarHelper.ShowSuccessfullySavedMessage(Video.Title);
             });
-            _isSaved = true;
         }
     }
 
     private async Task Remove()
     {
-        videoData.RemoveVideoCache(Video.VideoId);
+        videoData.RemoveVideoCache(Video);
         await RemoveEvent.InvokeAsync(Video);
     }
 
