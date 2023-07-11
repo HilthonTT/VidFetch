@@ -1,4 +1,5 @@
 ﻿using VidFetchLibrary.DataAccess;
+using VidFetchLibrary.Library;
 
 namespace VidFetchLibrary.Language;
 public class LanguageExtension : ILanguageExtension
@@ -7,6 +8,7 @@ public class LanguageExtension : ILanguageExtension
     private readonly IEnglishDictionary _english;
     private readonly IFrenchDictionary _french;
     private readonly IIndonesianDictionary _indonesian;
+    private SettingsLibrary _settings;
 
     public LanguageExtension(ISettingsData settingsData,
                              IEnglishDictionary english,
@@ -17,13 +19,18 @@ public class LanguageExtension : ILanguageExtension
         _english = english;
         _french = french;
         _indonesian = indonesian;
+
+        InitializeSettings();
+    }
+
+    private void InitializeSettings()
+    {
+        _settings = _settingsData.GetSettings();
     }
 
     public Dictionary<KeyWords, string> GetDictionary(string text = "")
     {
-        var settings = _settingsData.GetSettings();
-
-        return settings.SelectedLanguage switch
+        return _settings.SelectedLanguage switch
         {
             Data.Language.English => _english.GetDictionary(text),
             Data.Language.French => _french.GetDictionary(text),

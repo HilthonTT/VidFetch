@@ -1,4 +1,6 @@
-﻿namespace VidFetchLibrary.Language;
+﻿using System.Globalization;
+
+namespace VidFetchLibrary.Language;
 
 public interface ILanguageExtension
 {

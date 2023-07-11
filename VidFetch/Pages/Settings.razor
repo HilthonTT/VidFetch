@@ -23,27 +23,32 @@
                             <div class="d-flex align-items-center mb-3">
                                 <MudText class="mr-2">@GetDictionary()[KeyWords.DarkMode]</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.IsDarkMode"
-                                           Color="MudBlazor.Color.Primary" />
+                                           Color="MudBlazor.Color.Primary"
+                                           Culture="GetCulture()"/>
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudText class="mr-2">@GetDictionary()[KeyWords.DownloadSubtitles]</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.DownloadSubtitles"
-                                           Color="MudBlazor.Color.Primary" />
+                                           Color="MudBlazor.Color.Primary"
+                                           Culture="GetCulture()" />
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudText class="mr-2">@GetDictionary()[KeyWords.AutoSaveVideo]</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.SaveVideos"
-                                           Color="MudBlazor.Color.Primary" />
+                                           Color="MudBlazor.Color.Primary"
+                                           Culture="GetCulture()" />
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudText class="mr-2">@GetDictionary()[KeyWords.CreateSubdirectory]</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.CreateSubDirectoryPlaylist"
-                                           Color="MudBlazor.Color.Primary" />
+                                           Color="MudBlazor.Color.Primary"
+                                           Culture="GetCulture()" />
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudText class="mr-2">@GetDictionary()[KeyWords.RemoveVideoDownload]</MudText>
                                 <MudSwitch @bind-Checked="_settingsModel.RemoveAfterDownload"
-                                           Color="MudBlazor.Color.Primary" />
+                                           Color="MudBlazor.Color.Primary"
+                                           Culture="GetCulture()" />
                             </div>
                         </MudItem>
                         <MudItem xs="6">
@@ -52,7 +57,8 @@
                                            Label="@GetDictionary()[KeyWords.DownloadPath]"
                                            Class="mud-input-root text-start"
                                            HelperText="@GetDictionary()[KeyWords.SelectedPath]"
-                                           Required="true">
+                                           Required="true"
+                                           Culture="GetCulture()">
                                     @foreach (var p in _paths)
                                     {
                                         <MudSelectItem Value="@p">
@@ -66,7 +72,8 @@
                                            Label="@GetDictionary()[KeyWords.VideoFormat]"
                                            Class="mud-input-root text-start"
                                            HelperText="@GetDictionary()[KeyWords.SelectedFormat]"
-                                           Required="true">
+                                           Required="true" 
+                                           Culture="GetCulture()">
                                     @foreach (var f in _formats)
                                     {
                                         <MudSelectItem Value="@f">@f</MudSelectItem>
@@ -79,7 +86,8 @@
                                            Class="mud-input-root text-start"
                                            HelperText="@GetDictionary()[KeyWords.SelectedResolution]"
                                            Required="true"
-                                           FullWidth="true">
+                                           FullWidth="true"
+                                           Culture="GetCulture()">
                                     @foreach (var f in _resolutions)
                                     {
                                         <MudSelectItem Value="@f">@GetSpacedString(f.ToString())</MudSelectItem>
@@ -91,7 +99,8 @@
                                            Label="@GetDictionary()[KeyWords.Language]"
                                            Class="mud-input-root text-start"
                                            HelperText="@GetDictionary()[KeyWords.SelectedLanguage]"
-                                           Required="true">
+                                           Required="true"
+                                           Culture="GetCulture()">
                                     @foreach (var l in _languages)
                                     {
                                         <MudSelectItem Value="@l">
@@ -134,7 +143,8 @@
                                               Label="@GetDictionary()[KeyWords.Ffmpeg]"
                                               FullWidth="true"
                                               Clearable="true"
-                                              OnClearButtonClick="ClearFfmpegPath" />
+                                              OnClearButtonClick="ClearFfmpegPath"
+                                              Culture="GetCulture()" />
                             </div>
                             <div class="d-flex align-items-center mb-3">
                                 <MudSelect @bind-Value="_ffmpegSettingsModel.SelectedResolution"
@@ -142,7 +152,8 @@
                                            Class="mud-input-root text-start"
                                            HelperText="@GetDictionary()[KeyWords.SelectedResolution]"
                                            Required="true"
-                                           FullWidth="true">
+                                           FullWidth="true"
+                                           Culture="GetCulture()">
                                     @foreach (var f in _resolutions)
                                     {
                                         <MudSelectItem Value="@f">@GetSpacedString(f.ToString())</MudSelectItem>

@@ -63,7 +63,8 @@
                              OnAdornmentClick="FilterData"
                              SearchFunc="FilterSearchData"
                              ResetValueOnEmptyText="true"
-                             ValueChanged="HandleSearchValueChanged" />
+                             ValueChanged="HandleSearchValueChanged" 
+                             Culture="GetCulture()"/>
         </div>
         @if (_visibleData?.Count > 0 || _datas?.Count > 0)
         {

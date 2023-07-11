@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using System.Globalization;
 using VidFetchLibrary.Language;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
@@ -434,6 +435,12 @@ public partial class IndexPlaylistVideo
     {
         var dictionary = languageExtension.GetDictionary(text);
         return dictionary;
+    }
+
+    private static CultureInfo GetCulture()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        return culture;
     }
 
     private bool IsFFmpegInvalid()

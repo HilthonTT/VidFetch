@@ -1,3 +1,4 @@
+using System.Globalization;
 using VidFetchLibrary.Data;
 using VidFetchLibrary.Language;
 using VidFetchLibrary.Models;
@@ -181,8 +182,15 @@ public partial class SearchData<TData> where TData : class
 
     private Dictionary<KeyWords, string> GetDictionary()
     {
+        GetCulture();
         var dictionary = languageExtension.GetDictionary();
         return dictionary;
+    }
+
+    private static CultureInfo GetCulture()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        return culture;
     }
 
     private List<VideoModel> GetVideos()

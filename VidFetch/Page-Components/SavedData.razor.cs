@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Models;
 using VidFetchLibrary.Language;
+using System.Globalization;
 
 namespace VidFetch.Page_Components;
 
@@ -345,6 +346,12 @@ public partial class SavedData<TData> where TData : class
     {
         var dictionary = languageExtension.GetDictionary(text);
         return dictionary;
+    }
+
+    private static CultureInfo GetCulture()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        return culture;
     }
 
     private List<VideoModel> GetVideos()

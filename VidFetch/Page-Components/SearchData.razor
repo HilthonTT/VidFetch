@@ -18,7 +18,8 @@
                       AdornmentIcon="@Icons.Material.Filled.Download"
                       OnAdornmentClick="SearchTData"
                       Required="true"
-                      Clearable="true"/>
+                      Clearable="true"
+                      Culture="GetCulture()"/>
     </MudItem>
 </MudGrid>
 <MudGrid Spacing="5">
@@ -38,13 +39,13 @@
                         StartIcon="@Icons.Material.Filled.Search"
                         Label="@GetDictionary()[KeyWords.Search]" />
             }
-            <MudNumericField 
-                @bind-Value="_maxItemsBeingLoaded"
-                HideSpinButtons="true" 
-                Label="@GetDictionary()[KeyWords.Amount]" 
-                HelperText="@GetDictionary()[KeyWords.SearchTakeLongerWarning]"
-                Variant="Variant.Outlined" 
-                Step="1" />
+            <MudNumericField @bind-Value="_maxItemsBeingLoaded"
+                             HideSpinButtons="true"
+                             Label="@GetDictionary()[KeyWords.Amount]"
+                             HelperText="@GetDictionary()[KeyWords.SearchTakeLongerWarning]"
+                             Variant="Variant.Outlined"
+                             Step="1"
+                             Culture="GetCulture()" />
             <MudAutocomplete T="string"
                              Label="@GetSearchBarText()"
                              HelperText="@GetDictionary()[KeyWords.SearchLoadedItems]"
@@ -53,7 +54,8 @@
                              OnAdornmentClick="FilterData"
                              SearchFunc="FilterSearchData"
                              ResetValueOnEmptyText="true"
-                             ValueChanged="HandleSearchValueChanged" />
+                             ValueChanged="HandleSearchValueChanged" 
+                             Culture="GetCulture()" />
             <MudFab OnClick="ClearData"
                     Color="Color.Error"
                     StartIcon="@Icons.Material.Filled.Delete"

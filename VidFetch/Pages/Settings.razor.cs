@@ -3,6 +3,7 @@ using VidFetch.Models;
 using VidFetchLibrary.Library;
 using VidFetchLibrary.Data;
 using VidFetchLibrary.Language;
+using System.Globalization;
 
 namespace VidFetch.Pages;
 
@@ -128,6 +129,12 @@ public partial class Settings
     {
         var dictionary = languageExtension.GetDictionary();
         return dictionary;
+    }
+
+    private static CultureInfo GetCulture()
+    {
+        var culture = CultureInfo.CurrentCulture;
+        return culture;
     }
 
     private string GetLanguage(Language language)

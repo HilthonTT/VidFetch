@@ -57,7 +57,8 @@
                              OnAdornmentClick="FilterPlaylistVideo"
                              SearchFunc="SearchPlaylistVideos"
                              ResetValueOnEmptyText="true"
-                             ValueChanged="HandleSearchValueChanged" />
+                             ValueChanged="HandleSearchValueChanged" 
+                             Culture="GetCulture()"/>
         </div>
         @if (_visibleVideos?.Count > 0 || videoLibrary.PlaylistVideos.Count > 0)
         {
