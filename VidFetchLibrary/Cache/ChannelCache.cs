@@ -9,7 +9,6 @@ namespace VidFetchLibrary.Cache;
 public class ChannelCache : IChannelCache
 {
     private const int CacheTime = 5;
-    private const int MaxDataCount = 200;
     private readonly IMemoryCache _cache;
     private readonly YoutubeClient _youtube;
 
@@ -57,6 +56,7 @@ public class ChannelCache : IChannelCache
 
     public async Task<List<ChannelModel>> GetChannelBySearchAsync(
         string searchInput,
+        int count,
         CancellationToken token = default)
     {
         string key = CacheChannelSearch(searchInput);
@@ -67,7 +67,7 @@ public class ChannelCache : IChannelCache
 
             var results = await _youtube.Search
                .GetChannelsAsync(searchInput, token)
-               .CollectAsync(MaxDataCount);
+               .CollectAsync(count);
 
             return results;
         });

@@ -8,7 +8,6 @@ namespace VidFetchLibrary.Cache;
 public class PlaylistCache : IPlaylistCache
 {
     private const int CacheTime = 5;
-    private const int MaxDataCount = 200;
     private readonly IMemoryCache _cache;
     private readonly YoutubeClient _youtube;
 
@@ -42,6 +41,7 @@ public class PlaylistCache : IPlaylistCache
 
     public async Task<List<PlaylistModel>> GetPlaylistsBySearchAsync(
         string searchInput,
+        int count,
         CancellationToken token = default)
     {
         string key = CachePlaylistSearch(searchInput);
@@ -51,7 +51,7 @@ public class PlaylistCache : IPlaylistCache
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
             var results = await _youtube.Search.GetPlaylistsAsync(searchInput, token)
-               .CollectAsync(MaxDataCount);
+               .CollectAsync(count);
 
             return results;
         });

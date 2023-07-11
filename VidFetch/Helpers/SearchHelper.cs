@@ -15,13 +15,13 @@ public class SearchHelper<TData> : ISearchHelper<TData> where TData : class
         _videoLibrary = videoLibrary;
     }
 
-    public async Task<List<TData>> GetBySearchAsync(string url, CancellationToken token)
+    public async Task<List<TData>> GetBySearchAsync(string url, int count, CancellationToken token)
     {
         return typeof(TData) switch
         {
-            Type video when video == typeof(VideoModel) => await GetVideosBySearchAsync(url, token),
-            Type channel when channel == typeof(ChannelModel) => await GetChannelsBySearchAsync(url, token),
-            Type playlist when playlist == typeof(PlaylistModel) => await GetPlaylistsBySearchAsync(url, token),
+            Type video when video == typeof(VideoModel) => await GetVideosBySearchAsync(url, count, token),
+            Type channel when channel == typeof(ChannelModel) => await GetChannelsBySearchAsync(url, count, token),
+            Type playlist when playlist == typeof(PlaylistModel) => await GetPlaylistsBySearchAsync(url, count, token),
             _ => default,
         };
     }
@@ -69,21 +69,21 @@ public class SearchHelper<TData> : ISearchHelper<TData> where TData : class
         return output;
     }
 
-    private async Task<List<TData>> GetVideosBySearchAsync(string url, CancellationToken token)
+    private async Task<List<TData>> GetVideosBySearchAsync(string url, int count, CancellationToken token)
     {
-        _videoLibrary.VideoResults = await _youtube.GetVideosBySearchAsync(url, token);
+        _videoLibrary.VideoResults = await _youtube.GetVideosBySearchAsync(url, count, token);
         return _videoLibrary.VideoResults as List<TData>;
     }
 
-    private async Task<List<TData>> GetChannelsBySearchAsync(string url, CancellationToken token)
+    private async Task<List<TData>> GetChannelsBySearchAsync(string url, int count, CancellationToken token)
     {
-        _videoLibrary.ChannelResults = await _youtube.GetChannelsBySearchAsync(url, token);
+        _videoLibrary.ChannelResults = await _youtube.GetChannelsBySearchAsync(url, count, token);
         return _videoLibrary.ChannelResults as List<TData>;
     }
 
-    private async Task<List<TData>> GetPlaylistsBySearchAsync(string url, CancellationToken token)
+    private async Task<List<TData>> GetPlaylistsBySearchAsync(string url, int count, CancellationToken token)
     {
-        _videoLibrary.PlaylistResults = await _youtube.GetPlaylistsBySearchAsync(url, token);
+        _videoLibrary.PlaylistResults = await _youtube.GetPlaylistsBySearchAsync(url, count, token);
         return _videoLibrary.PlaylistResults as List<TData>;
     }
 }

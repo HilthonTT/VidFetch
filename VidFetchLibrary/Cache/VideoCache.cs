@@ -123,6 +123,7 @@ public class VideoCache : IVideoCache
 
     public async Task<List<VideoModel>> GetVideosBySearchAsync(
         string searchInput,
+        int count,
         CancellationToken token = default)
     {
         string key = CacheVideoSearch(searchInput);
@@ -132,7 +133,7 @@ public class VideoCache : IVideoCache
             entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(CacheTime);
 
             var results = await _youtube.Search.GetVideosAsync(searchInput, token)
-               .CollectAsync(MaxDataCount);
+               .CollectAsync(count);
 
             return results;
         });

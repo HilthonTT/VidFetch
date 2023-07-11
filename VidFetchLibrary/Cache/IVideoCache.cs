@@ -9,6 +9,6 @@ public interface IVideoCache
     Task<List<VideoModel>> GetChannelVideosAsync(string url, CancellationToken token = default);
     Task<List<VideoModel>> GetPlayListVideosAsync(string url, CancellationToken token = default);
     Task<VideoModel> GetVideoAsync(string url, CancellationToken token = default);
-    Task<List<VideoModel>> GetVideosBySearchAsync(string searchInput, CancellationToken token = default);
+    Task<List<VideoModel>> GetVideosBySearchAsync(string searchInput, int count, CancellationToken token = default);
     Task<Video> LoadYoutubeExplodeVideoAsync(string url, CancellationToken token = default);
 }

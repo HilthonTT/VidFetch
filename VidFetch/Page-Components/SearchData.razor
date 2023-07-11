@@ -4,10 +4,8 @@
 @inject ITokenHelper tokenHelper
 @inject ISearchHelper<TData> searchHelper
 @inject IVideoLibraryFilterHelper<TData> filterHelper
-@inject IFolderHelper folderHelper
 @inject ILoadedItemsCache loadedItemsCache
 @inject ILanguageExtension languageExtension
-
 
 <MudGrid Spacing="5">
     <MudItem xs="12" Class="text-center">
@@ -20,7 +18,7 @@
                       AdornmentIcon="@Icons.Material.Filled.Download"
                       OnAdornmentClick="SearchTData"
                       Required="true"
-                      Clearable="true" />
+                      Clearable="true"/>
     </MudItem>
 </MudGrid>
 <MudGrid Spacing="5">
@@ -32,7 +30,6 @@
                         Color="Color.Error"
                         StartIcon="@Icons.Material.Filled.Cancel"
                         Label="@GetDictionary()[KeyWords.Cancel]" />
-
             }
             else
             {
@@ -41,18 +38,22 @@
                         StartIcon="@Icons.Material.Filled.Search"
                         Label="@GetDictionary()[KeyWords.Search]" />
             }
+            <MudNumericField 
+                @bind-Value="_maxItemsBeingLoaded"
+                HideSpinButtons="true" 
+                Label="Amount" 
+                HelperText="Searching might take longer depending on the amount."
+                Variant="Variant.Outlined" 
+                Step="1" />
             <MudAutocomplete T="string"
                              Label="@GetSearchBarText()"
+                             HelperText="Search your loaded items."
                              Variant="Variant.Outlined"
                              AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
                              OnAdornmentClick="FilterData"
                              SearchFunc="FilterSearchData"
                              ResetValueOnEmptyText="true"
                              ValueChanged="HandleSearchValueChanged" />
-            <MudFab OnClick="OpenFileLocation"
-                    Color="Color.Warning"
-                    StartIcon="@Icons.Material.Filled.Folder"
-                    Label="@GetDictionary()[KeyWords.OpenFolderLocation]" />
             <MudFab OnClick="ClearData"
                     Color="Color.Error"
                     StartIcon="@Icons.Material.Filled.Delete"
@@ -103,6 +104,3 @@
         }
     </MudItem>
 </MudGrid>
-
-
-

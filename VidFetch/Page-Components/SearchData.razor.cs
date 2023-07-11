@@ -14,6 +14,7 @@ public partial class SearchData<TData> where TData : class
     private string _url = "";
     private string _searchText = "";
     private int _loadedItems = 6;
+    private int _maxItemsBeingLoaded = 50;
 
     protected override void OnInitialized()
     {
@@ -58,7 +59,7 @@ public partial class SearchData<TData> where TData : class
 
         var token = tokenHelper.InitializeToken(ref _tokenSource);
 
-        _visibleData = await searchHelper.GetBySearchAsync(_url, token);
+        _visibleData = await searchHelper.GetBySearchAsync(_url, _maxItemsBeingLoaded, token);
         CancelDataSearch();
     }
 
@@ -67,11 +68,6 @@ public partial class SearchData<TData> where TData : class
         var list = GetList();
 
         return await filterHelper.FilterSearchData(list, searchInput);
-    }
-
-    private async Task OpenFileLocation()
-    {
-        await folderHelper.OpenFolderLocationAsync();
     }
 
     private void HandleSearchValueChanged(string value)

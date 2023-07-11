@@ -79,25 +79,28 @@ public class Youtube : IYoutube
 
     public async Task<List<VideoModel>> GetVideosBySearchAsync(
         string searchInput,
+        int count,
         CancellationToken token)
     {
-        var videos = await _videoCache.GetVideosBySearchAsync(searchInput, token);
+        var videos = await _videoCache.GetVideosBySearchAsync(searchInput, count, token);
         return videos;
     }
 
     public async Task<List<ChannelModel>> GetChannelsBySearchAsync(
         string searchInput,
+        int count,
         CancellationToken token)
     {
-        var channels = await _channelCache.GetChannelBySearchAsync(searchInput, token);
+        var channels = await _channelCache.GetChannelBySearchAsync(searchInput, count, token);
         return channels;
     }
 
     public async Task<List<PlaylistModel>> GetPlaylistsBySearchAsync(
         string searchInput,
+        int count,
         CancellationToken token)
     {
-        var playlists = await _playlistCache.GetPlaylistsBySearchAsync(searchInput, token);
+        var playlists = await _playlistCache.GetPlaylistsBySearchAsync(searchInput, count, token);
         return playlists;
     }
 }
