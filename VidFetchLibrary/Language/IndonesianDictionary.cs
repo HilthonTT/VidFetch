@@ -117,6 +117,8 @@ public class IndonesianDictionary : IIndonesianDictionary
             { KeyWords.FfmpegHelperText, "Masukkan jalur file ffmpeg Anda ke .exe" },
             { KeyWords.Ffmpeg, "Jalur File Ffmpeg" },
             { KeyWords.FfmpegSettings, "Pengaturan Ffmpeg" },
+            { KeyWords.SearchTakeLongerWarning, "Pencarian mungkin memakan waktu lebih lama tergantung pada jumlahnya." },
+            { KeyWords.Amount, "Jumlah" },
             { KeyWords.English, "Inggris" },
             { KeyWords.French, "Prancis" },
             { KeyWords.Indonesian, "Indonesia" },

@@ -41,8 +41,8 @@
             <MudNumericField 
                 @bind-Value="_maxItemsBeingLoaded"
                 HideSpinButtons="true" 
-                Label="Amount" 
-                HelperText="Searching might take longer depending on the amount."
+                Label="@GetDictionary()[KeyWords.Amount]" 
+                HelperText="@GetDictionary()[KeyWords.SearchTakeLongerWarning]"
                 Variant="Variant.Outlined" 
                 Step="1" />
             <MudAutocomplete T="string"

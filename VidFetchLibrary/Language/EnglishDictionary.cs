@@ -117,6 +117,8 @@ public class EnglishDictionary : IEnglishDictionary
             { KeyWords.FfmpegHelperText, "Input your ffmpeg file path to the .exe" },
             { KeyWords.Ffmpeg, "Ffmpeg File Path" },
             { KeyWords.FfmpegSettings, "Ffmpeg Settings" },
+            { KeyWords.SearchTakeLongerWarning, "Searching might take longer depending on the amount." },
+            { KeyWords.Amount, "Amount" },
             { KeyWords.English, "English" },
             { KeyWords.French, "French" },
             { KeyWords.Indonesian, "Indonesian" },

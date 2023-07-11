@@ -117,6 +117,8 @@ public class FrenchDictionary : IFrenchDictionary
             { KeyWords.FfmpegHelperText, "Entrez le chemin d'accès de votre fichier ffmpeg .exe" },
             { KeyWords.Ffmpeg, "Chemin d'accès du fichier Ffmpeg" },
             { KeyWords.FfmpegSettings, "Paramètres Ffmpeg" },
+            { KeyWords.SearchTakeLongerWarning, "La recherche peut prendre plus de temps en fonction de la quantité." },
+            { KeyWords.Amount, "Quantité" },
             { KeyWords.English, "Anglais" },
             { KeyWords.French, "Français" },
             { KeyWords.Indonesian, "Indonésien" },

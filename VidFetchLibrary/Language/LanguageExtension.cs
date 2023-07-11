@@ -117,6 +117,8 @@ public enum KeyWords
     FfmpegHelperText,
     Ffmpeg,
     FfmpegSettings,
+    SearchTakeLongerWarning,
+    Amount,
     English,
     French,
     Indonesian,
