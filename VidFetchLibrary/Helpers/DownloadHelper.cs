@@ -190,12 +190,13 @@ public class DownloadHelper : IDownloadHelper
             .GetWithHighestVideoQuality();
         try
         {
+            string qualityLabel = GetVideoQualityLabel(settings);
             var videoStreamInfo = settings.SelectedResolution switch
             {
                 VideoResolution.HighestResolution => highestVideoResolutionStream,
 
                 _ => streamManifest.GetVideoStreams()
-                    .First(s => s.VideoQuality.Label == GetVideoQualityLabel(settings)),
+                    .First(s => s.VideoQuality.Label.Contains(qualityLabel)),
             };
 
             return videoStreamInfo;
@@ -210,16 +211,18 @@ public class DownloadHelper : IDownloadHelper
         StreamManifest streamManifest,
         SettingsLibrary settings)
     {
-        var highestResolutionStream = streamManifest.GetMuxedStreams()
-                .GetWithHighestVideoQuality();
+        var highestResolutionStream = streamManifest
+            .GetMuxedStreams()
+            .GetWithHighestVideoQuality();
         try
         {
+            string qualityLabel = GetVideoQualityLabel(settings);
             var videoStreamInfo = settings.SelectedResolution switch
             {
                 VideoResolution.HighestResolution => highestResolutionStream,
 
                 _ => streamManifest.GetMuxedStreams()
-                    .First(s => s.VideoQuality.Label == GetVideoQualityLabel(settings)),
+                    .First(s => s.VideoQuality.Label.Contains(qualityLabel)),
             };
 
             return videoStreamInfo;

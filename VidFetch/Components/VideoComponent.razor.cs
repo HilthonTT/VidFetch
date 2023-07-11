@@ -53,13 +53,13 @@ public partial class VideoComponent
 
     private async Task LoadAuthorThumbnail()
     {
+
         bool isAuthorThumbnailEmpty = string.IsNullOrWhiteSpace(Video.AuthorThumbnailUrl);
 
         if (isAuthorThumbnailEmpty)
         {
             var channel = await youtube.GetChannelAsync(Video.AuthorUrl);
-            string channelThumbnail = string.IsNullOrWhiteSpace(channel.ThumbnailUrl) ? "" : channel.ThumbnailUrl;
-            Video.AuthorThumbnailUrl = channelThumbnail;
+            Video.AuthorThumbnailUrl = channel.ThumbnailUrl;
 
             await InvokeAsync(StateHasChanged);
         }

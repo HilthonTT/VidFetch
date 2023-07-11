@@ -80,12 +80,14 @@ public partial class IndexData<TData> where TData : class
             ShowFFmpegWarningIfNeeded();
 
             var token = tokenHelper.InitializeToken(ref _downloadTokenSource);
+            var videoCopy = _visibleData.ToList();
+
             var progress = new Progress<double>(async val =>
             {
                 await UpdateProgress(val);
             });
 
-            await generalHelper.DownloadAllAsync(_visibleData, progress, token, RemoveDataIfRemoveAfterDownload);
+            await generalHelper.DownloadAllAsync(videoCopy, progress, token, RemoveDataIfRemoveAfterDownload);
         }
         catch (OperationCanceledException)
         {

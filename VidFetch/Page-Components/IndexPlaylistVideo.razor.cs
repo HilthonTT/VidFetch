@@ -164,6 +164,7 @@ public partial class IndexPlaylistVideo
         try
         {
             var token = InitializeTokenForPlaylists();
+            var videoCopy = _visibleVideos.ToList();
 
             var progress = new Progress<double>(async val =>
             {
@@ -172,7 +173,7 @@ public partial class IndexPlaylistVideo
 
             ShowFFmpegWarningIfNeeded();
 
-            await genericHelper.DownloadAllAsync(_visibleVideos, progress, token);
+            await genericHelper.DownloadAllAsync(videoCopy, progress, token);
         }
         catch (OperationCanceledException)
         {
