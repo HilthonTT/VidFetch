@@ -119,6 +119,7 @@ public enum KeyWords
     FfmpegSettings,
     SearchTakeLongerWarning,
     Amount,
+    SearchLoadedItems,
     English,
     French,
     Indonesian,

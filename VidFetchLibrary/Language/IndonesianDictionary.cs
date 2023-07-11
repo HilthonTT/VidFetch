@@ -119,6 +119,7 @@ public class IndonesianDictionary : IIndonesianDictionary
             { KeyWords.FfmpegSettings, "Pengaturan Ffmpeg" },
             { KeyWords.SearchTakeLongerWarning, "Pencarian mungkin memakan waktu lebih lama tergantung pada jumlahnya." },
             { KeyWords.Amount, "Jumlah" },
+            { KeyWords.SearchLoadedItems, "Cari barang yang Anda muat." },
             { KeyWords.English, "Inggris" },
             { KeyWords.French, "Prancis" },
             { KeyWords.Indonesian, "Indonesia" },

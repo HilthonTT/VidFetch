@@ -119,6 +119,7 @@ public class FrenchDictionary : IFrenchDictionary
             { KeyWords.FfmpegSettings, "Paramètres Ffmpeg" },
             { KeyWords.SearchTakeLongerWarning, "La recherche peut prendre plus de temps en fonction de la quantité." },
             { KeyWords.Amount, "Quantité" },
+            { KeyWords.SearchLoadedItems, "Recherchez vos articles chargés." },
             { KeyWords.English, "Anglais" },
             { KeyWords.French, "Français" },
             { KeyWords.Indonesian, "Indonésien" },

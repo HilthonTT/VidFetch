@@ -47,7 +47,7 @@
                 Step="1" />
             <MudAutocomplete T="string"
                              Label="@GetSearchBarText()"
-                             HelperText="Search your loaded items."
+                             HelperText="@GetDictionary()[KeyWords.SearchLoadedItems]"
                              Variant="Variant.Outlined"
                              AdornmentIcon="@Icons.Material.Filled.YoutubeSearchedFor"
                              OnAdornmentClick="FilterData"

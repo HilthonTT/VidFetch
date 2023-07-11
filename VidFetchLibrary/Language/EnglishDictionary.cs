@@ -119,6 +119,7 @@ public class EnglishDictionary : IEnglishDictionary
             { KeyWords.FfmpegSettings, "Ffmpeg Settings" },
             { KeyWords.SearchTakeLongerWarning, "Searching might take longer depending on the amount." },
             { KeyWords.Amount, "Amount" },
+            { KeyWords.SearchLoadedItems, "Search your loaded items." },
             { KeyWords.English, "English" },
             { KeyWords.French, "French" },
             { KeyWords.Indonesian, "Indonesian" },
