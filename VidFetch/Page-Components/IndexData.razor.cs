@@ -124,6 +124,8 @@ public partial class IndexData<TData> where TData : class
         tokenHelper.CancelRequest(ref _downloadTokenSource);
         _downloadingVideoText = "";
         _progress = 0;
+
+        StateHasChanged();
     }
 
     private async Task LoadData()

@@ -318,6 +318,7 @@ public partial class IndexPlaylistVideo
         tokenHelper.CancelRequest(ref _playlistTokenSource);
         _playlistProgress = 0;
         _currentDownloadingVideo = "";
+
         StateHasChanged();
     }
 

@@ -181,12 +181,13 @@ public class DownloadHelper : IDownloadHelper
         return requestBuilder;
     }
 
-    private IVideoStreamInfo GetFfmpegVideoStream(
+    private static IVideoStreamInfo GetFfmpegVideoStream(
         StreamManifest streamManifest,
         SettingsLibrary settings)
     {
-        var highestVideoResolutionStream = streamManifest.GetVideoStreams()
-                    .GetWithHighestVideoQuality();
+        var highestVideoResolutionStream = streamManifest
+            .GetVideoStreams()
+            .GetWithHighestVideoQuality();
         try
         {
             var videoStreamInfo = settings.SelectedResolution switch
@@ -205,7 +206,7 @@ public class DownloadHelper : IDownloadHelper
         }
     }
 
-    private IVideoStreamInfo GetVideoStream(
+    private static IVideoStreamInfo GetVideoStream(
         StreamManifest streamManifest,
         SettingsLibrary settings)
     {

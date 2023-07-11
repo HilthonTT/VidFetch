@@ -218,6 +218,8 @@ public partial class SavedData<TData> where TData : class
         tokenHelper.CancelRequest(ref _allVideosTokenSource);
         _videosProgress = 0;
         _downloadingVideoText = "";
+
+        StateHasChanged();
     }
 
     private void CancelUpdateData()
